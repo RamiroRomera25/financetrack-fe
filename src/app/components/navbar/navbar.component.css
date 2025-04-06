@@ -1,0 +1,153 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #14a12c 0%, #2563eb 100%);
+  color: white;
+  padding: 0 1.5rem;
+  height: 70px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo y nombre de la app */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-right: 1rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.logo {
+  height: 42px;
+  border-radius: 6px;
+}
+
+.app-name {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Navegación central */
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  gap: 1.5rem;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 80px;
+
+  span {
+    font-size: 13px;
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
+  mat-icon {
+    font-size: 24px;
+    height: 24px;
+    width: 24px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  &.active {
+    background-color: rgba(255, 255, 255, 0.15);
+
+    mat-icon {
+      color: #10b981;
+    }
+
+    span {
+      font-weight: 500;
+    }
+  }
+}
+
+/* Acciones a la derecha */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notification-btn {
+  margin-right: 0.5rem;
+
+  mat-icon {
+    font-size: 22px;
+  }
+}
+
+.login-btn {
+  background-color: #10b981;
+  color: white;
+  border-radius: 20px;
+  padding: 0 1.25rem;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #059669;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transform: translateY(-2px);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+  }
+}
+
+/* Media queries para responsive */
+@media (max-width: 768px) {
+  .app-name {
+    display: none;
+  }
+
+  .nav-links {
+    gap: 0.5rem;
+  }
+
+  .nav-item {
+    min-width: 60px;
+    padding: 0.5rem 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-item span {
+    display: none;
+  }
+
+  .login-btn span {
+    display: none;
+  }
+
+  .nav-item {
+    min-width: auto;
+  }
+}
