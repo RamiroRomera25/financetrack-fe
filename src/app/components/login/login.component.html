@@ -1,0 +1,51 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <img src="https://i.imgur.com/pxwiHBD.png" alt="FinanceTrack Logo" class="logo">
+      <h1 class="app-name">FinanceTrack</h1>
+    </div>
+
+    <h2 class="login-title">Iniciar Sesión</h2>
+
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput type="email" formControlName="email">
+        <mat-icon matPrefix>email</mat-icon>
+        @if (loginForm.get('email')?.hasError('required') && loginForm.get('email')?.touched) {
+          <mat-error>
+            El correo electrónico es obligatorio
+          </mat-error>
+        }
+        @if (loginForm.get('email')?.hasError('email') && loginForm.get('email')?.touched) {
+          <mat-error>
+            Ingrese un correo electrónico válido
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Contraseña</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" required>
+        <mat-icon matPrefix>lock</mat-icon>
+        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        @if (loginForm.get('password')?.hasError('required') && loginForm.get('password')?.touched) {
+          <mat-error>
+            La contraseña es obligatoria
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-raised-button type="submit" class="login-btn">
+        <mat-icon>login</mat-icon>
+        <span>Iniciar Sesión</span>
+      </button>
+    </form>
+
+    <div class="register-link">
+      ¿No tienes una cuenta? <a href="#">Regístrate ahora</a>
+    </div>
+  </div>
+</div>
