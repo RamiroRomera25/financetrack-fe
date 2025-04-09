@@ -26,7 +26,7 @@
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Contraseña</mat-label>
-        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" required>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
         <mat-icon matPrefix>lock</mat-icon>
         <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
           <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -44,8 +44,8 @@
       </button>
     </form>
 
-    <div class="register-link">
-      ¿No tienes una cuenta? <a href="#">Regístrate ahora</a>
+    <div class="register-link" (click)="goToRegister()">
+      ¿No tienes una cuenta? <span>Regístrate ahora</span>
     </div>
   </div>
 </div>

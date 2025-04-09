@@ -1,0 +1,120 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <img src="https://i.imgur.com/pxwiHBD.png" alt="FinanceTrack Logo" class="logo">
+      <h1 class="app-name">FinanceTrack</h1>
+    </div>
+
+    <h2 class="register-title">Crear Cuenta</h2>
+
+    <form class="register-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="name-fields">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Nombre</mat-label>
+          <input matInput type="text" formControlName="firstName">
+          <mat-icon matPrefix>person</mat-icon>
+          @if (registerForm.get('firstName')?.hasError('required') && registerForm.get('firstName')?.touched) {
+            <mat-error>
+              El nombre es obligatorio
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Apellido</mat-label>
+          <input matInput type="text" formControlName="lastName">
+          @if (registerForm.get('lastName')?.hasError('required') && registerForm.get('lastName')?.touched) {
+            <mat-error>
+              El apellido es obligatorio
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput type="email" formControlName="email">
+        <mat-icon matPrefix>email</mat-icon>
+        @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
+          <mat-error>
+            El correo electrónico es obligatorio
+          </mat-error>
+        }
+        @if (registerForm.get('email')?.hasError('email') && registerForm.get('email')?.touched) {
+          <mat-error>
+            Ingrese un correo electrónico válido
+          </mat-error>
+        }
+        @if (registerForm.get('email')?.hasError('emailExists') && registerForm.get('email')?.touched) {
+          <mat-error>
+            El correo electrónico ya esta registrado
+          </mat-error>
+        }
+        @if (registerForm.get('email')?.hasError('serverError') && registerForm.get('email')?.touched) {
+          <mat-error>
+            El servidor no responde
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Contraseña</mat-label>
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+        <mat-icon matPrefix>lock</mat-icon>
+        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+<!--        <mat-hint>Mínimo 8 caracteres, incluyendo mayúsculas, minúsculas y números</mat-hint>-->
+        @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
+          <mat-error>
+            La contraseña es obligatoria
+          </mat-error>
+        }
+        <!--        @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {-->
+        <!--          <mat-error>-->
+        <!--            La contraseña debe tener al menos 8 caracteres-->
+        <!--          </mat-error>-->
+        <!--        }-->
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Confirmar contraseña</mat-label>
+        <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword">
+        <mat-icon matPrefix>lock</mat-icon>
+        <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button">
+          <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        @if (registerForm.get('confirmPassword')?.hasError('required') && registerForm.get('confirmPassword')?.touched) {
+          <mat-error>
+            Confirmar la contraseña es obligatorio
+          </mat-error>
+        }
+        @if (registerForm.get('confirmPassword')?.hasError('differentPassword') && registerForm.get('confirmPassword')?.touched) {
+          <mat-error>
+            Las contraseñas no coinciden
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <div class="terms-container">
+        <mat-checkbox color="primary" formControlName="termsAccepted">
+          Acepto los <a href="#" class="terms-link">Términos y Condiciones</a> y la <a href="#" class="terms-link">Política de Privacidad</a>
+        </mat-checkbox>
+        @if (registerForm.get('termsAccepted')?.hasError('required') && registerForm.get('termsAccepted')?.touched) {
+          <mat-error class="terms-error">
+            Debes aceptar los términos y condiciones para continuar
+          </mat-error>
+        }
+      </div>
+
+      <button mat-raised-button type="submit" class="register-btn">
+        <mat-icon>person_add</mat-icon>
+        <span>Crear Cuenta</span>
+      </button>
+    </form>
+
+    <div class="login-link">
+      ¿Ya tienes una cuenta? <a href="#" routerLink="/login">Inicia sesión</a>
+    </div>
+  </div>
+</div>
