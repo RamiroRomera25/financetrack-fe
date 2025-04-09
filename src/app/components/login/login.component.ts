@@ -28,18 +28,19 @@ import {LoginRequest, UserDTO} from "../../models/user";
     styleUrl: "./login.component.css",
 })
 export class LoginComponent {
+    private router = inject(Router);
+    private authService = inject(AuthService)
+
     loginForm = new FormGroup({
         email: new FormControl('', [Validators.required, Validators.email]),
         password: new FormControl('', [Validators.required]),
     })
     hidePassword = true
 
-    private router = inject(Router);
-    private authService = inject(AuthService)
 
     onSubmit(): void {
         if (this.loginForm.valid) {
-            let loginRequest: LoginRequest = {
+            const loginRequest: LoginRequest = {
                 email: this.loginForm.controls.email.value,
                 password: this.loginForm.controls.password.value
             }
@@ -49,9 +50,13 @@ export class LoginComponent {
                     this.router.navigate(["/"])
                 },
                 error: (error: any) => {
-                    alert("Error: " + error)
+                    console.error("Error: " + error)
                 }
             })
         }
+    }
+
+    goToRegister() {
+        this.router.navigate([`/register`])
     }
 }

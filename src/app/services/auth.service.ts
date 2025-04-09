@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {enviroment} from "../.env/enviroment";
 import {LoginRequest, UserDTO, UserDTOPost} from "../models/user";
 import {map, Observable} from "rxjs";
@@ -36,7 +36,14 @@ export class AuthService {
         )
     }
 
-    validEmail() {
-        return false;
+    validEmail(email: string): Observable<boolean> {
+        const params = new HttpParams()
+            .set('email', email.toString());
+
+        console.log("A")
+        return this.http.get<boolean>(
+            `${this.host}/validEmail`,
+            {params}
+        );
     }
 }
