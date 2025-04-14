@@ -27,6 +27,10 @@ export class NavbarComponent {
         this.router.navigate([`/login`])
     }
 
+    goToHome() {
+        this.router.navigate([`/`])
+    }
+
     isActive(route: string): boolean {
         // TODO: Implementar logica para determinar si la ruta actual coincide para pintar
         return false;
