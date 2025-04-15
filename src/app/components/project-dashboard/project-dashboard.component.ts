@@ -5,16 +5,13 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-
-interface Project {
-    id: number;
-    name: string;
-}
+import {Project} from "../../models/project";
+import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
 
 @Component({
     selector: 'app-project-dashboard',
     standalone: true,
-    imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
+    imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, ProjectSidebarComponent],
     templateUrl: './project-dashboard.component.html',
     styleUrl: './project-dashboard.component.css',
     animations: [

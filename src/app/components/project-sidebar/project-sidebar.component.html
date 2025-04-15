@@ -1,0 +1,31 @@
+<div class="sidebar-container" [class.sidebar-expanded]="sidebarService.isExpanded">
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <h2 *ngIf="sidebarService.isExpanded">FinanceTrack</h2>
+    </div>
+    <button mat-icon-button class="toggle-button" (click)="toggleSidebar()">
+      <mat-icon>{{ sidebarService.isExpanded ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="sidebar-content">
+    <div class="menu-items">
+      @for (item of menuItems; track item.name) {
+        <a
+          class="menu-item"
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [class.icon-only]="!sidebarService.isExpanded"
+        >
+          <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
+          @if (sidebarService.isExpanded) {
+            <span class="menu-text">{{ item.name }}</span>
+          }
+        </a>
+      }
+    </div>
+  </div>
+
+</div>

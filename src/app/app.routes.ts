@@ -3,10 +3,12 @@ import {LoginComponent} from "./components/login/login.component";
 import {RegisterComponent} from "./components/register/register.component";
 import {HomeComponent} from "./components/home/home.component";
 import {ProjectDashboardComponent} from "./components/project-dashboard/project-dashboard.component";
+import {ProjectHomeComponent} from "./components/project-home/project-home.component";
 
 export const routes: Routes = [
     { path: "login", component: LoginComponent },
     { path: "register", component: RegisterComponent },
     { path: "", component: HomeComponent },
-    { path: "projects", component: ProjectDashboardComponent }
+    { path: "projects", component: ProjectDashboardComponent },
+    { path: "project/home", component: ProjectHomeComponent }
 ];
