@@ -46,7 +46,8 @@ export class LoginComponent {
             }
 
             this.authService.authenticate(loginRequest).subscribe({
-                next: (data: UserDTO) => {
+                next: (data: any) => {
+                    this.authService.setToken(data.accessToken)
                     this.router.navigate(["/"])
                 },
                 error: (error: any) => {

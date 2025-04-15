@@ -20,10 +20,17 @@
 
   <!-- Acciones a la derecha -->
   <div class="actions">
-    <button mat-raised-button color="accent" class="login-btn" (click)="goToLogin()">
-      <mat-icon>login</mat-icon>
-      <span>Iniciar Sesión</span>
-    </button>
+      @if (authService.logged) {
+        <button mat-raised-button color="accent" class="login-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>{{ authService.getUserName }}</span>
+        </button>
+      } @else {
+        <button mat-raised-button color="accent" class="login-btn" (click)="goToLogin()">
+          <mat-icon>login</mat-icon>
+        <span>Iniciar Sesión</span>
+        </button>
+      }
   </div>
 </mat-toolbar>
 

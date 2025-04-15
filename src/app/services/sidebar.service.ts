@@ -5,7 +5,7 @@ import { isPlatformBrowser } from "@angular/common"
   providedIn: "root",
 })
 export class SidebarService {
-  isExpanded = true;
+  isExpanded = false;
   isMobile = false;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {

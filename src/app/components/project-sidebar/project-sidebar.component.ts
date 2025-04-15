@@ -23,9 +23,9 @@ import { SidebarService } from "../../services/sidebar.service";
 })
 export class ProjectSidebarComponent {
   menuItems = [
-    { name: 'Resumen', icon: 'dashboard', route: '/resumen' },
-    { name: 'Transacciones', icon: 'swap_horiz', route: '/transacciones' },
-    { name: 'Categorias', icon: 'category', route: '/categorias' },
+    { name: 'Resumen', icon: 'dashboard', route: '/project/home' },
+    { name: 'Transacciones', icon: 'swap_horiz', route: '/project/transaction' },
+    { name: 'Categorias', icon: 'category', route: '/project/category' },
     { name: 'Inversiones', icon: 'trending_up', route: '/inversiones' },
     { name: 'Vencimientos', icon: 'event', route: '/vencimientos' },
     { name: 'Recordatorios', icon: 'notifications', route: '/recordatorios' },
