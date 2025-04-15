@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from "@angular/router"
 import { MatBadgeModule } from '@angular/material/badge';
 import { CommonModule } from '@angular/common';
 import { Router } from "@angular/router";
@@ -14,7 +15,8 @@ import { Router } from "@angular/router";
         MatToolbarModule,
         MatIconModule,
         MatButtonModule,
-        MatBadgeModule
+        MatBadgeModule,
+        RouterModule
     ],
     templateUrl: './navbar.component.html',
     styleUrl: './navbar.component.css'
@@ -32,7 +34,10 @@ export class NavbarComponent {
     }
 
     isActive(route: string): boolean {
-        // TODO: Implementar logica para determinar si la ruta actual coincide para pintar
-        return false;
+        return this.router.url === route;
+    }
+
+    goToProjects() {
+        this.router.navigate([`/projects`])
     }
 }

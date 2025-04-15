@@ -67,7 +67,7 @@
     <p class="section-subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
 
     <div class="plans-grid">
-      <mat-card class="plan-card" *ngFor="let plan of plans" [class.highlighted]="plan.highlighted">
+      <mat-card class="plan-card" style="margin-bottom: 10px" *ngFor="let plan of plans" [class.highlighted]="plan.highlighted">
         <mat-card-header>
           <mat-card-title class="plan-title">{{plan.name}}</mat-card-title>
           <mat-card-subtitle class="plan-price">{{plan.price}}</mat-card-subtitle>

@@ -8,21 +8,13 @@
   <!-- Navegación central -->
   <div class="nav-links">
 <!--    La clase active le proporciona el focus verde -->
-    <a class="nav-item active" (click)="goToHome()">
+    <a class="nav-item" [ngClass]="{'active': isActive('/')}" (click)="goToHome()">
       <mat-icon>home</mat-icon>
       <span>Principal</span>
     </a>
-    <a class="nav-item">
-      <mat-icon>bar_chart</mat-icon>
-      <span>Estadísticas</span>
-    </a>
-    <a class="nav-item">
-      <mat-icon>account_balance_wallet</mat-icon>
-      <span>Transacciones</span>
-    </a>
-    <a class="nav-item">
-      <mat-icon>settings</mat-icon>
-      <span>Configuración</span>
+    <a class="nav-item" [ngClass]="{'active': isActive('/projects')}" (click)="goToProjects()">
+      <mat-icon>dashboard</mat-icon>
+      <span>Proyectos</span>
     </a>
   </div>
 
