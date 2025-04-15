@@ -20,12 +20,18 @@
 
   <!-- Acciones a la derecha -->
   <div class="actions">
-    <button mat-icon-button class="notification-btn">
-      <mat-icon [matBadge]="3" matBadgeColor="accent">notifications</mat-icon>
-    </button>
     <button mat-raised-button color="accent" class="login-btn" (click)="goToLogin()">
       <mat-icon>login</mat-icon>
       <span>Iniciar Sesión</span>
     </button>
   </div>
 </mat-toolbar>
+
+<button
+  *ngIf="sidebarService.mobile"
+  mat-fab
+  color="primary"
+  class="mobile-menu-fab"
+  (click)="toggleSidebar()">
+  <mat-icon>menu</mat-icon>
+</button>

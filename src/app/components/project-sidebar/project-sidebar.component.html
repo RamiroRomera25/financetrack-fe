@@ -1,10 +1,15 @@
+<div class="sidebar-overlay"
+     [class.active]="sidebarService.expanded && sidebarService.mobile"
+     (click)="toggleSidebar()">
+</div>
+
 <div class="sidebar-container" [class.sidebar-expanded]="sidebarService.isExpanded">
   <div class="sidebar-header">
     <div class="logo-container">
-      <h2 *ngIf="sidebarService.isExpanded">FinanceTrack</h2>
+      <h2 *ngIf="sidebarService.expanded">FinanceTrack</h2>
     </div>
     <button mat-icon-button class="toggle-button" (click)="toggleSidebar()">
-      <mat-icon>{{ sidebarService.isExpanded ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+      <mat-icon>{{ sidebarService.expanded ? 'chevron_left' : 'chevron_right' }}</mat-icon>
     </button>
   </div>
 
@@ -17,15 +22,15 @@
           class="menu-item"
           [routerLink]="item.route"
           routerLinkActive="active-link"
-          [class.icon-only]="!sidebarService.isExpanded"
+          [class.icon-only]="!sidebarService.expanded"
+          (click)="onMenuItemClick()"
         >
           <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
-          @if (sidebarService.isExpanded) {
+          @if (sidebarService.expanded) {
             <span class="menu-text">{{ item.name }}</span>
           }
         </a>
       }
     </div>
   </div>
-
 </div>

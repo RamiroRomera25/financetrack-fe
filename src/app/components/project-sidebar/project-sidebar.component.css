@@ -6,7 +6,7 @@
   color: #2d3748;
   font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   width: 70px;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   overflow-x: hidden;
   position: fixed;
@@ -18,6 +18,24 @@
 
 .sidebar-expanded {
   width: 250px;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
 }
 
 .sidebar-header {
@@ -140,14 +158,32 @@
   color: #0a7c43;
 }
 
+/* Estilos responsivos mejorados */
 @media (max-width: 768px) {
   .sidebar-container {
     transform: translateX(-100%);
-    position: fixed;
+    width: 250px; /* Siempre ancho completo en móvil */
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
   }
 
   .sidebar-container.sidebar-expanded {
     transform: translateX(0);
-    width: 250px;
+  }
+
+  /* Aseguramos que los íconos tengan margen en móvil */
+  .icon-only .menu-icon {
+    margin-right: 16px;
+  }
+
+  /* Ajustamos el botón de toggle para que sea más visible */
+  .toggle-button {
+    background-color: rgba(20, 83, 176, 0.1);
+  }
+}
+
+/* Añadimos soporte para pantallas muy pequeñas */
+@media (max-width: 350px) {
+  .sidebar-container {
+    width: 85%;
   }
 }

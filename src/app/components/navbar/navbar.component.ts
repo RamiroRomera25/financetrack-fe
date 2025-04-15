@@ -6,6 +6,7 @@ import { RouterModule } from "@angular/router"
 import { MatBadgeModule } from '@angular/material/badge';
 import { CommonModule } from '@angular/common';
 import { Router } from "@angular/router";
+import {SidebarService} from "../../services/sidebar.service";
 
 @Component({
     selector: 'app-navbar',
@@ -23,21 +24,26 @@ import { Router } from "@angular/router";
 })
 export class NavbarComponent {
 
-    private router = inject(Router);
+  private router = inject(Router);
+  protected sidebarService = inject(SidebarService)
 
-    goToLogin() {
-        this.router.navigate([`/login`])
-    }
+  goToLogin() {
+      this.router.navigate([`/login`])
+  }
 
-    goToHome() {
-        this.router.navigate([`/`])
-    }
+  goToHome() {
+      this.router.navigate([`/`])
+  }
 
-    isActive(route: string): boolean {
-        return this.router.url === route;
-    }
+  isActive(route: string): boolean {
+      return this.router.url === route;
+  }
 
-    goToProjects() {
-        this.router.navigate([`/projects`])
-    }
+  toggleSidebar() {
+    this.sidebarService.toggle()
+  }
+
+  goToProjects() {
+      this.router.navigate([`/projects`])
+  }
 }
