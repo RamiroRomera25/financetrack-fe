@@ -4,7 +4,6 @@ import {enviroment} from "../.env/enviroment";
 import {LoginRequest, UserDTO, UserDTOPost} from "../models/user";
 import {map, Observable} from "rxjs";
 import {toCamelCase, toSnakeCase} from "../utils/mappers";
-import {log} from "node:util";
 
 @Injectable({
   providedIn: 'root'
@@ -65,8 +64,11 @@ export class AuthService {
       return sessionStorage.getItem("access_token")
     }
 
-    get logged() {
-      return this.isLogged;
+    get logged(): boolean {
+      if (typeof window !== 'undefined') {
+        return this.isLogged || !!sessionStorage.getItem("access_token");
+      }
+      return false;
     }
 
     get getUserName() {
