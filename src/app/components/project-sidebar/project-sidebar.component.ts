@@ -26,10 +26,10 @@ export class ProjectSidebarComponent {
     { name: 'Resumen', icon: 'dashboard', route: '/project/home' },
     { name: 'Transacciones', icon: 'swap_horiz', route: '/project/transaction' },
     { name: 'Categorias', icon: 'category', route: '/project/category' },
-    { name: 'Inversiones', icon: 'trending_up', route: '/inversiones' },
-    { name: 'Vencimientos', icon: 'event', route: '/vencimientos' },
-    { name: 'Recordatorios', icon: 'notifications', route: '/recordatorios' },
-    { name: 'Metas Financieras', icon: 'flag', route: '/metas' }
+    { name: 'Inversiones', icon: 'trending_up', route: '/project/investment' },
+    { name: 'Vencimientos', icon: 'event', route: '/project/maturity' },
+    { name: 'Recordatorios', icon: 'notifications', route: '/project/recordatorios' },
+    { name: 'Metas Financieras', icon: 'flag', route: '/project/goal' }
   ];
 
   constructor(

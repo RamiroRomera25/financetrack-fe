@@ -1,48 +1,59 @@
 <!-- project-dashboard.component.html -->
 <div class="project-dashboard-container">
   <div class="project-carousel">
-    <!-- Botón de navegación izquierdo -->
-    <button mat-fab class="nav-button prev-button" (click)="previousProject()">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
+    @if (projects.length > 0) {
+      <!-- Botón de navegación izquierdo -->
+      <button mat-fab class="nav-button prev-button" (click)="previousProject()">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
 
-    <!-- Tarjeta del proyecto actual -->
-    <div class="project-card-container" @cardAnimation>
-      <mat-card class="project-card">
-        <mat-card-header>
-          <mat-card-title>{{ currentProject.name }}</mat-card-title>
-          <mat-card-subtitle>Proyecto #{{ currentProject.id }}</mat-card-subtitle>
-        </mat-card-header>
+      <!-- Tarjeta del proyecto actual -->
+      <div class="project-card-container" @cardAnimation>
+        <mat-card class="project-card">
+          <mat-card-header>
+            <mat-card-title>{{ currentProject.name }}</mat-card-title>
+            <mat-card-subtitle>Proyecto #{{ currentProject.id }}</mat-card-subtitle>
+          </mat-card-header>
 
-        <mat-card-content class="project-content">
-          <div class="project-visual">
-            <div class="project-icon-bg"></div>
-            <mat-icon class="project-icon">account_balance</mat-icon>
-          </div>
-        </mat-card-content>
+          <mat-card-content class="project-content">
+            <div class="project-visual">
+              <div class="project-icon-bg"></div>
+              <mat-icon class="project-icon">account_balance</mat-icon>
+            </div>
+          </mat-card-content>
 
-        <mat-card-actions align="end">
-          <button mat-button class="edit-button">
-            <mat-icon>edit</mat-icon> Editar
-          </button>
-          <button mat-button class="stats-button" (click)="goToProjectHome()">
-            <mat-icon>bar_chart</mat-icon> Administrar
-          </button>
-          <button mat-button class="delete-button">
-            <mat-icon>delete</mat-icon> Eliminar
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    </div>
+          <mat-card-actions align="end">
+            <button mat-button class="edit-button">
+              <mat-icon>edit</mat-icon> Editar
+            </button>
+            <button mat-button class="stats-button" (click)="goToProjectHome()">
+              <mat-icon>bar_chart</mat-icon> Administrar
+            </button>
+            <button mat-button class="delete-button" (click)="deleteProject()">
+              <mat-icon>delete</mat-icon> Eliminar
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
 
-    <!-- Botón de navegación derecho -->
-    <button mat-fab class="nav-button next-button" (click)="nextProject()">
-      <mat-icon>chevron_right</mat-icon>
-    </button>
+      <!-- Botón de navegación derecho -->
+      <button mat-fab class="nav-button next-button" (click)="nextProject()">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    } @else {
+      <!-- Empty state message -->
+      <div class="empty-state-container" @cardAnimation>
+        <mat-card class="empty-state-card">
+          <mat-icon class="empty-state-icon">folder_open</mat-icon>
+          <h2 class="empty-state-title">No hay proyectos disponibles</h2>
+          <p class="empty-state-message">Comienza creando tu primer proyecto haciendo clic en el botón de abajo.</p>
+        </mat-card>
+      </div>
+    }
   </div>
 
   <!-- Indicadores de proyecto (modificados para ser más elegantes) -->
-  <div class="project-indicators">
+  <div class="project-indicators" *ngIf="projects.length > 0">
     @for (project of projects; track project.id; let i = $index) {
       <div
         class="indicator"
@@ -51,4 +62,10 @@
       </div>
     }
   </div>
+
+
+  <!-- Botón para agregar nuevo proyecto -->
+  <button mat-fab class="add-project-button" (click)="addNewProject()">
+    <mat-icon>add</mat-icon>
+  </button>
 </div>

@@ -1,0 +1,228 @@
+<app-project-sidebar></app-project-sidebar>
+
+<div class="investments-container">
+  <div class="page-header">
+    <h1 class="page-title">Mis Inversiones</h1>
+    <p class="page-subtitle">Gestiona tu cartera de inversiones de manera eficiente</p>
+  </div>
+
+  <div class="investments-content">
+    <!-- Formulario de Inversiones (50%) -->
+    <div class="investment-form-section">
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>{{ editMode ? 'Editar Inversión' : 'Añadir Nueva Inversión' }}</mat-card-title>
+          <mat-card-subtitle>Completa los detalles de tu inversión</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="investmentForm" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Símbolo</mat-label>
+                <input matInput formControlName="tickerSymbol" placeholder="Ej: AAPL" required>
+                <mat-icon matPrefix>label</mat-icon>
+                @if (investmentForm.get('tickerSymbol')?.hasError('required') && investmentForm.get('tickerSymbol')?.touched) {
+                  <mat-error>El símbolo es obligatorio</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre</mat-label>
+                <input matInput formControlName="name" placeholder="Ej: Apple Inc." required>
+                <mat-icon matPrefix>business</mat-icon>
+                @if (investmentForm.get('name')?.hasError('required') && investmentForm.get('name')?.touched) {
+                  <mat-error>El nombre es obligatorio</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Cantidad</mat-label>
+                <input matInput type="number" formControlName="quantity" min="0" step="0.01" required>
+                <mat-icon matPrefix>format_list_numbered</mat-icon>
+                @if (investmentForm.get('quantity')?.hasError('required') && investmentForm.get('quantity')?.touched) {
+                  <mat-error>La cantidad es obligatoria</mat-error>
+                }
+                @if (investmentForm.get('quantity')?.hasError('min') && investmentForm.get('quantity')?.touched) {
+                  <mat-error>La cantidad debe ser mayor a 0</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Precio unitario ($)</mat-label>
+                <input matInput type="number" formControlName="price" min="0" step="0.01" required>
+                <mat-icon matPrefix>attach_money</mat-icon>
+                @if (investmentForm.get('price')?.hasError('required') && investmentForm.get('price')?.touched) {
+                  <mat-error>El precio es obligatorio</mat-error>
+                }
+                @if (investmentForm.get('price')?.hasError('min') && investmentForm.get('price')?.touched) {
+                  <mat-error>El precio debe ser mayor a 0</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Cambio ($)</mat-label>
+                <input matInput type="number" formControlName="change" step="0.01">
+                <mat-icon matPrefix>trending_up</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Cambio (%)</mat-label>
+                <input matInput type="number" formControlName="changePercentage" step="0.01">
+                <mat-icon matPrefix>percent</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="calculated-value">
+              <span class="value-label">Valor Total:</span>
+              <span class="value-amount">${{calculateTotalValue()}}</span>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button type="submit" class="submit-button" [disabled]="investmentForm.invalid">
+                <mat-icon>{{editMode ? 'save' : 'add_circle'}}</mat-icon>
+                {{editMode ? 'Actualizar Inversión' : 'Añadir Inversión'}}
+              </button>
+
+              @if (editMode) {
+                <button mat-stroked-button type="button" color="warn" class="cancel-button" (click)="cancelEdit()">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+              }
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="tips-card">
+        <mat-card-header>
+          <div mat-card-avatar class="tips-icon">
+            <mat-icon>lightbulb</mat-icon>
+          </div>
+          <mat-card-title>Consejos de Inversión</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="tips-list">
+            <li>
+              <mat-icon class="tip-icon">check_circle</mat-icon>
+              <span>Diversifica tu cartera para reducir el riesgo</span>
+            </li>
+            <li>
+              <mat-icon class="tip-icon">check_circle</mat-icon>
+              <span>Invierte regularmente para aprovechar el costo promedio</span>
+            </li>
+            <li>
+              <mat-icon class="tip-icon">check_circle</mat-icon>
+              <span>Mantén una perspectiva a largo plazo</span>
+            </li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Lista de Inversiones (50%) -->
+    <div class="investment-list-section">
+      <div class="list-header">
+        <h2 class="list-title">Cartera de Inversiones</h2>
+        <div class="list-actions">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Buscar inversión...">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+
+          <button mat-icon-button [matMenuTriggerFor]="sortMenu" class="sort-button">
+            <mat-icon>sort</mat-icon>
+          </button>
+          <mat-menu #sortMenu="matMenu">
+            <button mat-menu-item (click)="sortInvestments('name')">
+              <mat-icon>sort_by_alpha</mat-icon>
+              <span>Ordenar por nombre</span>
+            </button>
+            <button mat-menu-item (click)="sortInvestments('value')">
+              <mat-icon>attach_money</mat-icon>
+              <span>Ordenar por valor</span>
+            </button>
+            <button mat-menu-item (click)="sortInvestments('changePercentage')">
+              <mat-icon>trending_up</mat-icon>
+              <span>Ordenar por rendimiento</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+
+      <div class="investments-summary">
+        <div class="summary-card">
+          <div class="summary-value">${{totalPortfolioValue}}</div>
+          <div class="summary-label">Valor Total</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">{{investments.length}}</div>
+          <div class="summary-label">Activos</div>
+        </div>
+        <div class="summary-card" [ngClass]="{'positive': totalChangePercentage > 0, 'negative': totalChangePercentage < 0}">
+          <div class="summary-value">
+            <mat-icon>{{totalChangePercentage > 0 ? 'trending_up' : 'trending_down'}}</mat-icon>
+            {{totalChangePercentage}}%
+          </div>
+          <div class="summary-label">Rendimiento</div>
+        </div>
+      </div>
+
+      <div class="investments-list">
+        @if (investments.length === 0) {
+          <div class="empty-list">
+            <mat-icon class="empty-icon">account_balance</mat-icon>
+            <p>No tienes inversiones registradas</p>
+            <p class="empty-subtitle">Utiliza el formulario para añadir tu primera inversión</p>
+          </div>
+        } @else {
+          @for (investment of filteredInvestments; track investment) {
+            <mat-card class="investment-item">
+              <div class="investment-header">
+                <div class="investment-symbol">{{investment.tickerSymbol}}</div>
+                <div class="investment-actions">
+                  <button mat-icon-button color="primary" (click)="editInvestment(investment)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteInvestment(investment.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="investment-name">{{investment.name}}</div>
+
+              <div class="investment-details">
+                <div class="detail-item">
+                  <span class="detail-label">Cantidad</span>
+                  <span class="detail-value">{{investment.quantity}}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Precio</span>
+                  <span class="detail-value">${{investment.price}}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Valor</span>
+                  <span class="detail-value">${{investment.value}}</span>
+                </div>
+              </div>
+
+              <div class="investment-performance" [ngClass]="{'positive': investment.changePercentage > 0, 'negative': investment.changePercentage < 0}">
+                <div class="change-value">
+                  <mat-icon>{{investment.changePercentage > 0 ? 'trending_up' : 'trending_down'}}</mat-icon>
+                  ${{investment.change}} ({{investment.changePercentage}}%)
+                </div>
+              </div>
+            </mat-card>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

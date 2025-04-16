@@ -7,7 +7,7 @@
   min-height: 100vh;
   background-color: #f8faff;
   padding: 20px;
-  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
 
 .project-carousel {
@@ -32,9 +32,7 @@
   color: #2d3748;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.08),
-    0 0 0 2px rgba(10, 124, 67, 0.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 0 0 2px rgba(10, 124, 67, 0.05);
   transition: all 0.3s ease;
   overflow: hidden;
   position: relative;
@@ -50,6 +48,20 @@
   height: 4px;
 }
 
+/* Botón para agregar nuevo proyecto */
+.add-project-button {
+  margin-top: 30px;
+  background: linear-gradient(135deg, #0a7c43, #1453b0) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease;
+}
+
+.add-project-button:hover {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* Borde lateral izquierdo decorativo */
 .project-card::after {
   content: "";
@@ -63,9 +75,7 @@
 
 .project-card:hover {
   transform: translateY(-5px) rotateY(2deg);
-  box-shadow:
-    0 15px 30px rgba(0, 0, 0, 0.08),
-    0 0 0 3px rgba(20, 83, 176, 0.08);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(20, 83, 176, 0.08);
 }
 
 .project-content {
@@ -292,4 +302,46 @@ mat-card-actions {
   .project-visual {
     height: 140px;
   }
+}
+
+/* Empty state styles */
+.empty-state-container {
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.empty-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state-icon {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  color: #1453b0;
+  margin-bottom: 20px;
+}
+
+.empty-state-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1453b0;
+  margin-bottom: 10px;
+}
+
+.empty-state-message {
+  color: #4a5568;
+  font-size: 1rem;
+  max-width: 300px;
+  line-height: 1.5;
 }

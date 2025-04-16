@@ -1,0 +1,238 @@
+<app-project-sidebar></app-project-sidebar>
+
+<div class="maturity-container">
+  <div class="page-header">
+    <h1 class="page-title">Vencimiento de Proyectos</h1>
+    <p class="page-subtitle">Gestiona los vencimientos y estados de pagos de tus proyectos</p>
+  </div>
+
+  <div class="maturity-content">
+    <!-- Formulario de Madurez (50%) -->
+    <div class="maturity-form-section">
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>{{ editMode ? 'Editar Madurez' : 'Añadir Nueva Madurez' }}</mat-card-title>
+          <mat-card-subtitle>Completa los detalles de los pagos del proyecto</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="maturityForm" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Cantidad</mat-label>
+                <input matInput type="number" formControlName="quantity" min="1" required>
+                <mat-icon matPrefix>format_list_numbered</mat-icon>
+                @if (maturityForm.get('quantity')?.hasError('required') && maturityForm.get('quantity')?.touched) {
+                  <mat-error>La cantidad es obligatoria</mat-error>
+                }
+                @if (maturityForm.get('quantity')?.hasError('min') && maturityForm.get('quantity')?.touched) {
+                  <mat-error>La cantidad debe ser mayor a 0</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Fecha de Vencimiento</mat-label>
+                <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" required>
+                <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #endDatePicker></mat-datepicker>
+                <mat-icon matPrefix>event</mat-icon>
+                @if (maturityForm.get('endDate')?.hasError('required') && maturityForm.get('endDate')?.touched) {
+                  <mat-error>La fecha de vencimiento es obligatoria</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Estado</mat-label>
+                <mat-select formControlName="state" required>
+                  <mat-option *ngFor="let state of maturityStates" [value]="state.value">
+                    <div class="state-option">
+                      <span class="state-indicator" [ngClass]="state.class"></span>
+                      <span>{{state.label}}</span>
+                    </div>
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>flag</mat-icon>
+                @if (maturityForm.get('state')?.hasError('required') && maturityForm.get('state')?.touched) {
+                  <mat-error>El estado es obligatorio</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button type="submit" class="submit-button" [disabled]="maturityForm.invalid">
+                <mat-icon>{{editMode ? 'save' : 'add_circle'}}</mat-icon>
+                {{editMode ? 'Actualizar Madurez' : 'Añadir Madurez'}}
+              </button>
+
+              @if (editMode) {
+                <button mat-stroked-button type="button" color="warn" class="cancel-button" (click)="cancelEdit()">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+              }
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="info-card">
+        <mat-card-header>
+          <div mat-card-avatar class="info-icon">
+            <mat-icon>info</mat-icon>
+          </div>
+          <mat-card-title>Estados de Madurez</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="states-info">
+            <div class="state-info-item">
+              <span class="state-indicator solved"></span>
+              <span class="state-label">Resuelto</span>
+              <span class="state-description">El proyecto ha alcanzado su madurez y ha sido resuelto satisfactoriamente.</span>
+            </div>
+            <div class="state-info-item">
+              <span class="state-indicator on-wait"></span>
+              <span class="state-label">En Espera</span>
+              <span class="state-description">El proyecto está en espera de alcanzar su fecha de madurez.</span>
+            </div>
+            <div class="state-info-item">
+              <span class="state-indicator notificated"></span>
+              <span class="state-label">Notificado</span>
+              <span class="state-description">Se ha enviado una notificación sobre la próxima madurez del proyecto.</span>
+            </div>
+            <div class="state-info-item">
+              <span class="state-indicator late"></span>
+              <span class="state-label">Atrasado</span>
+              <span class="state-description">El proyecto ha superado su fecha de madurez sin resolverse.</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Lista de Madurez (50%) -->
+    <div class="maturity-list-section">
+      <div class="list-header">
+        <h2 class="list-title">Proyectos en Maduración</h2>
+        <div class="list-actions">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Buscar por ID...">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+
+          <button mat-icon-button [matMenuTriggerFor]="filterMenu" class="filter-button">
+            <mat-icon>filter_list</mat-icon>
+          </button>
+          <mat-menu #filterMenu="matMenu">
+            <button mat-menu-item (click)="filterByState('ALL')">
+              <mat-icon>list</mat-icon>
+              <span>Todos los estados</span>
+            </button>
+            <button mat-menu-item (click)="filterByState('SOLVED')">
+              <span class="menu-state-indicator solved"></span>
+              <span>Resueltos</span>
+            </button>
+            <button mat-menu-item (click)="filterByState('ON_WAIT')">
+              <span class="menu-state-indicator on-wait"></span>
+              <span>En Espera</span>
+            </button>
+            <button mat-menu-item (click)="filterByState('NOTIFICATED')">
+              <span class="menu-state-indicator notificated"></span>
+              <span>Notificados</span>
+            </button>
+            <button mat-menu-item (click)="filterByState('LATE')">
+              <span class="menu-state-indicator late"></span>
+              <span>Atrasados</span>
+            </button>
+          </mat-menu>
+
+          <button mat-icon-button [matMenuTriggerFor]="sortMenu" class="sort-button">
+            <mat-icon>sort</mat-icon>
+          </button>
+          <mat-menu #sortMenu="matMenu">
+            <button mat-menu-item (click)="sortMaturityItems('endDate')">
+              <mat-icon>event</mat-icon>
+              <span>Ordenar por fecha</span>
+            </button>
+            <button mat-menu-item (click)="sortMaturityItems('quantity')">
+              <mat-icon>format_list_numbered</mat-icon>
+              <span>Ordenar por cantidad</span>
+            </button>
+            <button mat-menu-item (click)="sortMaturityItems('state')">
+              <mat-icon>flag</mat-icon>
+              <span>Ordenar por estado</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+
+      <div class="maturity-summary">
+        <div class="summary-card">
+          <div class="summary-value">{{totalItems}}</div>
+          <div class="summary-label">Total</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">{{totalQuantity}}</div>
+          <div class="summary-label">Cantidad Total</div>
+        </div>
+        <div class="summary-card upcoming">
+          <div class="summary-value">{{upcomingMaturity}}</div>
+          <div class="summary-label">Próximos a Vencer</div>
+        </div>
+      </div>
+
+      <div class="maturity-list">
+        @if (filteredMaturityItems.length === 0) {
+          <div class="empty-list">
+            <mat-icon class="empty-icon">hourglass_empty</mat-icon>
+            <p>No hay proyectos en maduración</p>
+            <p class="empty-subtitle">Utiliza el formulario para añadir un nuevo proyecto</p>
+          </div>
+        } @else {
+          <mat-card class="maturity-item" *ngFor="let item of filteredMaturityItems">
+            <div class="maturity-header">
+              <div class="maturity-id">#{{item.id}}</div>
+              <div class="maturity-actions">
+                <button mat-icon-button color="primary" (click)="editMaturity(item)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteMaturity(item.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="maturity-details">
+              <div class="detail-item">
+                <span class="detail-label">Cantidad</span>
+                <span class="detail-value">{{item.quantity}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Vencimiento</span>
+                <span class="detail-value">{{item.endDate | date:'dd/MM/yyyy'}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Estado</span>
+                <span class="detail-value state-badge" [ngClass]="getStateClass(item.state)">
+                  {{getStateLabel(item.state)}}
+                </span>
+              </div>
+            </div>
+
+            <div class="maturity-footer">
+              <div class="days-remaining" [ngClass]="getDaysRemainingClass(item.endDate)">
+                <mat-icon>{{getDaysRemainingIcon(item.endDate)}}</mat-icon>
+                <span>{{getDaysRemainingText(item.endDate)}}</span>
+              </div>
+            </div>
+          </mat-card>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+

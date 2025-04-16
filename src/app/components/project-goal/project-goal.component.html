@@ -1,0 +1,242 @@
+<app-project-sidebar></app-project-sidebar>
+
+<div class="goals-container">
+  <div class="page-header">
+    <h1 class="page-title">Metas Financieras</h1>
+    <p class="page-subtitle">Establece y monitorea tus objetivos financieros</p>
+  </div>
+
+  <div class="goals-content">
+    <!-- Formulario de Metas (50%) -->
+    <div class="goal-form-section">
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-card-title>{{ editMode ? 'Editar Meta' : 'Crear Nueva Meta' }}</mat-card-title>
+          <mat-card-subtitle>Define tu objetivo financiero y establece un plazo</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="goalForm" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Objetivo</mat-label>
+                <input matInput formControlName="objective" placeholder="Ej: Comprar un auto" required>
+                <mat-icon matPrefix>flag</mat-icon>
+                @if (goalForm.get('objective')?.hasError('required') && goalForm.get('objective')?.touched) {
+                  <mat-error>El objetivo es obligatorio</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Cantidad objetivo ($)</mat-label>
+                <input matInput type="number" formControlName="quantity" min="1" required>
+                <mat-icon matPrefix>attach_money</mat-icon>
+                @if (goalForm.get('quantity')?.hasError('required') && goalForm.get('quantity')?.touched) {
+                  <mat-error>La cantidad es obligatoria</mat-error>
+                }
+                @if (goalForm.get('quantity')?.hasError('min') && goalForm.get('quantity')?.touched) {
+                  <mat-error>La cantidad debe ser mayor a 0</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Fecha límite</mat-label>
+                <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" required>
+                <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #endDatePicker></mat-datepicker>
+                <mat-icon matPrefix>event</mat-icon>
+                @if (goalForm.get('endDate')?.hasError('required') && goalForm.get('endDate')?.touched) {
+                  <mat-error>La fecha límite es obligatoria</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Cantidad actual ($)</mat-label>
+                <input matInput type="number" formControlName="currentAmount" min="0">
+                <mat-icon matPrefix>savings</mat-icon>
+                <mat-hint>Opcional: Indica cuánto has ahorrado hasta ahora</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Notas</mat-label>
+                <textarea matInput formControlName="notes" rows="3" placeholder="Añade detalles sobre tu meta financiera"></textarea>
+                <mat-icon matPrefix>note</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="progress-preview" *ngIf="goalForm.get('quantity')?.value && goalForm.get('currentAmount')?.value">
+              <div class="progress-label">
+                <span>Progreso estimado:</span>
+                <span>{{ calculateProgress() }}%</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="calculateProgress()"></mat-progress-bar>
+              <div class="progress-amounts">
+                <span>${{ goalForm.get('currentAmount')?.value || 0 }}</span>
+                <span>${{ goalForm.get('quantity')?.value || 0 }}</span>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button mat-raised-button type="submit" class="submit-button" [disabled]="goalForm.invalid">
+                <mat-icon>{{editMode ? 'save' : 'add_circle'}}</mat-icon>
+                {{editMode ? 'Actualizar Meta' : 'Crear Meta'}}
+              </button>
+
+              @if (editMode) {
+                <button mat-stroked-button type="button" color="warn" class="cancel-button" (click)="cancelEdit()">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+              }
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="tips-card">
+        <mat-card-header>
+          <div mat-card-avatar class="tips-icon">
+            <mat-icon>lightbulb</mat-icon>
+          </div>
+          <mat-card-title>Consejos para alcanzar tus metas</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="tips-list">
+            <li>
+              <mat-icon class="tip-icon">check_circle</mat-icon>
+              <span>Establece metas específicas y medibles</span>
+            </li>
+            <li>
+              <mat-icon class="tip-icon">check_circle</mat-icon>
+              <span>Divide tus metas grandes en objetivos más pequeños</span>
+            </li>
+            <li>
+              <mat-icon class="tip-icon">check_circle</mat-icon>
+              <span>Programa ahorros automáticos para mantener la disciplina</span>
+            </li>
+            <li>
+              <mat-icon class="tip-icon">check_circle</mat-icon>
+              <span>Revisa y ajusta tus metas periódicamente</span>
+            </li>
+          </ul>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Lista de Metas (50%) -->
+    <div class="goal-list-section">
+      <div class="list-header">
+        <h2 class="list-title">Mis Metas Financieras</h2>
+        <div class="list-actions">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar</mat-label>
+            <input matInput (keyup)="applyFilter($event)" placeholder="Buscar meta...">
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+
+          <button mat-icon-button [matMenuTriggerFor]="sortMenu" class="sort-button">
+            <mat-icon>sort</mat-icon>
+          </button>
+          <mat-menu #sortMenu="matMenu">
+            <button mat-menu-item (click)="sortGoals('endDate')">
+              <mat-icon>event</mat-icon>
+              <span>Ordenar por fecha límite</span>
+            </button>
+            <button mat-menu-item (click)="sortGoals('quantity')">
+              <mat-icon>attach_money</mat-icon>
+              <span>Ordenar por cantidad</span>
+            </button>
+            <button mat-menu-item (click)="sortGoals('progress')">
+              <mat-icon>trending_up</mat-icon>
+              <span>Ordenar por progreso</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+
+      <div class="goals-summary">
+        <div class="summary-card">
+          <div class="summary-value">{{goals.length}}</div>
+          <div class="summary-label">Metas Activas</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">${{totalGoalAmount | number:'1.0-0'}}</div>
+          <div class="summary-label">Objetivo Total</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">{{nearestGoal}}</div>
+          <div class="summary-label">Próxima Meta</div>
+        </div>
+      </div>
+
+      <div class="goals-list">
+        @if (filteredGoals.length === 0) {
+          <div class="empty-list">
+            <mat-icon class="empty-icon">flag</mat-icon>
+            <p>No tienes metas financieras</p>
+            <p class="empty-subtitle">Utiliza el formulario para crear tu primera meta</p>
+          </div>
+        } @else {
+          <mat-card class="goal-item" *ngFor="let goal of filteredGoals">
+            <div class="goal-header">
+              <div class="goal-objective">{{goal.objective}}</div>
+              <div class="goal-actions">
+                <button mat-icon-button color="primary" (click)="editGoal(goal)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteGoal(goal.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="goal-details">
+              <div class="detail-item">
+                <span class="detail-label">Objetivo</span>
+                <span class="detail-value">${{goal.quantity | number:'1.0-0'}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Actual</span>
+                <span class="detail-value">${{goal.currentAmount | number:'1.0-0'}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Fecha Límite</span>
+                <span class="detail-value">{{goal.endDate | date:'dd/MM/yyyy'}}</span>
+              </div>
+            </div>
+
+            <div class="goal-progress">
+              <div class="progress-header">
+                <span class="progress-label">Progreso: {{goal.progress}}%</span>
+                <span class="remaining-amount">Faltan: ${{goal.quantity - goal.currentAmount | number:'1.0-0'}}</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="goal.progress" [ngClass]="getProgressClass(goal.progress)"></mat-progress-bar>
+            </div>
+
+            <div class="goal-footer">
+              <div class="time-remaining" [ngClass]="getTimeRemainingClass(goal.endDate)">
+                <mat-icon>{{getTimeRemainingIcon(goal.endDate)}}</mat-icon>
+                <span>{{getTimeRemainingText(goal.endDate)}}</span>
+              </div>
+
+              @if (goal.notes) {
+                <button mat-icon-button class="notes-button" [matTooltip]="goal.notes">
+                  <mat-icon>info</mat-icon>
+                </button>
+              }
+            </div>
+          </mat-card>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
