@@ -5,16 +5,14 @@ import { MatCardModule } from "@angular/material/card"
 import { MatButtonModule } from "@angular/material/button"
 import { MatIconModule } from "@angular/material/icon"
 import { MatDialog, MatDialogModule } from "@angular/material/dialog"
-import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar"
+import { MatSnackBarModule } from "@angular/material/snack-bar"
 import type { Project } from "../../models/project"
 import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 import { Router } from "@angular/router"
-import {ProjectFormModalComponent} from "./project-form-modal/project-form-modal.component";
-import {ProjectService} from "../../services/project.service";
-import {CustomSnackBarComponent} from "../../utils/custom-snack-bar.component";
-import {SnackBarService} from "../../services/snack-bar.service";
-import {ModalService} from "../../services/modal.service";
-
+import { ProjectFormModalComponent } from "./project-form-modal/project-form-modal.component"
+import { ProjectService } from "../../services/project.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { ModalService } from "../../services/modal.service"
 
 @Component({
   selector: "app-project-dashboard",
@@ -62,16 +60,16 @@ export class ProjectDashboardComponent {
       next: (projects: Project[]) => {
         console.log(projects.length)
         if (projects.length == 0) {
-          this.projects = [];
-          console.log('No projects available');
+          this.projects = []
+          console.log("No projects available")
         } else {
-          this.projects = projects;
+          this.projects = projects
         }
       },
       error: (error: any) => {
         this.snackBarService.sendError("Error al obtener los proyectos")
         // this.ngOnInit();
-      }
+      },
     })
   }
 
@@ -104,6 +102,7 @@ export class ProjectDashboardComponent {
       width: "400px",
       panelClass: "custom-dialog-container",
       disableClose: true,
+      data: {}, // Sin proyecto para crear uno nuevo
     })
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -114,33 +113,64 @@ export class ProjectDashboardComponent {
 
         this.projectService.createProject(newProject).subscribe({
           next: (projectSaved: Project) => {
-            this.projects.push(projectSaved);
+            this.projects.push(projectSaved)
             this.currentIndex = this.projects.length - 1
-            this.snackBarService.sendSuccess("Proyecto creado correctamente");
+            this.snackBarService.sendSuccess("Proyecto creado correctamente")
           },
           error: (error: any) => {
-            this.snackBarService.sendError("Error al crear el proyecto");
-          }
+            this.snackBarService.sendError("Error al crear el proyecto")
+          },
+        })
+      }
+    })
+  }
+
+  editProject(): void {
+    const dialogRef = this.dialog.open(ProjectFormModalComponent, {
+      width: "400px",
+      panelClass: "custom-dialog-container",
+      disableClose: true,
+      data: { project: this.currentProject }, // Pasamos el proyecto actual para editar
+    })
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const updatedProject: Partial<Project> = {
+          name: result.name,
+        }
+
+        this.projectService.updateProject(result.id, updatedProject).subscribe({
+          next: (projectUpdated: Project) => {
+            // Actualizamos el proyecto en el array
+            const index = this.projects.findIndex((p) => p.id === projectUpdated.id)
+            if (index !== -1) {
+              this.projects[index] = projectUpdated
+            }
+            this.snackBarService.sendSuccess("Proyecto actualizado correctamente")
+          },
+          error: (error: any) => {
+            this.snackBarService.sendError("Error al actualizar el proyecto")
+          },
         })
       }
     })
   }
 
   deleteProject(): void {
-    this.modalService.confirmDelete('proyecto')
-      .subscribe(confirmed => {
-        if (confirmed) {
-          this.performDelete();
-        }
-      });
+    this.modalService.confirmDelete("proyecto").subscribe((confirmed) => {
+      if (confirmed) {
+        this.performDelete()
+      }
+    })
   }
 
   performDelete(): void {
-
     this.projectService.deleteProject(this.currentProject.id).subscribe({
       next: () => {
+        this.projects.splice(this.currentIndex, 1)
+        this.nextProject()
         this.snackBarService.sendSuccess("Proyecto eliminado correctamente")
-      }
+      },
     })
   }
 }

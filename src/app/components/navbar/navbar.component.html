@@ -23,7 +23,7 @@
       @if (authService.logged) {
         <button mat-raised-button color="accent" class="login-btn" (click)="logout()">
         <mat-icon>logout</mat-icon>
-        <span>{{ authService.getUserName }}</span>
+        <span>Cerrar Sesión</span>
         </button>
       } @else {
         <button mat-raised-button color="accent" class="login-btn" (click)="goToLogin()">

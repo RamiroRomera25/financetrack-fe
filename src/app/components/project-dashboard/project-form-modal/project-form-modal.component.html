@@ -1,6 +1,6 @@
 <div class="modal-container">
   <div class="modal-header">
-    <h2 class="modal-title">Crear Nuevo Proyecto</h2>
+    <h2 class="modal-title">{{ isEditMode ? 'Editar Proyecto' : 'Crear Nuevo Proyecto' }}</h2>
     <button mat-icon-button class="close-button" (click)="onCancel()">
       <mat-icon>close</mat-icon>
     </button>
@@ -23,8 +23,8 @@
           Cancelar
         </button>
         <button mat-raised-button type="submit" class="submit-button" [disabled]="projectForm.invalid">
-          <mat-icon>save</mat-icon>
-          Guardar Proyecto
+          <mat-icon>{{ isEditMode ? 'update' : 'save' }}</mat-icon>
+          {{ isEditMode ? 'Actualizar Proyecto' : 'Guardar Proyecto' }}
         </button>
       </div>
     </form>
