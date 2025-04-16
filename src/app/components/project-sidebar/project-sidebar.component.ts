@@ -48,17 +48,6 @@ export class ProjectSidebarComponent {
     }
   }
 
-  ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      if (window.innerWidth < 768) {
-        this.sidebarService.close();
-      } else {
-        this.sidebarService.open();
-      }
-    }
-  }
-
-
   toggleSidebar() {
     this.sidebarService.toggle();
   }

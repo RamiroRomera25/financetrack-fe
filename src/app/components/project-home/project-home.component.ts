@@ -62,18 +62,18 @@ interface Maturity {
     standalone: true,
     templateUrl: './project-home.component.html',
     styleUrl: './project-home.component.css',
-    imports: [
-        CommonModule,
-        MatCardModule,
-        MatIconModule,
-        MatButtonModule,
-        MatTableModule,
-        MatProgressBarModule,
-        MatTabsModule,
-        MatDividerModule,
-        BaseChartDirective,
-        ProjectSidebarComponent,
-    ]
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTableModule,
+    MatProgressBarModule,
+    MatTabsModule,
+    MatDividerModule,
+    BaseChartDirective,
+    ProjectSidebarComponent,
+  ]
 })
 export class ProjectHomeComponent implements OnInit {
     // Financial summary
@@ -102,98 +102,94 @@ export class ProjectHomeComponent implements OnInit {
     upcomingMaturities: Maturity[] = []
 
     // Charts
-    public barChartOptions: ChartConfiguration["options"] = {
-        responsive: true,
-        scales: {
-            x: {},
-            y: {
-                min: 0,
-            },
+  public barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Meses',
         },
-        plugins: {
-            legend: {
-                display: true,
-            },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Cantidad',
         },
-    }
+        beginAtZero: true,
+      },
+    },
+  };
 
-    public barChartType: ChartType = "bar"
+  public barChartType: ChartType = 'bar';
 
-    public barChartData: ChartData<"bar"> = {
-        labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
-        datasets: [
-            { data: [2100, 1800, 2300, 2800, 3100, 3250], label: "Gastos", backgroundColor: "#1453b0" },
-            { data: [5500, 6200, 7000, 7500, 8200, 8750], label: "Ingresos", backgroundColor: "#0a7c43" },
-        ],
-    }
+  public barChartData: ChartData<'bar'> = {
+    labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+    datasets: [
+      {
+        data: [1500, 2500, 1200, 1800, 2200],
+        label: 'Ingresos',
+        backgroundColor: '#4caf50',
+      },
+      {
+        data: [1000, 1500, 800, 1200, 1300],
+        label: 'Gastos',
+        backgroundColor: '#f44336',
+      },
+    ],
+  };
 
-    public pieChartOptions: ChartConfiguration["options"] = {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: true,
-                position: "right",
-            },
+  public pieChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+  };
+
+  public pieChartType: ChartType = 'pie';
+
+  public pieChartData: ChartData<'pie'> = {
+    labels: ['Alimentos', 'Transporte', 'Vivienda', 'Salud'],
+    datasets: [
+      {
+        data: [50, 30, 15, 5],
+        backgroundColor: ['#ff0000', '#ff9900', '#33cc33', '#3399ff'],
+      },
+    ],
+  };
+
+  public lineChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Meses',
         },
-    }
-
-    public pieChartType: ChartType = "pie"
-
-    public pieChartData: ChartData<"pie"> = {
-        labels: [],
-        datasets: [
-            {
-                data: [],
-                backgroundColor: [],
-            },
-        ],
-    }
-
-    public lineChartOptions: ChartConfiguration["options"] = {
-        responsive: true,
-        elements: {
-            line: {
-                tension: 0.4,
-            },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Balance',
         },
-        scales: {
-            x: {},
-            y: {
-                min: 0,
-            },
-        },
-        plugins: {
-            legend: {
-                display: true,
-            },
-        },
-    }
+        beginAtZero: true,
+      },
+    },
+  };
 
-    public lineChartType: ChartType = "line"
+  public lineChartType: ChartType = 'line';
 
-    public lineChartData: {
-        datasets: {
-            pointBackgroundColor: string;
-            backgroundColor: string;
-            borderColor: string;
-            data: number[];
-            label: string;
-            fill: boolean
-        }[];
-        labels: (string | any)[]
-    } = {
-        labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun"],
-        datasets: [
-            {
-                data: [15000, 16500, 18200, 20500, 22800, 24500],
-                label: "Balance",
-                backgroundColor: "rgba(20, 83, 176, 0.2)",
-                borderColor: "#1453b0",
-                pointBackgroundColor: "#1453b0",
-                fill: true,
-            },
-        ],
-    }
+  public lineChartData: {
+    datasets: { borderColor: string; data: number[]; label: string; fill: boolean }[];
+    labels: string[]
+  } = {
+    labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+    datasets: [
+      {
+        data: [10000, 12000, 11500, 13000, 14000],
+        label: 'Balance Total',
+        borderColor: '#2196f3',
+        fill: false,
+      },
+    ],
+  };
 
     ngOnInit(): void {
         this.generateMockData()

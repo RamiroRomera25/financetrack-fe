@@ -6,8 +6,8 @@ import { RouterModule } from "@angular/router"
 import { MatBadgeModule } from '@angular/material/badge';
 import { CommonModule } from '@angular/common';
 import { Router } from "@angular/router";
-import {SidebarService} from "../../services/sidebar.service";
 import {AuthService} from "../../services/auth.service";
+import {SidebarService} from "../../services/sidebar.service";
 
 @Component({
     selector: 'app-navbar',
@@ -26,8 +26,8 @@ import {AuthService} from "../../services/auth.service";
 export class NavbarComponent {
 
   private router = inject(Router);
-  protected sidebarService = inject(SidebarService)
   protected authService = inject(AuthService)
+  protected sidebarService = inject(SidebarService)
 
   goToLogin() {
       this.router.navigate([`/login`])
@@ -41,10 +41,6 @@ export class NavbarComponent {
       return this.router.url === route;
   }
 
-  toggleSidebar() {
-    this.sidebarService.toggle()
-  }
-
   goToProjects() {
       this.router.navigate([`/projects`])
   }
@@ -53,4 +49,9 @@ export class NavbarComponent {
     this.authService.removeToken();
     this.goToLogin();
   }
+
+  toggleSidebar() {
+    this.sidebarService.toggle()
+  }
+
 }

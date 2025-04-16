@@ -8,6 +8,27 @@ export class SidebarService {
   isExpanded = false;
   isMobile = false;
 
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    // Solo ejecutar código relacionado con window en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      this.checkScreenSize();
+      window.addEventListener("resize", () => this.checkScreenSize());
+    }
+  }
+
+  private checkScreenSize() {
+    if (isPlatformBrowser(this.platformId)) {
+      const width = window.innerWidth;
+      this.isMobile = width < 768;
+
+      if (this.isMobile) {
+        this.isExpanded = false;
+      } else {
+        this.isExpanded = true;
+      }
+    }
+  }
+
   toggle() {
     this.isExpanded = !this.isExpanded;
   }

@@ -8,11 +8,12 @@ import {ProjectCategoryComponent} from "./components/project-category/project-ca
 import {ProjectTransactionComponent} from "./components/project-transaction/project-transaction.component";
 
 export const routes: Routes = [
+  { path: "", component: HomeComponent },
   { path: "login", component: LoginComponent },
   { path: "register", component: RegisterComponent },
-  { path: "", component: HomeComponent },
   { path: "projects", component: ProjectDashboardComponent },
   { path: "project/home", component: ProjectHomeComponent },
   { path: "project/category", component: ProjectCategoryComponent },
   { path: "project/transaction", component: ProjectTransactionComponent },
 ];
+
