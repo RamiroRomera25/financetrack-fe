@@ -15,11 +15,11 @@ export const routes: Routes = [
   { path: "login", component: LoginComponent },
   { path: "register", component: RegisterComponent },
   { path: "projects", component: ProjectDashboardComponent },
-  { path: "project/home", component: ProjectHomeComponent },
-  { path: "project/category", component: ProjectCategoryComponent },
-  { path: "project/transaction", component: ProjectTransactionComponent },
-  { path: "project/investment", component: ProjectInvestmentComponent },
-  { path: "project/maturity", component: ProjectMaturityComponent },
-  { path: "project/goal", component: ProjectGoalComponent },
+  { path: "project/home/:p", component: ProjectHomeComponent },
+  { path: "project/category/:p", component: ProjectCategoryComponent },
+  { path: "project/transaction/:p", component: ProjectTransactionComponent },
+  { path: "project/investment/:p", component: ProjectInvestmentComponent },
+  { path: "project/maturity/:p", component: ProjectMaturityComponent },
+  { path: "project/goal/:p", component: ProjectGoalComponent },
 ];
 

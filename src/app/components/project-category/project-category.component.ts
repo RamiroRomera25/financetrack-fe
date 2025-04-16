@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core"
+import {Component, inject, OnInit} from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { MatCardModule } from "@angular/material/card"
 import { MatIconModule } from "@angular/material/icon"
@@ -11,13 +11,13 @@ import { MatListModule } from "@angular/material/list"
 import { MatTooltipModule } from "@angular/material/tooltip"
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms"
 import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
+import {ActivatedRoute} from "@angular/router";
+import {CategoryService} from "../../services/category.service";
+import {Category, CategoryDTOPost, CategoryDTOPut} from "../../models/category";
+import {ModalService} from "../../services/modal.service";
+import {SnackBarService} from "../../services/snack-bar.service";
 
-interface Category {
-  id: number
-  name: string
-  color: string
-  transactionCount?: number
-}
+
 
 @Component({
   selector: 'app-project-category',
@@ -41,8 +41,15 @@ interface Category {
   styleUrl: './project-category.component.css'
 })
 export class ProjectCategoryComponent {
+  projectId: number = 0;
+  currentCategoryId?: number;
   categories: Category[] = []
   categoryForm: FormGroup
+  editForm: boolean = false;
+
+  private categoryService = inject(CategoryService);
+  private modalService = inject(ModalService);
+  private snackBarService = inject(SnackBarService);
 
   // Predefined colors for the color picker
   predefinedColors = [
@@ -67,7 +74,8 @@ export class ProjectCategoryComponent {
     { name: "Azul Gris", value: "#607D8B" },
   ]
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,
+              private activatedRoute: ActivatedRoute) {
     this.categoryForm = this.fb.group({
       name: ["", [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       color: ["#4CAF50", Validators.required],
@@ -75,50 +83,105 @@ export class ProjectCategoryComponent {
   }
 
   ngOnInit(): void {
-    // Load mock data
-    this.loadMockCategories()
-  }
+    this.projectId = Number(this.activatedRoute.snapshot.paramMap.get('p'));
+    this.categoryService.getCategories(this.projectId).subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error: any) => {
 
-  loadMockCategories(): void {
-    this.categories = [
-      { id: 1, name: "Alimentación", color: "#FF5722", transactionCount: 42 },
-      { id: 2, name: "Transporte", color: "#2196F3", transactionCount: 28 },
-      { id: 3, name: "Vivienda", color: "#4CAF50", transactionCount: 15 },
-      { id: 4, name: "Entretenimiento", color: "#9C27B0", transactionCount: 31 },
-      { id: 5, name: "Salud", color: "#F44336", transactionCount: 8 },
-      { id: 6, name: "Educación", color: "#3F51B5", transactionCount: 12 },
-      { id: 7, name: "Ropa", color: "#E91E63", transactionCount: 19 },
-      { id: 8, name: "Tecnología", color: "#607D8B", transactionCount: 7 },
-      { id: 9, name: "Mascotas", color: "#795548", transactionCount: 5 },
-      { id: 10, name: "Regalos", color: "#FFC107", transactionCount: 3 },
-      { id: 11, name: "Viajes", color: "#00BCD4", transactionCount: 2 },
-      { id: 12, name: "Otros", color: "#9E9E9E", transactionCount: 14 },
-    ]
+      }
+    })
   }
 
   onSubmit(): void {
     if (this.categoryForm.valid) {
-      const newCategory: Category = {
-        id: this.categories.length + 1,
-        name: this.categoryForm.value.name,
-        color: this.categoryForm.value.color,
-        transactionCount: 0,
+
+      if (this.editForm) {
+        this.confirmEdit()
+        return;
       }
 
-      this.categories.unshift(newCategory)
-      this.categoryForm.reset({
-        name: "",
-        color: "#4CAF50",
+      const newCategory: CategoryDTOPost = {
+        name: this.categoryForm.value.name,
+        color: this.categoryForm.value.color,
+        projectId: this.projectId
+      }
+      this.categoryService.createCategory(newCategory).subscribe({
+        next: (categorySaved) => {
+          categorySaved.transactionCount = 0;
+          this.categories.unshift(categorySaved)
+          this.categoryForm.setValue({
+            name: "",
+            color: "#009688",
+          })
+        }
       })
     }
   }
 
-  deleteCategory(id: number): void {
-    this.categories = this.categories.filter(category => category.id !== id)
+  cancel() {
+    this.editForm = false;
+    this.currentCategoryId = undefined;
+    this.categoryForm.setValue({
+      name: "",
+      color: "#4CAF50",
+    });
   }
 
   editCategory(category: Category): void {
-    // In a real application, this would open an edit form or dialog
-    console.log("Edit category:", category)
+    console.log(category)
+    this.editForm = true;
+    this.currentCategoryId = category.id;
+    console.log(this.currentCategoryId)
+    this.categoryForm.setValue({
+      name: category.name,
+      color: category.color,
+    })
+  }
+
+  confirmEdit() {
+    console.warn("HOLA 2")
+    console.log(this.currentCategoryId)
+    if (this.currentCategoryId !== undefined) {
+      console.warn("HOLA 1")
+      const newCategory: CategoryDTOPut = {
+        name: this.categoryForm.value.name,
+        color: this.categoryForm.value.color
+      }
+
+      this.categoryService.updateCategory(this.projectId, this.currentCategoryId, newCategory).subscribe({
+        next: (categoryUpdate) => {
+          // TODO: Cambiar
+          this.cancel();
+          this.ngOnInit();
+        },
+        error: (error: any) => {
+
+        }
+      })
+    }
+  }
+
+  deleteCategory(categoryId: number): void {
+    this.currentCategoryId = categoryId;
+    this.modalService.confirmDelete("categoria").subscribe((confirmed) => {
+      if (confirmed) {
+        this.performDelete()
+      } else {
+        this.currentCategoryId = undefined;
+      }
+    })
+  }
+
+  performDelete(): void {
+    if (this.currentCategoryId !== undefined) {
+      this.categoryService.deleteCategory(this.projectId, this.currentCategoryId).subscribe({
+        next: () => {
+          this.ngOnInit()
+          this.snackBarService.sendSuccess("Categoría eliminada correctamente")
+        },
+      })
+    }
   }
 }

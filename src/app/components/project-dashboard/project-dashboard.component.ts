@@ -94,7 +94,7 @@ export class ProjectDashboardComponent {
   }
 
   goToProjectHome() {
-    this.router.navigate(["/project/home"])
+    this.router.navigate([`/project/home/${this.currentProject.id}`])
   }
 
   addNewProject(): void {

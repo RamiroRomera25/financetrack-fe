@@ -24,7 +24,7 @@ export class SidebarService {
       if (this.isMobile) {
         this.isExpanded = false;
       } else {
-        this.isExpanded = true;
+        this.isExpanded = false;
       }
     }
   }

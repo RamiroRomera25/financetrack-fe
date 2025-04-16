@@ -48,7 +48,7 @@
     <!-- Category Form Section -->
     <mat-card class="category-form-card">
       <mat-card-header>
-        <mat-card-title>Nueva Categoría</mat-card-title>
+        <mat-card-title>{{ editForm ? 'Editar Categoría' : 'Nueva Categoría' }}</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
@@ -86,13 +86,13 @@
           </div>
 
           <div class="form-actions">
-            <button mat-button type="reset">Cancelar</button>
+            <button mat-button (click)="cancel()">Cancelar</button>
             <button
               mat-raised-button
               color="primary"
               type="submit"
               [disabled]="categoryForm.invalid">
-              Crear Categoría
+              {{ editForm ? 'Editar Categoría' : 'Crear Categoría' }}
             </button>
           </div>
         </form>
