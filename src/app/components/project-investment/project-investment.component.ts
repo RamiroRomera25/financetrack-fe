@@ -14,7 +14,7 @@ import { ActivatedRoute } from "@angular/router"
 import { InvestmentService } from "../../services/investment.service"
 import { SnackBarService } from "../../services/snack-bar.service"
 import { ModalService } from "../../services/modal.service"
-import { Investment, InvestmentDTOPost, InvestmentDTOPut } from "../../models/Investment"
+import { Investment, InvestmentDTOPost, InvestmentDTOPut } from "../../models/investment"
 import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 
 @Component({

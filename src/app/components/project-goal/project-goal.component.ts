@@ -17,8 +17,8 @@ import { ActivatedRoute } from "@angular/router"
 import { GoalService } from "../../services/goal.service"
 import { SnackBarService } from "../../services/snack-bar.service"
 import { ModalService } from "../../services/modal.service"
-import { Goal, GoalDTOPost, GoalDTOPut } from "../../models/goal"
 import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
+import {Goal, GoalDTOPost, GoalDTOPut} from "../../models/goal";
 
 @Component({
   selector: "app-project-goal",

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {enviroment} from "../.env/enviroment";
 import {HttpClient} from "@angular/common/http";
-import {Investment, InvestmentDTOPost, InvestmentDTOPut} from "../models/Investment";
+import {Investment, InvestmentDTOPost, InvestmentDTOPut} from "../models/investment";
 
 @Injectable({
   providedIn: 'root'
