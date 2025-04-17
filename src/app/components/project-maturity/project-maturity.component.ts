@@ -16,7 +16,7 @@ import { ActivatedRoute } from "@angular/router"
 import { MaturityService } from "../../services/maturity.service"
 import { SnackBarService } from "../../services/snack-bar.service"
 import { ModalService } from "../../services/modal.service"
-import {type Maturity, type MaturityDTOPost, type MaturityDTOPut, MaturityState} from "../../models/maturity"
+import { Maturity, MaturityDTOPost, MaturityDTOPut, MaturityState} from "../../models/maturity"
 import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 
 @Component({
