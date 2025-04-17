@@ -2,7 +2,7 @@ export interface Maturity {
   id: number
   quantity: number
   endDate: Date
-  state: string
+  state: MaturityState
 }
 
 export interface MaturityDTOPost {
@@ -14,5 +14,12 @@ export interface MaturityDTOPost {
 export interface MaturityDTOPut {
   quantity: number
   endDate: Date
-  state: string
+  state: MaturityState
+}
+
+export enum MaturityState {
+  SOLVED = "SOLVED",
+  ON_WAIT = "ON_WAIT",
+  NOTIFICATED = "NOTIFICATED",
+  LATE = "LATE",
 }

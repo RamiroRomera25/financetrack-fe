@@ -1,7 +1,7 @@
-import { Component, type OnInit } from "@angular/core"
+import { Component, type OnInit, inject } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { RouterModule } from "@angular/router"
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms"
+import { FormBuilder, type FormGroup, Validators, ReactiveFormsModule } from "@angular/forms"
 import { MatButtonModule } from "@angular/material/button"
 import { MatIconModule } from "@angular/material/icon"
 import { MatCardModule } from "@angular/material/card"
@@ -11,28 +11,20 @@ import { MatSelectModule } from "@angular/material/select"
 import { MatDatepickerModule } from "@angular/material/datepicker"
 import { MatNativeDateModule } from "@angular/material/core"
 import { MatMenuModule } from "@angular/material/menu"
-import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
-
-enum MaturityState {
-  SOLVED = "SOLVED",
-  ON_WAIT = "ON_WAIT",
-  NOTIFICATED = "NOTIFICATED",
-  LATE = "LATE",
-}
-
-interface MaturityEntity {
-  id: number
-  quantity: number
-  endDate: Date
-  state: MaturityState
-}
+import { MatSnackBarModule } from "@angular/material/snack-bar"
+import { ActivatedRoute } from "@angular/router"
+import { MaturityService } from "../../services/maturity.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { ModalService } from "../../services/modal.service"
+import {type Maturity, type MaturityDTOPost, type MaturityDTOPut, MaturityState} from "../../models/maturity"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 
 @Component({
-  selector: 'app-project-maturity',
+  selector: "app-project-maturity",
+  templateUrl: "./project-maturity.component.html",
+  styleUrls: ["./project-maturity.component.css"],
   standalone: true,
   imports: [
-    ProjectSidebarComponent,
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
@@ -46,19 +38,20 @@ interface MaturityEntity {
     MatNativeDateModule,
     MatMenuModule,
     MatSnackBarModule,
+    ProjectSidebarComponent,
   ],
-  templateUrl: './project-maturity.component.html',
-  styleUrl: './project-maturity.component.css'
 })
-export class ProjectMaturityComponent {
+export class ProjectMaturityComponent implements OnInit {
   maturityForm: FormGroup
-  maturityItems: MaturityEntity[] = []
-  filteredMaturityItems: MaturityEntity[] = []
+  maturityItems: Maturity[] = []
+  filteredMaturityItems: Maturity[] = []
   editMode = false
   currentMaturityId: number | null = null
   totalItems = 0
   totalQuantity = 0
   upcomingMaturity = 0
+  projectId = 0
+  loading = false
 
   maturityStates = [
     { value: MaturityState.SOLVED, label: "Resuelto", class: "solved" },
@@ -67,57 +60,39 @@ export class ProjectMaturityComponent {
     { value: MaturityState.LATE, label: "Atrasado", class: "late" },
   ]
 
-  constructor(
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar,
-  ) {
+  private maturityService = inject(MaturityService)
+  private snackBarService = inject(SnackBarService)
+  private modalService = inject(ModalService)
+  private route = inject(ActivatedRoute)
+
+  constructor(private fb: FormBuilder) {
     this.maturityForm = this.fb.group({
       quantity: [1, [Validators.required, Validators.min(1)]],
       endDate: [new Date(), Validators.required],
       state: [MaturityState.ON_WAIT, Validators.required],
     })
-
-    // Datos de ejemplo para mostrar en el mock-up
-    const today = new Date()
-    const nextWeek = new Date(today)
-    nextWeek.setDate(today.getDate() + 7)
-    const nextMonth = new Date(today)
-    nextMonth.setMonth(today.getMonth() + 1)
-    const lastWeek = new Date(today)
-    lastWeek.setDate(today.getDate() - 7)
-
-    this.maturityItems = [
-      {
-        id: 1,
-        quantity: 100,
-        endDate: nextWeek,
-        state: MaturityState.ON_WAIT,
-      },
-      {
-        id: 2,
-        quantity: 50,
-        endDate: nextMonth,
-        state: MaturityState.NOTIFICATED,
-      },
-      {
-        id: 3,
-        quantity: 75,
-        endDate: lastWeek,
-        state: MaturityState.LATE,
-      },
-      {
-        id: 4,
-        quantity: 200,
-        endDate: new Date(today.getFullYear(), today.getMonth() - 2, 15),
-        state: MaturityState.SOLVED,
-      },
-    ]
-
-    this.filteredMaturityItems = [...this.maturityItems]
-    this.calculateSummary()
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.projectId = Number(this.route.snapshot.paramMap.get("p"))
+    this.loadMaturities()
+  }
+
+  loadMaturities(): void {
+    this.loading = true
+    this.maturityService.getMaturities(this.projectId).subscribe({
+      next: (data) => {
+        this.maturityItems = data
+        this.filteredMaturityItems = [...this.maturityItems]
+        this.calculateSummary()
+        this.loading = false
+      },
+      error: (error) => {
+        this.snackBarService.sendError("Error al cargar las madureces")
+        this.loading = false
+      },
+    })
+  }
 
   calculateSummary(): void {
     this.totalItems = this.maturityItems.length
@@ -140,31 +115,51 @@ export class ProjectMaturityComponent {
 
       if (this.editMode && this.currentMaturityId !== null) {
         // Actualizar madurez existente
-        const index = this.maturityItems.findIndex((item) => item.id === this.currentMaturityId)
-        if (index !== -1) {
-          this.maturityItems[index] = {
-            ...formValue,
-            id: this.currentMaturityId,
-          }
-          this.snackBar.open("Madurez actualizada correctamente", "Cerrar", { duration: 3000 })
+        const maturityPut: MaturityDTOPut = {
+          quantity: formValue.quantity,
+          endDate: formValue.endDate,
+          state: formValue.state,
         }
-      } else {
-        // Añadir nueva madurez
-        const newId = this.maturityItems.length > 0 ? Math.max(...this.maturityItems.map((item) => item.id)) + 1 : 1
-        this.maturityItems.push({
-          ...formValue,
-          id: newId,
-        })
-        this.snackBar.open("Madurez añadida correctamente", "Cerrar", { duration: 3000 })
-      }
 
-      this.filteredMaturityItems = [...this.maturityItems]
-      this.calculateSummary()
-      this.resetForm()
+        this.maturityService.updateMaturity(this.projectId, this.currentMaturityId, maturityPut).subscribe({
+          next: (updatedMaturity) => {
+            const index = this.maturityItems.findIndex((item) => item.id === this.currentMaturityId)
+            if (index !== -1) {
+              this.maturityItems[index] = updatedMaturity
+              this.snackBarService.sendSuccess("Madurez actualizada correctamente")
+            }
+            this.filteredMaturityItems = [...this.maturityItems]
+            this.calculateSummary()
+            this.resetForm()
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al actualizar la madurez")
+          },
+        })
+      } else {
+        const maturityPost: MaturityDTOPost = {
+          quantity: formValue.quantity,
+          endDate: formValue.endDate,
+          projectId: this.projectId,
+        }
+
+        this.maturityService.createMaturity(maturityPost).subscribe({
+          next: (newMaturity) => {
+            this.maturityItems.push(newMaturity)
+            this.snackBarService.sendSuccess("Madurez añadida correctamente")
+            this.filteredMaturityItems = [...this.maturityItems]
+            this.calculateSummary()
+            this.resetForm()
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al añadir la madurez")
+          },
+        })
+      }
     }
   }
 
-  editMaturity(item: MaturityEntity): void {
+  editMaturity(item: Maturity): void {
     this.editMode = true
     this.currentMaturityId = item.id
     this.maturityForm.setValue({
@@ -175,14 +170,25 @@ export class ProjectMaturityComponent {
   }
 
   deleteMaturity(id: number): void {
-    this.maturityItems = this.maturityItems.filter((item) => item.id !== id)
-    this.filteredMaturityItems = [...this.maturityItems]
-    this.calculateSummary()
-    this.snackBar.open("Madurez eliminada correctamente", "Cerrar", { duration: 3000 })
+    this.modalService.confirmDelete("madurez").subscribe((confirmed) => {
+      if (confirmed) {
+        this.maturityService.deleteMaturity(this.projectId, id).subscribe({
+          next: () => {
+            this.maturityItems = this.maturityItems.filter((item) => item.id !== id)
+            this.filteredMaturityItems = [...this.maturityItems]
+            this.calculateSummary()
+            this.snackBarService.sendSuccess("Madurez eliminada correctamente")
 
-    if (this.currentMaturityId === id) {
-      this.resetForm()
-    }
+            if (this.currentMaturityId === id) {
+              this.resetForm()
+            }
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al eliminar la madurez")
+          },
+        })
+      }
+    })
   }
 
   cancelEdit(): void {
@@ -240,7 +246,7 @@ export class ProjectMaturityComponent {
     }
   }
 
-  getStateLabel(state: MaturityState): string {
+  getStateLabel(state: MaturityState) {
     const stateObj = this.maturityStates.find((s) => s.value === state)
     return stateObj ? stateObj.label : state
   }
@@ -292,4 +298,3 @@ export class ProjectMaturityComponent {
     }
   }
 }
-

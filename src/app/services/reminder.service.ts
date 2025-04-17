@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {enviroment} from "../.env/enviroment";
 import {HttpClient} from "@angular/common/http";
-import {Reminder, ReminderDTOPost, ReminderDTOPut} from "../models/Reminder";
+import {Reminder, ReminderDTOPost, ReminderDTOPut} from "../models/reminder";
 
 @Injectable({
   providedIn: 'root'

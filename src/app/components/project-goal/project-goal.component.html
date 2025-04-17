@@ -157,21 +157,22 @@
                 </div>
                 <div class="detail-item">
                   <span class="detail-label">Actual</span>
-                  <span class="detail-value">${{goal.currentAmount | number:'1.0-0'}}</span>
+<!--                  TODO: Current amount ? -->
+<!--                  <span class="detail-value">${{goal.currentAmount | number:'1.0-0'}}</span>-->
                 </div>
                 <div class="detail-item">
                   <span class="detail-label">Fecha Límite</span>
                   <span class="detail-value">{{goal.endDate | date:'dd/MM/yyyy'}}</span>
                 </div>
               </div>
-
-              <div class="goal-progress">
-                <div class="progress-header">
-                  <span class="progress-label">Progreso: {{goal.progress}}%</span>
-                  <span class="remaining-amount">Faltan: ${{goal.quantity - goal.currentAmount | number:'1.0-0'}}</span>
-                </div>
-                <mat-progress-bar mode="determinate" [value]="goal.progress" [ngClass]="getProgressClass(goal.progress)"></mat-progress-bar>
-              </div>
+<!-- TODO: Progreso ? -->
+<!--              <div class="goal-progress">-->
+<!--                <div class="progress-header">-->
+<!--                  <span class="progress-label">Progreso: {{goal.progress}}%</span>-->
+<!--                  <span class="remaining-amount">Faltan: ${{goal.quantity - goal.currentAmount | number:'1.0-0'}}</span>-->
+<!--                </div>-->
+<!--                <mat-progress-bar mode="determinate" [value]="goal.progress" [ngClass]="getProgressClass(goal.progress)"></mat-progress-bar>-->
+<!--              </div>-->
 
               <div class="goal-footer">
                 <div class="time-remaining" [ngClass]="getTimeRemainingClass(goal.endDate)">
@@ -179,11 +180,12 @@
                   <span>{{getTimeRemainingText(goal.endDate)}}</span>
                 </div>
 
-                @if (goal.notes) {
-                  <button mat-icon-button class="notes-button" [matTooltip]="goal.notes">
-                    <mat-icon>info</mat-icon>
-                  </button>
-                }
+<!--                TODO: Notas ?-->
+<!--                @if (goal.notes) {-->
+<!--                  <button mat-icon-button class="notes-button" [matTooltip]="goal.notes">-->
+<!--                    <mat-icon>info</mat-icon>-->
+<!--                  </button>-->
+<!--                }-->
               </div>
             </div>
           }

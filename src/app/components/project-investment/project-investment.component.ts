@@ -1,33 +1,29 @@
-import { Component, type OnInit } from "@angular/core"
-import {CommonModule, DecimalPipe, NgClass} from "@angular/common"
+import { Component, type OnInit, inject } from "@angular/core"
+import { CommonModule } from "@angular/common"
 import { RouterModule } from "@angular/router"
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms"
+import { FormBuilder, type FormGroup, Validators, ReactiveFormsModule } from "@angular/forms"
 import { MatButtonModule } from "@angular/material/button"
 import { MatIconModule } from "@angular/material/icon"
 import { MatCardModule } from "@angular/material/card"
 import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatInputModule } from "@angular/material/input"
 import { MatMenuModule } from "@angular/material/menu"
-import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar"
+import { MatSnackBarModule } from "@angular/material/snack-bar"
 import { MatTabsModule } from "@angular/material/tabs"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
-
-interface Investment {
-  id: number
-  tickerSymbol: string
-  name: string
-  quantity: number
-  price: number
-  value: number
-  change: number
-  changePercentage: number
-}
+import { ActivatedRoute } from "@angular/router"
+import { InvestmentService } from "../../services/investment.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { ModalService } from "../../services/modal.service"
+import type { Investment, InvestmentDTOPost, InvestmentDTOPut } from "../../models/Investment"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 
 @Component({
-  selector: 'app-project-investment',
+  selector: "app-investments",
+  templateUrl: "./project-investment.component.html",
+  styleUrls: ["./project-investment.component.css"],
   standalone: true,
   imports: [
-    ProjectSidebarComponent,
+    CommonModule,
     RouterModule,
     ReactiveFormsModule,
     MatButtonModule,
@@ -38,11 +34,8 @@ interface Investment {
     MatMenuModule,
     MatSnackBarModule,
     MatTabsModule,
-    NgClass,
-    DecimalPipe,
+    ProjectSidebarComponent,
   ],
-  templateUrl: './project-investment.component.html',
-  styleUrl: './project-investment.component.css'
 })
 export class ProjectInvestmentComponent {
   investmentForm: FormGroup
@@ -52,11 +45,15 @@ export class ProjectInvestmentComponent {
   currentInvestmentId: number | null = null
   totalPortfolioValue = 0
   totalChangePercentage = 0
+  projectId = 0
+  loading = false
 
-  constructor(
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar,
-  ) {
+  private investmentService = inject(InvestmentService)
+  private snackBarService = inject(SnackBarService)
+  private modalService = inject(ModalService)
+  private route = inject(ActivatedRoute)
+
+  constructor(private fb: FormBuilder) {
     this.investmentForm = this.fb.group({
       tickerSymbol: ["", Validators.required],
       name: ["", Validators.required],
@@ -65,56 +62,28 @@ export class ProjectInvestmentComponent {
       change: [0],
       changePercentage: [0],
     })
-
-    // Datos de ejemplo para mostrar en el mock-up
-    this.investments = [
-      {
-        id: 1,
-        tickerSymbol: "AAPL",
-        name: "Apple Inc.",
-        quantity: 10,
-        price: 150.25,
-        value: 1502.5,
-        change: 15.75,
-        changePercentage: 1.05,
-      },
-      {
-        id: 2,
-        tickerSymbol: "MSFT",
-        name: "Microsoft Corporation",
-        quantity: 5,
-        price: 290.1,
-        value: 1450.5,
-        change: 25.3,
-        changePercentage: 1.75,
-      },
-      {
-        id: 3,
-        tickerSymbol: "AMZN",
-        name: "Amazon.com, Inc.",
-        quantity: 2,
-        price: 3200.5,
-        value: 6401.0,
-        change: -45.2,
-        changePercentage: -0.7,
-      },
-      {
-        id: 4,
-        tickerSymbol: "GOOGL",
-        name: "Alphabet Inc.",
-        quantity: 3,
-        price: 2750.75,
-        value: 8252.25,
-        change: 32.15,
-        changePercentage: 0.39,
-      },
-    ]
-
-    this.filteredInvestments = [...this.investments]
-    this.calculatePortfolioTotals()
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.projectId = Number(this.route.snapshot.paramMap.get("p"))
+    this.loadInvestments()
+  }
+
+  loadInvestments(): void {
+    this.loading = true
+    this.investmentService.getInvestments(this.projectId).subscribe({
+      next: (data) => {
+        this.investments = data
+        this.filteredInvestments = [...this.investments]
+        this.calculatePortfolioTotals()
+        this.loading = false
+      },
+      error: (error) => {
+        this.snackBarService.sendError("Error al cargar las inversiones")
+        this.loading = false
+      },
+    })
+  }
 
   calculateTotalValue(): number {
     const quantity = this.investmentForm.get("quantity")?.value || 0
@@ -123,13 +92,14 @@ export class ProjectInvestmentComponent {
   }
 
   calculatePortfolioTotals(): void {
-    this.totalPortfolioValue = this.investments.reduce((total, investment) => total + investment.value, 0)
+    // TODO: Todo ?
+    // this.totalPortfolioValue = this.investments.reduce((total, investment) => total + investment.value, 0)
+    //
+    // // Calcular el cambio porcentual ponderado
+    // const totalInvestment = this.totalPortfolioValue - this.investments.reduce((total, inv) => total + inv.change, 0)
+    // const totalChange = this.investments.reduce((total, inv) => total + inv.change, 0)
 
-    // Calcular el cambio porcentual ponderado
-    const totalInvestment = this.totalPortfolioValue - this.investments.reduce((total, inv) => total + inv.change, 0)
-    const totalChange = this.investments.reduce((total, inv) => total + inv.change, 0)
-
-    this.totalChangePercentage = totalInvestment > 0 ? (totalChange / totalInvestment) * 100 : 0
+    // this.totalChangePercentage = totalInvestment > 0 ? (totalChange / totalInvestment) * 100 : 0
   }
 
   onSubmit(): void {
@@ -139,54 +109,92 @@ export class ProjectInvestmentComponent {
 
       if (this.editMode && this.currentInvestmentId !== null) {
         // Actualizar inversión existente
-        const index = this.investments.findIndex((inv) => inv.id === this.currentInvestmentId)
-        if (index !== -1) {
-          this.investments[index] = {
-            ...formValue,
-            id: this.currentInvestmentId,
-            value: value,
-          }
-          this.snackBar.open("Inversión actualizada correctamente", "Cerrar", { duration: 3000 })
+        const investmentPut: InvestmentDTOPut = {
+          tickerSymbol: formValue.tickerSymbol,
+          quantity: formValue.quantity
         }
+
+        this.investmentService.updateInvestment(this.projectId, this.currentInvestmentId, investmentPut).subscribe({
+          next: (updatedInvestment) => {
+            const index = this.investments.findIndex((inv) => inv.id === this.currentInvestmentId)
+            if (index !== -1) {
+              // TODO: Push
+              // this.investments[index] = {
+              //   ...updatedInvestment,
+              //   value: value,
+              // }
+              this.snackBarService.sendSuccess("Inversión actualizada correctamente")
+            }
+            this.filteredInvestments = [...this.investments]
+            this.calculatePortfolioTotals()
+            this.resetForm()
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al actualizar la inversión")
+          },
+        })
       } else {
         // Añadir nueva inversión
-        const newId = this.investments.length > 0 ? Math.max(...this.investments.map((inv) => inv.id)) + 1 : 1
-        this.investments.push({
-          ...formValue,
-          id: newId,
-          value: value,
-        })
-        this.snackBar.open("Inversión añadida correctamente", "Cerrar", { duration: 3000 })
-      }
+        const investmentPost: InvestmentDTOPost = {
+          tickerSymbol: formValue.tickerSymbol,
+          quantity: formValue.quantity,
+          projectId: this.projectId
+        }
 
-      this.filteredInvestments = [...this.investments]
-      this.calculatePortfolioTotals()
-      this.resetForm()
+        this.investmentService.createInvestment(investmentPost).subscribe({
+          next: (newInvestment) => {
+            // TODO: Pushear lista
+            // this.investments.push({
+            //   ...newInvestment,
+            //   value: value,
+            // })
+            this.snackBarService.sendSuccess("Inversión añadida correctamente")
+            this.filteredInvestments = [...this.investments]
+            this.calculatePortfolioTotals()
+            this.resetForm()
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al añadir la inversión")
+          },
+        })
+      }
     }
   }
 
   editInvestment(investment: Investment): void {
     this.editMode = true
     this.currentInvestmentId = investment.id
-    this.investmentForm.setValue({
-      tickerSymbol: investment.tickerSymbol,
-      name: investment.name,
-      quantity: investment.quantity,
-      price: investment.price,
-      change: investment.change,
-      changePercentage: investment.changePercentage,
-    })
+    // TODO: Setear form
+    // this.investmentForm.setValue({
+    //   tickerSymbol: investment.tickerSymbol,
+    //   name: investment.name,
+    //   quantity: investment.quantity,
+    //   price: investment.price,
+    //   change: investment.change,
+    //   changePercentage: investment.changePercentage,
+    // })
   }
 
   deleteInvestment(id: number): void {
-    this.investments = this.investments.filter((inv) => inv.id !== id)
-    this.filteredInvestments = [...this.investments]
-    this.calculatePortfolioTotals()
-    this.snackBar.open("Inversión eliminada correctamente", "Cerrar", { duration: 3000 })
+    this.modalService.confirmDelete("inversión").subscribe((confirmed) => {
+      if (confirmed) {
+        this.investmentService.deleteInvestment(this.projectId, id).subscribe({
+          next: () => {
+            this.investments = this.investments.filter((inv) => inv.id !== id)
+            this.filteredInvestments = [...this.investments]
+            this.calculatePortfolioTotals()
+            this.snackBarService.sendSuccess("Inversión eliminada correctamente")
 
-    if (this.currentInvestmentId === id) {
-      this.resetForm()
-    }
+            if (this.currentInvestmentId === id) {
+              this.resetForm()
+            }
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al eliminar la inversión")
+          },
+        })
+      }
+    })
   }
 
   cancelEdit(): void {
@@ -210,22 +218,22 @@ export class ProjectInvestmentComponent {
     const filterValue = (event.target as HTMLInputElement).value.toLowerCase()
     this.filteredInvestments = this.investments.filter(
       (investment) =>
-        investment.name.toLowerCase().includes(filterValue) ||
+        // TODO: Investment name
+        // investment.name.toLowerCase().includes(filterValue) ||
         investment.tickerSymbol.toLowerCase().includes(filterValue),
     )
   }
 
   sortInvestments(criteria: string): void {
-    this.filteredInvestments = [...this.investments].sort((a, b) => {
-      if (criteria === "name") {
-        return a.name.localeCompare(b.name)
-      } else if (criteria === "value") {
-        return b.value - a.value
-      } else if (criteria === "changePercentage") {
-        return b.changePercentage - a.changePercentage
-      }
-      return 0
-    })
+    // this.filteredInvestments = [...this.investments].sort((a, b) => {
+    //   if (criteria === "name") {
+    //     return a.name.localeCompare(b.name)
+    //   } else if (criteria === "value") {
+    //     return b.value - a.value
+    //   } else if (criteria === "changePercentage") {
+    //     return b.changePercentage - a.changePercentage
+    //   }
+    //   return 0
+    // })
   }
 }
-
