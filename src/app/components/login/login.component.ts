@@ -1,16 +1,14 @@
 import {Component, inject} from "@angular/core"
-import {FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormControl} from "@angular/forms"
-import type { MatIconRegistry } from "@angular/material/icon"
-import type { DomSanitizer } from "@angular/platform-browser"
-import { Router } from "@angular/router"
-import { CommonModule } from "@angular/common"
-import { MatInputModule } from "@angular/material/input"
-import { MatFormFieldModule } from "@angular/material/form-field"
-import { MatButtonModule } from "@angular/material/button"
-import { MatIconModule } from "@angular/material/icon"
-import { MatCheckboxModule } from "@angular/material/checkbox"
+import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms"
+import {MatIconModule} from "@angular/material/icon"
+import {Router} from "@angular/router"
+import {CommonModule} from "@angular/common"
+import {MatInputModule} from "@angular/material/input"
+import {MatFormFieldModule} from "@angular/material/form-field"
+import {MatButtonModule} from "@angular/material/button"
+import {MatCheckboxModule} from "@angular/material/checkbox"
 import {AuthService} from "../../services/auth.service";
-import {LoginRequest, UserDTO} from "../../models/user";
+import {LoginRequest} from "../../models/user";
 
 @Component({
     selector: "app-login",

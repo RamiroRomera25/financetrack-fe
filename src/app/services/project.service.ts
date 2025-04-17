@@ -1,11 +1,9 @@
 // project.service.ts
-import {inject, Injectable} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
 import {Project} from "../models/project";
 import {enviroment} from "../.env/enviroment";
-import {AuthService} from "./auth.service";
 
 @Injectable({
     providedIn: 'root'

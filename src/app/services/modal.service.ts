@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {Observable} from 'rxjs';
 import {ConfirmationDialogComponent, ConfirmationDialogData} from "../utils/delete-modal.component";
 
 @Injectable({

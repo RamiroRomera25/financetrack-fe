@@ -1,22 +1,21 @@
-import {Component, inject, OnInit} from "@angular/core"
-import { CommonModule } from "@angular/common"
-import { MatCardModule } from "@angular/material/card"
-import { MatIconModule } from "@angular/material/icon"
-import { MatButtonModule } from "@angular/material/button"
-import { MatInputModule } from "@angular/material/input"
-import { MatFormFieldModule } from "@angular/material/form-field"
-import { MatSelectModule } from "@angular/material/select"
-import { MatDividerModule } from "@angular/material/divider"
-import { MatListModule } from "@angular/material/list"
-import { MatTooltipModule } from "@angular/material/tooltip"
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from "@angular/forms"
+import {Component, inject} from "@angular/core"
+import {CommonModule} from "@angular/common"
+import {MatCardModule} from "@angular/material/card"
+import {MatIconModule} from "@angular/material/icon"
+import {MatButtonModule} from "@angular/material/button"
+import {MatInputModule} from "@angular/material/input"
+import {MatFormFieldModule} from "@angular/material/form-field"
+import {MatSelectModule} from "@angular/material/select"
+import {MatDividerModule} from "@angular/material/divider"
+import {MatListModule} from "@angular/material/list"
+import {MatTooltipModule} from "@angular/material/tooltip"
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms"
 import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
 import {ActivatedRoute} from "@angular/router";
 import {CategoryService} from "../../services/category.service";
 import {Category, CategoryDTOPost, CategoryDTOPut} from "../../models/category";
 import {ModalService} from "../../services/modal.service";
 import {SnackBarService} from "../../services/snack-bar.service";
-
 
 
 @Component({

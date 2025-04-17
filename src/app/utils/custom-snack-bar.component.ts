@@ -1,8 +1,8 @@
-import { Component, Inject } from '@angular/core';
-import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
-import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import {Component, Inject} from '@angular/core';
+import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
+import {CommonModule} from '@angular/common';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
 
 @Component({
   selector: 'app-custom-snack-bar',

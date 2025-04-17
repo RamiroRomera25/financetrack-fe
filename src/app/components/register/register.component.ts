@@ -1,18 +1,13 @@
 import {Component, inject} from "@angular/core";
-import {
-    FormGroup,
-    Validators,
-    ReactiveFormsModule,
-    FormControl
-} from "@angular/forms";
-import { Router } from "@angular/router";
-import { CommonModule } from "@angular/common";
-import { MatInputModule } from "@angular/material/input";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatButtonModule } from "@angular/material/button";
-import { MatIconModule } from "@angular/material/icon";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { provideNativeDateAdapter } from "@angular/material/core";
+import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {Router} from "@angular/router";
+import {CommonModule} from "@angular/common";
+import {MatInputModule} from "@angular/material/input";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatButtonModule} from "@angular/material/button";
+import {MatIconModule} from "@angular/material/icon";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {provideNativeDateAdapter} from "@angular/material/core";
 import {AuthService} from "../../services/auth.service";
 import {UserDTO, UserDTOPost} from "../../models/user";
 import {passwordConfirmValidator} from "../../validators/sync/password-confirm.validator";

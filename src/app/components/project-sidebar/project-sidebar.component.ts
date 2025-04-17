@@ -1,11 +1,11 @@
-import { Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatButtonModule } from '@angular/material/button';
+import {Component, HostListener, Inject, PLATFORM_ID} from '@angular/core';
+import {CommonModule, isPlatformBrowser} from '@angular/common';
+import {MatIconModule} from '@angular/material/icon';
+import {MatListModule} from '@angular/material/list';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatButtonModule} from '@angular/material/button';
 import {ActivatedRoute, RouterModule} from '@angular/router';
-import { SidebarService } from "../../services/sidebar.service";
+import {SidebarService} from "../../services/sidebar.service";
 
 @Component({
   selector: 'app-project-sidebar',

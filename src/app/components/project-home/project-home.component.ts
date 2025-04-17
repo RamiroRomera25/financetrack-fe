@@ -1,13 +1,13 @@
-import { Component, type OnInit } from "@angular/core"
-import { CommonModule } from "@angular/common"
-import { MatCardModule } from "@angular/material/card"
-import { MatIconModule } from "@angular/material/icon"
-import { MatButtonModule } from "@angular/material/button"
-import { MatTableModule } from "@angular/material/table"
-import { MatProgressBarModule } from "@angular/material/progress-bar"
-import { MatTabsModule } from "@angular/material/tabs"
-import { MatDividerModule } from "@angular/material/divider"
-import type { ChartConfiguration, ChartData, ChartType } from "chart.js"
+import {Component, type OnInit} from "@angular/core"
+import {CommonModule} from "@angular/common"
+import {MatCardModule} from "@angular/material/card"
+import {MatIconModule} from "@angular/material/icon"
+import {MatButtonModule} from "@angular/material/button"
+import {MatTableModule} from "@angular/material/table"
+import {MatProgressBarModule} from "@angular/material/progress-bar"
+import {MatTabsModule} from "@angular/material/tabs"
+import {MatDividerModule} from "@angular/material/divider"
+import type {ChartConfiguration, ChartData, ChartType} from "chart.js"
 import {BaseChartDirective} from "ng2-charts";
 import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
 
