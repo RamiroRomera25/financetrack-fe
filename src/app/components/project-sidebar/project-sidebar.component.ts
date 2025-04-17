@@ -48,7 +48,7 @@ export class ProjectSidebarComponent {
       { name: 'Categorias', icon: 'category', route: `/project/category/${this.projectId}` },
       { name: 'Inversiones', icon: 'trending_up', route: `/project/investment/${this.projectId}` },
       { name: 'Vencimientos', icon: 'event', route: `/project/maturity/${this.projectId}` },
-      { name: 'Recordatorios', icon: 'notifications', route: `/project/recordatorios/${this.projectId}` },
+      { name: 'Recordatorios', icon: 'notifications', route: `/project/reminder/${this.projectId}` },
       { name: 'Metas Financieras', icon: 'flag', route: `/project/goal/${this.projectId}` }
     ];
   }

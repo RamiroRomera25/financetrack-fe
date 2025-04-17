@@ -13,7 +13,6 @@ export class AuthService {
 
     host: string = `${enviroment.auth}`
     isLogged: boolean = false;
-    userName: string = "";
 
     register(post: UserDTOPost): Observable<UserDTO> {
         return this.http.post<UserDTO>(
@@ -33,8 +32,6 @@ export class AuthService {
         ).pipe(
             map((tokenResponse): any => {
                 this.isLogged = true;
-                console.log(tokenResponse.user)
-                this.userName = tokenResponse.user.last_name + " " + tokenResponse.user.first_name ;
                 return toCamelCase(tokenResponse);
             })
         )
@@ -69,9 +66,5 @@ export class AuthService {
         return this.isLogged || !!sessionStorage.getItem("access_token");
       }
       return false;
-    }
-
-    get getUserName() {
-      return this.userName
     }
 }

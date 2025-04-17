@@ -9,6 +9,7 @@ import {ProjectTransactionComponent} from "./components/project-transaction/proj
 import {ProjectInvestmentComponent} from "./components/project-investment/project-investment.component";
 import {ProjectMaturityComponent} from "./components/project-maturity/project-maturity.component";
 import {ProjectGoalComponent} from "./components/project-goal/project-goal.component";
+import {ProjectRemindersComponent} from "./components/project-reminders/project-reminders.component";
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -21,5 +22,6 @@ export const routes: Routes = [
   { path: "project/investment/:p", component: ProjectInvestmentComponent },
   { path: "project/maturity/:p", component: ProjectMaturityComponent },
   { path: "project/goal/:p", component: ProjectGoalComponent },
+  { path: "project/reminder/:p", component: ProjectRemindersComponent },
 ];
 

@@ -11,4 +11,5 @@ export const enviroment = {
   maturities: `${production ? API_URL_PROD : API_URL_DEV}/api/v1/maturities`,
   goals: `${production ? API_URL_PROD : API_URL_DEV}/api/v1/goals`,
   investments: `${production ? API_URL_PROD : API_URL_DEV}/api/v1/investments`,
+  reminders: `${production ? API_URL_PROD : API_URL_DEV}/api/v1/reminders`,
 }
