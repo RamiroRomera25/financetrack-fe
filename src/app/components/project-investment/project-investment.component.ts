@@ -1,5 +1,5 @@
 import { Component, type OnInit } from "@angular/core"
-import {CommonModule, NgClass} from "@angular/common"
+import {CommonModule, DecimalPipe, NgClass} from "@angular/common"
 import { RouterModule } from "@angular/router"
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from "@angular/forms"
 import { MatButtonModule } from "@angular/material/button"
@@ -39,6 +39,7 @@ interface Investment {
     MatSnackBarModule,
     MatTabsModule,
     NgClass,
+    DecimalPipe,
   ],
   templateUrl: './project-investment.component.html',
   styleUrl: './project-investment.component.css'

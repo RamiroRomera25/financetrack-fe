@@ -3,261 +3,224 @@
   <h1 class="section-title">Recordatorios</h1>
   <p class="section-subtitle">Gestiona tus recordatorios financieros y fechas importantes</p>
 
-  <div class="reminders-content">
+  <div class="reminders-layout">
     <!-- Formulario de Recordatorios (50%) -->
-    <div class="reminder-form-section">
-      <mat-card class="form-card">
-        <mat-card-header>
-          <mat-card-title>{{ editMode ? 'Editar Recordatorio' : 'Crear Nuevo Recordatorio' }}</mat-card-title>
-          <mat-card-subtitle>Define la fecha y el asunto de tu recordatorio</mat-card-subtitle>
-        </mat-card-header>
+    <mat-card class="reminder-form-card">
+      <mat-card-header>
+        <mat-card-title>{{ editMode ? 'Editar Recordatorio' : 'Crear Nuevo Recordatorio' }}</mat-card-title>
+      </mat-card-header>
 
-        <mat-card-content>
-          <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()">
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Asunto</mat-label>
-                <input matInput formControlName="subject" placeholder="Ej: Pago de hipoteca" required>
-                <mat-icon matPrefix>subject</mat-icon>
-                @if (reminderForm.get('subject')?.hasError('required') && reminderForm.get('subject')?.touched) {
-                  <mat-error>El asunto es obligatorio</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Fecha del recordatorio</mat-label>
-                <input matInput [matDatepicker]="reminderDatePicker" formControlName="reminderDate" required>
-                <mat-datepicker-toggle matIconSuffix [for]="reminderDatePicker"></mat-datepicker-toggle>
-                <mat-datepicker #reminderDatePicker></mat-datepicker>
-                <mat-icon matPrefix>event</mat-icon>
-                @if (reminderForm.get('reminderDate')?.hasError('required') && reminderForm.get('reminderDate')?.touched) {
-                  <mat-error>La fecha es obligatoria</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Descripción</mat-label>
-                <textarea matInput formControlName="description" rows="3" placeholder="Añade detalles sobre este recordatorio"></textarea>
-                <mat-icon matPrefix>description</mat-icon>
-              </mat-form-field>
-            </div>
-
-            <div class="form-row">
-              <mat-checkbox formControlName="isRecurring" color="primary">Recordatorio recurrente</mat-checkbox>
-            </div>
-
-            @if (reminderForm.get('isRecurring')?.value) {
-              <div class="form-row recurring-options">
-                <mat-form-field appearance="outline">
-                  <mat-label>Frecuencia</mat-label>
-                  <mat-select formControlName="frequency">
-                    <mat-option value="weekly">Semanal</mat-option>
-                    <mat-option value="monthly">Mensual</mat-option>
-                    <mat-option value="quarterly">Trimestral</mat-option>
-                    <mat-option value="yearly">Anual</mat-option>
-                  </mat-select>
-                  <mat-icon matPrefix>repeat</mat-icon>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                  <mat-label>Repetir hasta</mat-label>
-                  <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
-                  <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-                  <mat-datepicker #endDatePicker></mat-datepicker>
-                  <mat-icon matPrefix>event_busy</mat-icon>
-                </mat-form-field>
-              </div>
+      <mat-card-content>
+        <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()" class="reminder-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Asunto</mat-label>
+            <input matInput formControlName="subject" placeholder="Ej: Pago de hipoteca" required>
+            <mat-icon matPrefix>subject</mat-icon>
+            @if (reminderForm.get('subject')?.hasError('required') && reminderForm.get('subject')?.touched) {
+              <mat-error>El asunto es obligatorio</mat-error>
             }
-
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Prioridad</mat-label>
-                <mat-select formControlName="priority">
-                  <mat-option value="low">
-                    <div class="priority-option">
-                      <span class="priority-indicator low"></span>
-                      <span>Baja</span>
-                    </div>
-                  </mat-option>
-                  <mat-option value="medium">
-                    <div class="priority-option">
-                      <span class="priority-indicator medium"></span>
-                      <span>Media</span>
-                    </div>
-                  </mat-option>
-                  <mat-option value="high">
-                    <div class="priority-option">
-                      <span class="priority-indicator high"></span>
-                      <span>Alta</span>
-                    </div>
-                  </mat-option>
-                </mat-select>
-                <mat-icon matPrefix>priority_high</mat-icon>
-              </mat-form-field>
-            </div>
-
-            <div class="form-actions">
-              <button mat-raised-button type="submit" class="submit-button" [disabled]="reminderForm.invalid">
-                <mat-icon>{{editMode ? 'save' : 'add_circle'}}</mat-icon>
-                {{editMode ? 'Actualizar Recordatorio' : 'Crear Recordatorio'}}
-              </button>
-
-              @if (editMode) {
-                <button mat-stroked-button type="button" color="warn" class="cancel-button" (click)="cancelEdit()">
-                  <mat-icon>cancel</mat-icon>
-                  Cancelar
-                </button>
-              }
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="tips-card">
-        <mat-card-header>
-          <div mat-card-avatar class="tips-icon">
-            <mat-icon>lightbulb</mat-icon>
-          </div>
-          <mat-card-title>Consejos para recordatorios</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <ul class="tips-list">
-            <li>
-              <mat-icon class="tip-icon">check_circle</mat-icon>
-              <span>Establece recordatorios para pagos recurrentes importantes</span>
-            </li>
-            <li>
-              <mat-icon class="tip-icon">check_circle</mat-icon>
-              <span>Usa prioridades para distinguir entre recordatorios críticos y opcionales</span>
-            </li>
-            <li>
-              <mat-icon class="tip-icon">check_circle</mat-icon>
-              <span>Añade descripciones detalladas para recordar el contexto</span>
-            </li>
-          </ul>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <!-- Lista de Recordatorios (50%) -->
-    <div class="reminder-list-section">
-      <div class="list-header">
-        <h2 class="list-title">Mis Recordatorios</h2>
-        <div class="list-actions">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>Buscar</mat-label>
-            <input matInput (keyup)="applyFilter($event)" placeholder="Buscar recordatorio...">
-            <mat-icon matPrefix>search</mat-icon>
           </mat-form-field>
 
-          <button mat-icon-button [matMenuTriggerFor]="filterMenu" class="filter-button">
-            <mat-icon>filter_list</mat-icon>
-          </button>
-          <mat-menu #filterMenu="matMenu">
-            <button mat-menu-item (click)="filterReminders('all')">
-              <mat-icon>list</mat-icon>
-              <span>Todos</span>
-            </button>
-            <button mat-menu-item (click)="filterReminders('upcoming')">
-              <mat-icon>upcoming</mat-icon>
-              <span>Próximos</span>
-            </button>
-            <button mat-menu-item (click)="filterReminders('today')">
-              <mat-icon>today</mat-icon>
-              <span>Hoy</span>
-            </button>
-            <button mat-menu-item (click)="filterReminders('overdue')">
-              <mat-icon>event_busy</mat-icon>
-              <span>Vencidos</span>
-            </button>
-          </mat-menu>
-
-          <button mat-icon-button [matMenuTriggerFor]="sortMenu" class="sort-button">
-            <mat-icon>sort</mat-icon>
-          </button>
-          <mat-menu #sortMenu="matMenu">
-            <button mat-menu-item (click)="sortReminders('date')">
-              <mat-icon>event</mat-icon>
-              <span>Ordenar por fecha</span>
-            </button>
-            <button mat-menu-item (click)="sortReminders('priority')">
-              <mat-icon>priority_high</mat-icon>
-              <span>Ordenar por prioridad</span>
-            </button>
-          </mat-menu>
-        </div>
-      </div>
-
-      <div class="reminders-summary">
-        <div class="summary-card">
-          <div class="summary-value">{{reminders.length}}</div>
-          <div class="summary-label">Total</div>
-        </div>
-        <div class="summary-card upcoming">
-          <div class="summary-value">{{upcomingCount}}</div>
-          <div class="summary-label">Próximos</div>
-        </div>
-        <div class="summary-card overdue">
-          <div class="summary-value">{{overdueCount}}</div>
-          <div class="summary-label">Vencidos</div>
-        </div>
-      </div>
-
-      <div class="reminders-list">
-        @if (filteredReminders.length === 0) {
-          <div class="empty-list">
-            <mat-icon class="empty-icon">notifications_off</mat-icon>
-            <p>No tienes recordatorios</p>
-            <p class="empty-subtitle">Utiliza el formulario para crear tu primer recordatorio</p>
-          </div>
-        } @else {
-          <mat-card class="reminder-item" *ngFor="let reminder of filteredReminders" [ngClass]="getReminderStatusClass(reminder.reminderDate)">
-            <div class="reminder-header">
-              <div class="reminder-subject">
-                <span class="priority-dot" [ngClass]="reminder.priority"></span>
-                {{reminder.subject}}
-              </div>
-              <div class="reminder-actions">
-                <button mat-icon-button color="primary" (click)="editReminder(reminder)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" (click)="deleteReminder(reminder.id)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </div>
-
-            <div class="reminder-date">
-              <mat-icon>{{getReminderDateIcon(reminder.reminderDate)}}</mat-icon>
-              <span>{{reminder.reminderDate | date:'dd/MM/yyyy'}}</span>
-              @if (reminder.isRecurring) {
-                <span class="recurring-badge">
-                  <mat-icon>repeat</mat-icon>
-                  {{reminder.frequency}}
-                </span>
-              }
-            </div>
-
-            @if (reminder.description) {
-              <div class="reminder-description">
-                {{reminder.description}}
-              </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha del recordatorio</mat-label>
+            <input matInput [matDatepicker]="reminderDatePicker" formControlName="reminderDate" required>
+            <mat-datepicker-toggle matIconSuffix [for]="reminderDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #reminderDatePicker></mat-datepicker>
+            <mat-icon matPrefix>event</mat-icon>
+            @if (reminderForm.get('reminderDate')?.hasError('required') && reminderForm.get('reminderDate')?.touched) {
+              <mat-error>La fecha es obligatoria</mat-error>
             }
+          </mat-form-field>
 
-            <div class="reminder-footer">
-              <div class="time-remaining" [ngClass]="getTimeRemainingClass(reminder.reminderDate)">
-                <mat-icon>{{getTimeRemainingIcon(reminder.reminderDate)}}</mat-icon>
-                <span>{{getTimeRemainingText(reminder.reminderDate)}}</span>
+          <mat-form-field appearance="outline">
+            <mat-label>Descripción</mat-label>
+            <textarea matInput formControlName="description" rows="3" placeholder="Añade detalles sobre este recordatorio"></textarea>
+            <mat-icon matPrefix>description</mat-icon>
+          </mat-form-field>
+
+          <div class="checkbox-field">
+            <mat-checkbox formControlName="isRecurring" color="primary">Recordatorio recurrente</mat-checkbox>
+          </div>
+
+          @if (reminderForm.get('isRecurring')?.value) {
+            <div class="recurring-options">
+              <mat-form-field appearance="outline">
+                <mat-label>Frecuencia</mat-label>
+                <mat-select formControlName="frequency">
+                  <mat-option value="weekly">Semanal</mat-option>
+                  <mat-option value="monthly">Mensual</mat-option>
+                  <mat-option value="quarterly">Trimestral</mat-option>
+                  <mat-option value="yearly">Anual</mat-option>
+                </mat-select>
+                <mat-icon matPrefix>repeat</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Repetir hasta</mat-label>
+                <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
+                <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #endDatePicker></mat-datepicker>
+                <mat-icon matPrefix>event_busy</mat-icon>
+              </mat-form-field>
+            </div>
+          }
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prioridad</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option value="low">
+                <div class="priority-option">
+                  <span class="priority-indicator low"></span>
+                  <span>Baja</span>
+                </div>
+              </mat-option>
+              <mat-option value="medium">
+                <div class="priority-option">
+                  <span class="priority-indicator medium"></span>
+                  <span>Media</span>
+                </div>
+              </mat-option>
+              <mat-option value="high">
+                <div class="priority-option">
+                  <span class="priority-indicator high"></span>
+                  <span>Alta</span>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>priority_high</mat-icon>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-button (click)="cancelEdit()">Cancelar</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="reminderForm.invalid">
+              {{editMode ? 'Actualizar Recordatorio' : 'Crear Recordatorio'}}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Lista de Recordatorios (50%) -->
+    <mat-card class="reminders-list-card">
+      <mat-card-header>
+        <mat-card-title>Mis Recordatorios</mat-card-title>
+        <span class="reminder-count">{{ reminders.length }} recordatorios</span>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="filter-options">
+          <div class="search-container">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar</mat-label>
+              <input matInput (keyup)="applyFilter($event)" placeholder="Buscar recordatorio...">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="filter-actions">
+            <button mat-icon-button [matMenuTriggerFor]="filterMenu" class="filter-button" matTooltip="Filtrar">
+              <mat-icon>filter_list</mat-icon>
+            </button>
+            <mat-menu #filterMenu="matMenu">
+              <button mat-menu-item (click)="filterReminders('all')">
+                <mat-icon>list</mat-icon>
+                <span>Todos</span>
+              </button>
+              <button mat-menu-item (click)="filterReminders('upcoming')">
+                <mat-icon>upcoming</mat-icon>
+                <span>Próximos</span>
+              </button>
+              <button mat-menu-item (click)="filterReminders('today')">
+                <mat-icon>today</mat-icon>
+                <span>Hoy</span>
+              </button>
+              <button mat-menu-item (click)="filterReminders('overdue')">
+                <mat-icon>event_busy</mat-icon>
+                <span>Vencidos</span>
+              </button>
+            </mat-menu>
+
+            <button mat-icon-button [matMenuTriggerFor]="sortMenu" class="sort-button" matTooltip="Ordenar">
+              <mat-icon>sort</mat-icon>
+            </button>
+            <mat-menu #sortMenu="matMenu">
+              <button mat-menu-item (click)="sortReminders('date')">
+                <mat-icon>event</mat-icon>
+                <span>Ordenar por fecha</span>
+              </button>
+              <button mat-menu-item (click)="sortReminders('priority')">
+                <mat-icon>priority_high</mat-icon>
+                <span>Ordenar por prioridad</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+
+        <div class="reminders-summary">
+          <div class="summary-card">
+            <div class="summary-value">{{reminders.length}}</div>
+            <div class="summary-label">Total</div>
+          </div>
+          <div class="summary-card upcoming">
+            <div class="summary-value">{{upcomingCount}}</div>
+            <div class="summary-label">Próximos</div>
+          </div>
+          <div class="summary-card overdue">
+            <div class="summary-value">{{overdueCount}}</div>
+            <div class="summary-label">Vencidos</div>
+          </div>
+        </div>
+
+        <div class="reminders-list">
+          @if (filteredReminders.length === 0) {
+            <div class="empty-state">
+              <mat-icon>notifications_off</mat-icon>
+              <p>No hay recordatorios disponibles</p>
+            </div>
+          } @else {
+            <div class="reminder-item" *ngFor="let reminder of filteredReminders" [ngClass]="getReminderStatusClass(reminder.reminderDate)">
+              <div class="reminder-header">
+                <div class="reminder-subject">
+                  <span class="priority-dot" [ngClass]="reminder.priority"></span>
+                  {{reminder.subject}}
+                </div>
+                <div class="reminder-actions">
+                  <button mat-icon-button color="primary" (click)="editReminder(reminder)" matTooltip="Editar">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteReminder(reminder.id)" matTooltip="Eliminar">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="reminder-date">
+                <mat-icon>{{getReminderDateIcon(reminder.reminderDate)}}</mat-icon>
+                <span>{{reminder.reminderDate | date:'dd/MM/yyyy'}}</span>
+                @if (reminder.isRecurring) {
+                  <span class="recurring-badge">
+                    <mat-icon>repeat</mat-icon>
+                    {{reminder.frequency}}
+                  </span>
+                }
+              </div>
+
+              @if (reminder.description) {
+                <div class="reminder-description">
+                  {{reminder.description}}
+                </div>
+              }
+
+              <div class="reminder-footer">
+                <div class="time-remaining" [ngClass]="getTimeRemainingClass(reminder.reminderDate)">
+                  <mat-icon>{{getTimeRemainingIcon(reminder.reminderDate)}}</mat-icon>
+                  <span>{{getTimeRemainingText(reminder.reminderDate)}}</span>
+                </div>
               </div>
             </div>
-          </mat-card>
-        }
-      </div>
-    </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>
-

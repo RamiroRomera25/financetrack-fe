@@ -13,7 +13,7 @@ import { MatSelectModule } from "@angular/material/select"
 import { MatCheckboxModule } from "@angular/material/checkbox"
 import { MatMenuModule } from "@angular/material/menu"
 import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 
 interface ReminderEntity {
   id: number
@@ -146,7 +146,6 @@ export class ProjectRemindersComponent implements OnInit {
       if (this.editMode && this.currentReminderId !== null) {
         // Actualizar recordatorio existente
         const index = this.reminders.findIndex((reminder) => reminder.id === this.currentReminderId)
-
         if (index !== -1) {
           this.reminders[index] = {
             ...formValue,

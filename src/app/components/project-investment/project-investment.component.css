@@ -1,3 +1,21 @@
+/* Variables CSS */
+:root {
+  --primary-color: #14a12c;
+  --secondary-color: #2563eb;
+  --primary-light: rgba(20, 161, 44, 0.1);
+  --secondary-light: rgba(37, 99, 235, 0.1);
+  --text-color: #333;
+  --light-text: #666;
+  --white: #fff;
+  --light-bg: #f8f9fa;
+  --border-color: #ddd;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --gradient: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  --positive-color: #14a12c;
+  --negative-color: #e53935;
+}
+
 /* Estilos generales */
 :host {
   display: block;
@@ -8,15 +26,32 @@
 }
 
 .investments-container {
-  max-width: 1200px;
+  padding: 24px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
 }
 
 /* Encabezado de página */
 .page-header {
   text-align: center;
   margin-bottom: 30px;
+}
+
+.page-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #14a12c 0%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
 }
 
 .section-title {
@@ -57,6 +92,13 @@
   width: 50%;
 }
 
+/* Layout */
+.investments-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
 /* Estilos del formulario */
 .form-card {
   background-color: #fff;
@@ -75,22 +117,67 @@
   color: #666;
 }
 
+/* Card Styles */
+.investment-form-card,
+.investments-list-card {
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  height: fit-content;
+}
+
+.investment-form-card mat-card-header,
+.investments-list-card mat-card-header {
+  padding: 16px;
+  border-bottom: 1px solid #edf2f7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.investment-form-card mat-card-title,
+.investments-list-card mat-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #2d3748;
+}
+
+.investment-form-card mat-card-content,
+.investments-list-card mat-card-content {
+  padding: 16px;
+}
+
+.investment-count {
+  font-size: 0.9rem;
+  color: #718096;
+  background-color: #edf2f7;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Form Styles */
+.investment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
 .form-row {
   display: flex;
-  gap: 15px;
-  margin-bottom: 10px;
+  gap: 16px;
 }
 
 .form-row mat-form-field {
   flex: 1;
-  width: 100%;
 }
 
 .calculated-value {
-  background-color: #f8f9fa;
+  background-color: #f8faff;
   padding: 15px;
   border-radius: 8px;
-  margin: 20px 0;
+  margin: 16px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -109,18 +196,9 @@
 
 .form-actions {
   display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.submit-button {
-  flex: 2;
-  background: linear-gradient(90deg, #14a12c 0%, #2563eb 100%) !important;
-  color: white !important;
-}
-
-.cancel-button {
-  flex: 1;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 /* Tarjeta de consejos */
@@ -138,6 +216,21 @@
   justify-content: center;
 }
 
+/* Tips Info */
+.tips-info {
+  margin-top: 24px;
+  background-color: #f8faff;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.info-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #2d3748;
+}
+
 .tips-list {
   list-style: none;
   padding: 0;
@@ -147,7 +240,7 @@
 .tips-list li {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .tip-icon {
@@ -177,6 +270,27 @@
   gap: 10px;
 }
 
+/* Filter and Search */
+.filter-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-container {
+  flex: 1;
+}
+
+.search-field {
+  width: 100%;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .search-field {
   width: 200px;
   font-size: 0.9rem;
@@ -190,7 +304,7 @@
 .investments-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
@@ -206,6 +320,7 @@
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 5px;
+  color: #2563eb;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -233,7 +348,7 @@
 
 /* Lista de inversiones */
 .investments-list {
-  max-height: 600px;
+  max-height: 500px;
   overflow-y: auto;
   padding-right: 5px;
 }
@@ -279,6 +394,11 @@
   background-color: rgba(37, 99, 235, 0.1);
   padding: 5px 10px;
   border-radius: 4px;
+}
+
+.investment-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .investment-name {
@@ -364,6 +484,23 @@
   color: #666 !important;
 }
 
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  color: #a0aec0;
+}
+
+.empty-state mat-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  margin-bottom: 16px;
+}
+
 /* Media Queries */
 @media (max-width: 992px) {
   .investments-content {
@@ -376,7 +513,16 @@
   }
 }
 
+/* Responsive Adjustments */
 @media (max-width: 768px) {
+  .investments-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+  }
+
   .form-row {
     flex-direction: column;
     gap: 0;
@@ -400,6 +546,12 @@
 }
 
 @media (max-width: 576px) {
+  .filter-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
   .list-header {
     flex-direction: column;
     align-items: flex-start;
@@ -408,6 +560,11 @@
 
   .list-actions {
     width: 100%;
+  }
+
+  .filter-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .search-field {

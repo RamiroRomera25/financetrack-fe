@@ -1,22 +1,7 @@
-/* Estilos generales */
-:host {
-  display: block;
-  background-color: #f8f9fa;
-  color: #333;
-  min-height: 100vh;
-  padding: 20px 0 40px;
-}
-
 .goals-container {
-  max-width: 1200px;
+  padding: 24px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* Encabezado de página */
-.page-header {
-  text-align: center;
-  margin-bottom: 30px;
 }
 
 .section-title {
@@ -45,49 +30,64 @@
   margin: 1.5rem 0 2rem;
 }
 
-/* Contenido principal - Layout de 50/50 */
-.goals-content {
+/* Layout */
+.goals-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* Card Styles */
+.goal-form-card,
+.goals-list-card {
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  height: fit-content;
+}
+
+.goal-form-card mat-card-header,
+.goals-list-card mat-card-header {
+  padding: 16px;
+  border-bottom: 1px solid #edf2f7;
   display: flex;
-  gap: 30px;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.goal-form-section,
-.goal-list-section {
-  flex: 1;
-  width: 50%;
-}
-
-/* Estilos del formulario */
-.form-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
-.form-card mat-card-title {
-  font-size: 1.5rem;
+.goal-form-card mat-card-title,
+.goals-list-card mat-card-title {
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  margin: 0;
+  color: #2d3748;
 }
 
-.form-card mat-card-subtitle {
-  color: #666;
+.goal-form-card mat-card-content,
+.goals-list-card mat-card-content {
+  padding: 16px;
 }
 
-.form-row {
-  margin-bottom: 15px;
+.goal-count {
+  font-size: 0.9rem;
+  color: #718096;
+  background-color: #edf2f7;
+  padding: 4px 8px;
+  border-radius: 12px;
 }
 
-.full-width {
-  width: 100%;
+/* Form Styles */
+.goal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .progress-preview {
   background-color: #f8f9fa;
   padding: 15px;
   border-radius: 8px;
-  margin: 20px 0;
+  margin: 16px 0;
 }
 
 .progress-label {
@@ -107,88 +107,32 @@
 
 .form-actions {
   display: flex;
-  gap: 15px;
-  margin-top: 20px;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
 }
 
-.submit-button {
-  flex: 2;
-  background: linear-gradient(90deg, #14a12c 0%, #2563eb 100%) !important;
-  color: white !important;
-}
-
-.cancel-button {
-  flex: 1;
-}
-
-/* Tarjeta de consejos */
-.tips-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.tips-icon {
-  background-color: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.tips-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.tips-list li {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 15px;
-}
-
-.tip-icon {
-  color: #14a12c;
-  margin-right: 10px;
-  flex-shrink: 0;
-}
-
-/* Estilos de la lista */
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.list-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-  color: #333;
-}
-
-.list-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* Search and Filter */
+.search-container {
+  margin-bottom: 16px;
 }
 
 .search-field {
-  width: 200px;
-  font-size: 0.9rem;
+  width: 100%;
 }
 
-.sort-button {
-  color: #2563eb;
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-/* Resumen de metas */
+/* Summary Cards */
 .goals-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
@@ -212,24 +156,10 @@
   color: #666;
 }
 
-/* Lista de metas */
+/* Goals List */
 .goals-list {
-  max-height: 600px;
+  max-height: 500px;
   overflow-y: auto;
-  padding-right: 5px;
-}
-
-.goals-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.goals-list::-webkit-scrollbar-track {
-  background: #f8f9fa;
-}
-
-.goals-list::-webkit-scrollbar-thumb {
-  background-color: #ddd;
-  border-radius: 20px;
 }
 
 .goal-item {
@@ -254,9 +184,14 @@
 }
 
 .goal-objective {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #333;
+}
+
+.goal-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .goal-details {
@@ -355,51 +290,31 @@
   color: #2563eb;
 }
 
-/* Estado vacío */
-.empty-list {
-  text-align: center;
-  padding: 50px 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  color: #a0aec0;
 }
 
-.empty-icon {
-  font-size: 60px;
-  height: 60px;
-  width: 60px;
-  color: #666;
-  margin-bottom: 20px;
+.empty-state mat-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  margin-bottom: 16px;
 }
 
-.empty-list p {
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin: 0 0 10px;
-  color: #333;
-}
-
-.empty-subtitle {
-  font-size: 1rem !important;
-  font-weight: 400 !important;
-  color: #666 !important;
-}
-
-/* Media Queries */
-@media (max-width: 992px) {
-  .goals-content {
-    flex-direction: column;
-  }
-
-  .goal-form-section,
-  .goal-list-section {
-    width: 100%;
-  }
-}
-
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-  .goals-summary {
+  .goals-layout {
     grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
   }
 
   .goal-details {
@@ -416,17 +331,7 @@
 }
 
 @media (max-width: 576px) {
-  .list-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-
-  .list-actions {
-    width: 100%;
-  }
-
-  .search-field {
+  .filter-actions {
     width: 100%;
   }
 }
