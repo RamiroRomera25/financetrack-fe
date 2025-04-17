@@ -33,4 +33,19 @@
       }
     </div>
   </div>
+
+  <!-- Premium Upgrade Button -->
+  <div class="sidebar-footer">
+    <button
+      mat-raised-button
+      class="premium-button"
+      [class.icon-only]="!sidebarService.expanded"
+      (click)="upgradeToPremium()"
+    >
+      <mat-icon class="premium-icon">workspace_premium</mat-icon>
+      @if (sidebarService.expanded) {
+        <span class="premium-text">Upgrade to Premium</span>
+      }
+    </button>
+  </div>
 </div>

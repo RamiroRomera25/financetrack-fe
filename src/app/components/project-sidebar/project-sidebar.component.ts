@@ -6,6 +6,8 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatButtonModule} from '@angular/material/button';
 import {ActivatedRoute, RouterModule} from '@angular/router';
 import {SidebarService} from "../../services/sidebar.service";
+import {MercadoPagoService} from "../../services/mercado-pago.service";
+import {SnackBarService} from "../../services/snack-bar.service";
 
 @Component({
   selector: 'app-project-sidebar',
@@ -24,10 +26,13 @@ import {SidebarService} from "../../services/sidebar.service";
 export class ProjectSidebarComponent {
   projectId: number = 0;
   menuItems: any[] = [];
+  isLoading: boolean = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     public sidebarService: SidebarService,
+    private mercadoPagoService: MercadoPagoService,
+    private snackBarService: SnackBarService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -69,5 +74,30 @@ export class ProjectSidebarComponent {
     if (isPlatformBrowser(this.platformId) && window.innerWidth < 768) {
       this.sidebarService.close();
     }
+  }
+
+  // Método para manejar la actualización a premium
+  upgradeToPremium() {
+    if (this.isLoading) return;
+
+    this.isLoading = true;
+    this.snackBarService.sendInfo('Procesando su solicitud...');
+
+    this.mercadoPagoService.createPreference().subscribe({
+      next: (response) => {
+        this.isLoading = false;
+
+        if (response && response.initPoint) {
+          window.open(response.initPoint, '_blank');
+        } else {
+          this.snackBarService.sendError('No se pudo iniciar el proceso de pago. Intente nuevamente.');
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.snackBarService.sendError('Error al procesar la solicitud de actualización a Premium. Intente nuevamente más tarde.');
+        console.error('Error upgrading to premium:', error);
+      }
+    });
   }
 }
