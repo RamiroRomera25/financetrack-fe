@@ -24,7 +24,7 @@ import { TransactionService } from "../../services/transaction.service"
 import { CategoryService } from "../../services/category.service"
 import { SnackBarService } from "../../services/snack-bar.service"
 import { ModalService } from "../../services/modal.service"
-import type { Transaction, TransactionDTOPost, TransactionDTOPut } from "../../models/Transaction"
+import { Transaction, TransactionDTOPost, TransactionDTOPut } from "../../models/transaction"
 import type { Category } from "../../models/category"
 
 @Component({
