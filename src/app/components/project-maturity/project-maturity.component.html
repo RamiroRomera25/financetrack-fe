@@ -1,21 +1,21 @@
 <app-project-sidebar></app-project-sidebar>
 <div class="maturity-container">
-  <h1 class="section-title">Madurez de Proyectos</h1>
-  <p class="section-subtitle">Gestiona los vencimientos y estados de madurez de tus proyectos</p>
+  <h1 class="section-title">Vencimientos</h1>
+  <p class="section-subtitle">Gestiona los vencimientos y estados de vencimiento de tus proyectos</p>
 
   <div class="maturity-layout">
-    <!-- Formulario de Madurez (50%) -->
+    <!-- Formulario de Vencimiento (50%) -->
     <mat-card class="maturity-form-card">
       <mat-card-header>
-        <mat-card-title>{{ editMode ? 'Editar Madurez' : 'Añadir Nueva Madurez' }}</mat-card-title>
+        <mat-card-title>{{ editMode ? 'Editar Vencimiento' : 'Añadir Nuevo Vencimiento' }}</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
         <form [formGroup]="maturityForm" (ngSubmit)="onSubmit()" class="maturity-form">
           <mat-form-field appearance="outline">
-            <mat-label>Cantidad</mat-label>
+            <mat-label>Cantidad a Pagar</mat-label>
             <input matInput type="number" formControlName="quantity" min="1" required>
-            <mat-icon matPrefix>format_list_numbered</mat-icon>
+            <mat-icon matPrefix>attach_money</mat-icon>
             @if (maturityForm.get('quantity')?.hasError('required') && maturityForm.get('quantity')?.touched) {
               <mat-error>La cantidad es obligatoria</mat-error>
             }
@@ -35,68 +35,70 @@
             }
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
-            <mat-select formControlName="state" required>
-              <mat-option *ngFor="let state of maturityStates" [value]="state.value">
-                <div class="state-option">
-                  <span class="state-indicator" [ngClass]="state.class"></span>
-                  <span>{{state.label}}</span>
-                </div>
-              </mat-option>
-            </mat-select>
-            <mat-icon matPrefix>flag</mat-icon>
-            @if (maturityForm.get('state')?.hasError('required') && maturityForm.get('state')?.touched) {
-              <mat-error>El estado es obligatorio</mat-error>
-            }
-          </mat-form-field>
+          @if (editMode) {
+            <mat-form-field appearance="outline">
+              <mat-label>Estado</mat-label>
+              <mat-select formControlName="state" required>
+                <mat-option *ngFor="let state of maturityStates" [value]="state.value">
+                  <div class="state-option">
+                    <span class="state-indicator" [ngClass]="state.class"></span>
+                    <span>{{state.label}}</span>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>flag</mat-icon>
+              @if (maturityForm.get('state')?.hasError('required') && maturityForm.get('state')?.touched) {
+                <mat-error>El estado es obligatorio</mat-error>
+              }
+            </mat-form-field>
+          }
 
           <div class="form-actions">
             <button mat-button (click)="cancelEdit()">Cancelar</button>
             <button mat-raised-button color="primary" type="submit" [disabled]="maturityForm.invalid">
-              {{editMode ? 'Actualizar Madurez' : 'Añadir Madurez'}}
+              {{editMode ? 'Actualizar Vencimiento' : 'Añadir Vencimiento'}}
             </button>
           </div>
         </form>
 
         <div class="states-info">
-          <h3 class="info-title">Estados de Madurez</h3>
+          <h3 class="info-title">Estados de Vencimiento</h3>
           <div class="state-info-item">
             <span class="state-indicator solved"></span>
             <div class="state-info-content">
               <span class="state-label">Resuelto</span>
-              <span class="state-description">El proyecto ha alcanzado su madurez y ha sido resuelto satisfactoriamente.</span>
+              <span class="state-description">El proyecto ha alcanzado su vencimiento y ha sido resuelto satisfactoriamente.</span>
             </div>
           </div>
           <div class="state-info-item">
             <span class="state-indicator on-wait"></span>
             <div class="state-info-content">
               <span class="state-label">En Espera</span>
-              <span class="state-description">El proyecto está en espera de alcanzar su fecha de madurez.</span>
+              <span class="state-description">El proyecto está en espera de alcanzar su fecha de vencimiento.</span>
             </div>
           </div>
           <div class="state-info-item">
             <span class="state-indicator notificated"></span>
             <div class="state-info-content">
               <span class="state-label">Notificado</span>
-              <span class="state-description">Se ha enviado una notificación sobre la próxima madurez del proyecto.</span>
+              <span class="state-description">Se ha enviado una notificación sobre la próxima vencimiento del proyecto.</span>
             </div>
           </div>
           <div class="state-info-item">
             <span class="state-indicator late"></span>
             <div class="state-info-content">
               <span class="state-label">Atrasado</span>
-              <span class="state-description">El proyecto ha superado su fecha de madurez sin resolverse.</span>
+              <span class="state-description">El proyecto ha superado su fecha de vencimiento sin resolverse.</span>
             </div>
           </div>
         </div>
       </mat-card-content>
     </mat-card>
 
-    <!-- Lista de Madurez (50%) -->
+    <!-- Lista de Vencimiento (50%) -->
     <mat-card class="maturity-list-card">
       <mat-card-header>
-        <mat-card-title>Proyectos en Maduración</mat-card-title>
+        <mat-card-title>Lista de Vencimientos</mat-card-title>
         <span class="maturity-count">{{ maturityItems.length }} proyectos</span>
       </mat-card-header>
 

@@ -67,8 +67,7 @@ export class ProjectMaturityComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     this.maturityForm = this.fb.group({
       quantity: [1, [Validators.required, Validators.min(1)]],
-      endDate: [new Date(), Validators.required],
-      state: [MaturityState.ON_WAIT, Validators.required],
+      endDate: [new Date(), Validators.required]
     })
   }
 

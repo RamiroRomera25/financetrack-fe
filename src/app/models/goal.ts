@@ -3,6 +3,7 @@ export interface Goal {
   objective: string
   endDate: Date
   quantity: number
+  notes: string
 }
 
 export interface GoalDTOPost {
@@ -10,10 +11,12 @@ export interface GoalDTOPost {
   endDate: Date
   quantity: number
   projectId: number
+  notes: string
 }
 
 export interface GoalDTOPut {
   objective: string
   endDate: Date
   quantity: number
+  notes: string
 }

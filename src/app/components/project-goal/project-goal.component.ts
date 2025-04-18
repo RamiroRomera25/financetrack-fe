@@ -63,7 +63,6 @@ export class ProjectGoalComponent implements OnInit {
       objective: ["", Validators.required],
       quantity: [1000, [Validators.required, Validators.min(1)]],
       endDate: [new Date(new Date().setMonth(new Date().getMonth() + 6)), Validators.required],
-      currentAmount: [0, [Validators.min(0)]],
       notes: [""],
     })
   }
@@ -122,6 +121,7 @@ export class ProjectGoalComponent implements OnInit {
           objective: formValue.objective,
           quantity: formValue.quantity,
           endDate: formValue.endDate,
+          notes: formValue.notes
         }
 
         this.goalService.updateGoal(this.projectId, this.currentGoalId, goalPut).subscribe({
@@ -146,28 +146,19 @@ export class ProjectGoalComponent implements OnInit {
           },
         })
       } else {
-        // TODO: Añadir nueva meta
         const goalPost: GoalDTOPost = {
-          endDate: new Date(), objective: "", projectId: 0, quantity: 0
+          objective: formValue.objective,
+          quantity: formValue.quantity,
+          endDate: formValue.endDate,
+          notes: formValue.notes,
+          projectId: this.projectId
         };
-        // const goalPost: GoalDTOPost = {
-        //   objective: formValue.objective,
-        //   quantity: formValue.quantity,
-        //   endDate: formValue.endDate,
-        //   currentAmount: formValue.currentAmount,
-        //   notes: formValue.notes,
-        //   projectId: this.projectId,
-        // }
 
         this.goalService.createGoal(goalPost).subscribe({
           next: (newGoal) => {
-            // TODO: Pushear
-            // this.goals.push({
-            //   ...newGoal,
-            //   progress: progress,
-            //   currentAmount: formValue.currentAmount,
-            //   notes: formValue.notes,
-            // })
+            this.goals.push({
+              ...newGoal
+            })
             this.snackBarService.sendSuccess("Meta creada correctamente")
             this.filteredGoals = [...this.goals]
             this.calculateSummary()
@@ -184,14 +175,13 @@ export class ProjectGoalComponent implements OnInit {
   editGoal(goal: Goal): void {
     this.editMode = true
     this.currentGoalId = goal.id
-    // TODO: Set Value form
-    // this.goalForm.setValue({
-    //   objective: goal.objective,
-    //   quantity: goal.quantity,
-    //   endDate: new Date(goal.endDate),
-    //   currentAmount: goal.currentAmount,
-    //   notes: goal.notes || "",
-    // })
+    console.log(goal)
+    this.goalForm.setValue({
+      objective: goal.objective,
+      quantity: goal.quantity,
+      endDate: new Date(goal.endDate),
+      notes: goal.notes || "",
+    })
   }
 
   deleteGoal(id: number): void {
