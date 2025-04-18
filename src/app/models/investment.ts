@@ -1,7 +1,12 @@
 export interface Investment {
   id: number
   tickerSymbol: string
+  name: string
   quantity: number
+  price: number
+  value: number
+  change: number
+  changePercentage: number
 }
 
 export interface InvestmentDTOPost {
@@ -11,6 +16,5 @@ export interface InvestmentDTOPost {
 }
 
 export interface InvestmentDTOPut {
-  tickerSymbol: string
   quantity: number
 }

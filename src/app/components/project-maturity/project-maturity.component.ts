@@ -67,7 +67,8 @@ export class ProjectMaturityComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     this.maturityForm = this.fb.group({
       quantity: [1, [Validators.required, Validators.min(1)]],
-      endDate: [new Date(), Validators.required]
+      endDate: [new Date(), Validators.required],
+      state: ['']
     })
   }
 
@@ -160,9 +161,10 @@ export class ProjectMaturityComponent implements OnInit {
   editMaturity(item: Maturity): void {
     this.editMode = true
     this.currentMaturityId = item.id
+    this.maturityForm.controls['state'].addValidators(Validators.required)
     this.maturityForm.setValue({
       quantity: item.quantity,
-      endDate: item.endDate,
+      endDate: new Date(item.endDate),
       state: item.state,
     })
   }
@@ -190,6 +192,7 @@ export class ProjectMaturityComponent implements OnInit {
   }
 
   cancelEdit(): void {
+    this.maturityForm.controls['state'].removeValidators(Validators.required)
     this.resetForm()
   }
 

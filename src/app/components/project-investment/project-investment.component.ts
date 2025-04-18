@@ -55,11 +55,7 @@ export class ProjectInvestmentComponent {
   constructor(private fb: FormBuilder) {
     this.investmentForm = this.fb.group({
       tickerSymbol: ["", Validators.required],
-      name: ["", Validators.required],
       quantity: [0, [Validators.required, Validators.min(0.01)]],
-      price: [0, [Validators.required, Validators.min(0.01)]],
-      change: [0],
-      changePercentage: [0],
     })
   }
 
@@ -84,21 +80,15 @@ export class ProjectInvestmentComponent {
     })
   }
 
-  calculateTotalValue(): number {
-    const quantity = this.investmentForm.get("quantity")?.value || 0
-    const price = this.investmentForm.get("price")?.value || 0
-    return quantity * price
-  }
-
   calculatePortfolioTotals(): void {
     // TODO: Todo ?
-    // this.totalPortfolioValue = this.investments.reduce((total, investment) => total + investment.value, 0)
-    //
-    // // Calcular el cambio porcentual ponderado
-    // const totalInvestment = this.totalPortfolioValue - this.investments.reduce((total, inv) => total + inv.change, 0)
-    // const totalChange = this.investments.reduce((total, inv) => total + inv.change, 0)
+    this.totalPortfolioValue = this.investments.reduce((total, investment) => total + investment.value, 0)
 
-    // this.totalChangePercentage = totalInvestment > 0 ? (totalChange / totalInvestment) * 100 : 0
+    // Calcular el cambio porcentual ponderado
+    const totalInvestment = this.totalPortfolioValue - this.investments.reduce((total, inv) => total + inv.change, 0)
+    const totalChange = this.investments.reduce((total, inv) => total + inv.change, 0)
+
+    this.totalChangePercentage = totalInvestment > 0 ? (totalChange / totalInvestment) * 100 : 0
   }
 
   onSubmit(): void {
@@ -109,7 +99,6 @@ export class ProjectInvestmentComponent {
       if (this.editMode && this.currentInvestmentId !== null) {
         // Actualizar inversión existente
         const investmentPut: InvestmentDTOPut = {
-          tickerSymbol: formValue.tickerSymbol,
           quantity: formValue.quantity
         }
 
@@ -117,11 +106,9 @@ export class ProjectInvestmentComponent {
           next: (updatedInvestment) => {
             const index = this.investments.findIndex((inv) => inv.id === this.currentInvestmentId)
             if (index !== -1) {
-              // TODO: Push
-              // this.investments[index] = {
-              //   ...updatedInvestment,
-              //   value: value,
-              // }
+              this.investments[index] = {
+                ...updatedInvestment,
+              }
               this.snackBarService.sendSuccess("Inversión actualizada correctamente")
             }
             this.filteredInvestments = [...this.investments]
@@ -142,11 +129,9 @@ export class ProjectInvestmentComponent {
 
         this.investmentService.createInvestment(investmentPost).subscribe({
           next: (newInvestment) => {
-            // TODO: Pushear lista
-            // this.investments.push({
-            //   ...newInvestment,
-            //   value: value,
-            // })
+            this.investments.push({
+              ...newInvestment,
+            })
             this.snackBarService.sendSuccess("Inversión añadida correctamente")
             this.filteredInvestments = [...this.investments]
             this.calculatePortfolioTotals()
@@ -163,15 +148,10 @@ export class ProjectInvestmentComponent {
   editInvestment(investment: Investment): void {
     this.editMode = true
     this.currentInvestmentId = investment.id
-    // TODO: Setear form
-    // this.investmentForm.setValue({
-    //   tickerSymbol: investment.tickerSymbol,
-    //   name: investment.name,
-    //   quantity: investment.quantity,
-    //   price: investment.price,
-    //   change: investment.change,
-    //   changePercentage: investment.changePercentage,
-    // })
+    this.investmentForm.setValue({
+      tickerSymbol: investment.tickerSymbol,
+      quantity: investment.quantity
+    })
   }
 
   deleteInvestment(id: number): void {
@@ -217,22 +197,21 @@ export class ProjectInvestmentComponent {
     const filterValue = (event.target as HTMLInputElement).value.toLowerCase()
     this.filteredInvestments = this.investments.filter(
       (investment) =>
-        // TODO: Investment name
-        // investment.name.toLowerCase().includes(filterValue) ||
+        investment.name.toLowerCase().includes(filterValue) ||
         investment.tickerSymbol.toLowerCase().includes(filterValue),
     )
   }
 
   sortInvestments(criteria: string): void {
-    // this.filteredInvestments = [...this.investments].sort((a, b) => {
-    //   if (criteria === "name") {
-    //     return a.name.localeCompare(b.name)
-    //   } else if (criteria === "value") {
-    //     return b.value - a.value
-    //   } else if (criteria === "changePercentage") {
-    //     return b.changePercentage - a.changePercentage
-    //   }
-    //   return 0
-    // })
+    this.filteredInvestments = [...this.investments].sort((a, b) => {
+      if (criteria === "name") {
+        return a.name.localeCompare(b.name)
+      } else if (criteria === "value") {
+        return b.value - a.value
+      } else if (criteria === "changePercentage") {
+        return b.changePercentage - a.changePercentage
+      }
+      return 0
+    })
   }
 }
