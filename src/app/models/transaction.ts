@@ -1,10 +1,14 @@
+import {Category} from "./category";
+
 export interface Transaction {
   id: number
-  categoryId: number
+  category: Category
   quantity: number
+  createdDate: Date
 }
 
 export interface TransactionDTOPost {
+  projectId: number
   categoryId: number
   quantity: number
 }

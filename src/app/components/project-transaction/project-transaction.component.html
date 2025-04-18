@@ -3,8 +3,13 @@
   <h1 class="section-title">Transacciones</h1>
   <p class="section-subtitle">Registra y gestiona tus ingresos y gastos</p>
 
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
   <!-- Financial Summary Cards -->
-  <div class="summary-cards">
+  <div class="summary-cards" *ngIf="!loading">
     <mat-card class="summary-card">
       <div class="summary-content">
         <div class="summary-info">
@@ -44,20 +49,20 @@
     </mat-card>
   </div>
 
-  <div class="transactions-layout">
+  <div class="transactions-layout" *ngIf="!loading">
     <!-- Transaction Form Section -->
     <mat-card class="transaction-form-card">
       <mat-card-header>
-        <mat-card-title>Registrar Transacción</mat-card-title>
+        <mat-card-title>{{ editMode ? 'Editar Transacción' : 'Registrar Transacción' }}</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
         <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
           <!-- Transaction Type -->
           <div class="transaction-type-selector">
-            <mat-radio-group formControlName="type" aria-label="Tipo de transacción">
-              <mat-radio-button value="income" class="income-radio">Ingreso</mat-radio-button>
-              <mat-radio-button value="expense" class="expense-radio">Gasto</mat-radio-button>
+            <mat-radio-group aria-label="Tipo de transacción">
+              <mat-radio-button class="income-radio" (click)="typeTransactionChange(true)">Ingreso</mat-radio-button>
+              <mat-radio-button class="expense-radio" (click)="typeTransactionChange(false)">Gasto</mat-radio-button>
             </mat-radio-group>
           </div>
 
@@ -65,7 +70,7 @@
           <mat-form-field appearance="outline">
             <mat-label>Cantidad</mat-label>
             <input matInput type="number" formControlName="quantity" placeholder="0.00">
-            <span matTextPrefix>€&nbsp;</span>
+            <span matTextPrefix>$&nbsp;</span>
             <mat-error *ngIf="transactionForm.get('quantity')?.hasError('required')">
               La cantidad es obligatoria
             </mat-error>
@@ -74,40 +79,17 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Description Field -->
-          <mat-form-field appearance="outline">
-            <mat-label>Descripción</mat-label>
-            <input matInput formControlName="description" placeholder="Ej: Compra supermercado">
-            <mat-error *ngIf="transactionForm.get('description')?.hasError('required')">
-              La descripción es obligatoria
-            </mat-error>
-            <mat-error *ngIf="transactionForm.get('description')?.hasError('minlength')">
-              La descripción debe tener al menos 3 caracteres
-            </mat-error>
-          </mat-form-field>
-
-          <!-- Date Field -->
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="date">
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            <mat-error *ngIf="transactionForm.get('date')?.hasError('required')">
-              La fecha es obligatoria
-            </mat-error>
-          </mat-form-field>
-
           <!-- Category Field -->
           <mat-form-field appearance="outline">
             <mat-label>Categoría</mat-label>
-            <mat-select formControlName="category">
-              <mat-select-trigger *ngIf="transactionForm.get('category')?.value">
-<!--                <div class="category-preview">-->
-<!--                  <div class="category-color"-->
-<!--                       [style.background-color]="categories.find(c => c.id === transactionForm.get('category')?.value)?.color">-->
-<!--                  </div>-->
-<!--                  <span>{{ categories.find(c => c.id === transactionForm.get('category')?.value)?.name }}</span>-->
-<!--                </div>-->
+            <mat-select formControlName="categoryId">
+              <mat-select-trigger *ngIf="transactionForm.get('categoryId')?.value">
+                <div class="category-preview">
+                  <div class="category-color"
+                       [style.background-color]="getCategoryById(transactionForm.get('categoryId')?.value)?.color">
+                  </div>
+                  <span>{{ getCategoryById(transactionForm.get('categoryId')?.value)?.name }}</span>
+                </div>
               </mat-select-trigger>
               <mat-option *ngFor="let category of categories" [value]="category.id">
                 <div class="category-option">
@@ -116,7 +98,7 @@
                 </div>
               </mat-option>
             </mat-select>
-            <mat-error *ngIf="transactionForm.get('category')?.hasError('required')">
+            <mat-error *ngIf="transactionForm.get('categoryId')?.hasError('required')">
               La categoría es obligatoria
             </mat-error>
           </mat-form-field>
@@ -128,7 +110,7 @@
               color="primary"
               type="submit"
               [disabled]="transactionForm.invalid">
-              Registrar Transacción
+              {{ editMode ? 'Actualizar Transacción' : 'Registrar Transacción' }}
             </button>
           </div>
         </form>
@@ -149,15 +131,6 @@
       <mat-card-content>
         <!-- Filter Options -->
         <div class="filter-options">
-          <div class="filter-group">
-            <label class="filter-label">Tipo:</label>
-            <mat-chip-listbox [(ngModel)]="filterType" aria-label="Filtrar por tipo">
-              <mat-chip-option value="all" selected>Todos</mat-chip-option>
-              <mat-chip-option value="income" class="income-chip">Ingresos</mat-chip-option>
-              <mat-chip-option value="expense" class="expense-chip">Gastos</mat-chip-option>
-            </mat-chip-listbox>
-          </div>
-
           <div class="filter-group">
             <label class="filter-label">Categoría:</label>
             <mat-form-field appearance="outline" class="category-filter">
@@ -181,7 +154,7 @@
             <!-- Date Column -->
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef>Fecha</th>
-              <td mat-cell *matCellDef="let transaction">{{ formatDate(transaction.date) }}</td>
+              <td mat-cell *matCellDef="let transaction">{{ formatDate(transaction.createdDate) }}</td>
             </ng-container>
 
             <!-- Description Column -->
@@ -204,8 +177,8 @@
             <ng-container matColumnDef="quantity">
               <th mat-header-cell *matHeaderCellDef>Importe</th>
               <td mat-cell *matCellDef="let transaction"
-                  [ngClass]="{'positive': transaction.type === 'income', 'negative': transaction.type === 'expense'}">
-                {{ transaction.type === 'income' ? '+' : '-' }} {{ formatCurrency(transaction.quantity) }}
+                  [ngClass]="{'positive': transaction.quantity >= 1, 'negative': transaction.quantity <= -1}">
+                {{ transaction.quantity >= 1 ? '+' : '' }} {{ formatCurrency(transaction.quantity) }}
               </td>
             </ng-container>
 
@@ -229,16 +202,15 @@
           </table>
 
           <!-- Empty State -->
-<!--          <div *ngIf="getFilteredTransactions().length === 0" class="empty-state">-->
-<!--            <mat-icon>receipt_long</mat-icon>-->
-<!--            <p>No hay transacciones que mostrar</p>-->
-<!--            <button mat-stroked-button color="primary" (click)="clearFilters()" *ngIf="filterType !== 'all' || filterCategory !== null">-->
-<!--              Limpiar filtros-->
-<!--            </button>-->
-<!--          </div>-->
+          <div *ngIf="transactions.length === 0" class="empty-state">
+            <mat-icon>receipt_long</mat-icon>
+            <p>No hay transacciones que mostrar</p>
+            <button mat-stroked-button color="primary" (click)="clearFilters()" *ngIf="filterType !== 'all' || filterCategory !== null">
+              Limpiar filtros
+            </button>
+          </div>
         </div>
       </mat-card-content>
     </mat-card>
   </div>
 </div>
-

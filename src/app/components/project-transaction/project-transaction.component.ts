@@ -1,40 +1,34 @@
-import {Component} from "@angular/core"
-import {CommonModule} from "@angular/common"
-import {MatCardModule} from "@angular/material/card"
-import {MatIconModule} from "@angular/material/icon"
-import {MatButtonModule} from "@angular/material/button"
-import {MatInputModule} from "@angular/material/input"
-import {MatFormFieldModule} from "@angular/material/form-field"
-import {MatSelectModule} from "@angular/material/select"
-import {MatDatepickerModule} from "@angular/material/datepicker"
-import {MatNativeDateModule} from "@angular/material/core"
-import {MatDividerModule} from "@angular/material/divider"
-import {MatTableModule} from "@angular/material/table"
-import {MatSortModule} from "@angular/material/sort"
-import {MatPaginatorModule} from "@angular/material/paginator"
-import {MatChipsModule} from "@angular/material/chips"
-import {MatRadioModule} from "@angular/material/radio"
-import {MatTooltipModule} from "@angular/material/tooltip"
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
-
-interface Category {
-  id: number
-  name: string
-  color: string
-}
-
-interface Transaction {
-  id: number
-  date: Date
-  description: string
-  quantity: number
-  type: "income" | "expense"
-  category: Category
-}
+import { Component, type OnInit, inject } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { MatCardModule } from "@angular/material/card"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatInputModule } from "@angular/material/input"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { MatSelectModule } from "@angular/material/select"
+import { MatDatepickerModule } from "@angular/material/datepicker"
+import { MatNativeDateModule } from "@angular/material/core"
+import { MatDividerModule } from "@angular/material/divider"
+import { MatTableModule } from "@angular/material/table"
+import { MatSortModule } from "@angular/material/sort"
+import { MatPaginatorModule } from "@angular/material/paginator"
+import { MatChipsModule } from "@angular/material/chips"
+import { MatRadioModule } from "@angular/material/radio"
+import { MatTooltipModule } from "@angular/material/tooltip"
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import { MatSnackBarModule } from "@angular/material/snack-bar"
+import { FormBuilder, type FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
+import { ActivatedRoute } from "@angular/router"
+import { TransactionService } from "../../services/transaction.service"
+import { CategoryService } from "../../services/category.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { ModalService } from "../../services/modal.service"
+import type { Transaction, TransactionDTOPost, TransactionDTOPut } from "../../models/Transaction"
+import type { Category } from "../../models/category"
 
 @Component({
-  selector: 'app-project-transaction',
+  selector: "app-project-transaction",
   standalone: true,
   imports: [
     CommonModule,
@@ -53,145 +47,128 @@ interface Transaction {
     MatChipsModule,
     MatRadioModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
     FormsModule,
     ReactiveFormsModule,
     ProjectSidebarComponent,
   ],
-  templateUrl: './project-transaction.component.html',
-  styleUrl: './project-transaction.component.css'
+  templateUrl: "./project-transaction.component.html",
+  styleUrl: "./project-transaction.component.css",
 })
-export class ProjectTransactionComponent {
+export class ProjectTransactionComponent implements OnInit {
   transactionForm: FormGroup
   transactions: Transaction[] = []
   categories: Category[] = []
   displayedColumns: string[] = ["date", "description", "category", "quantity", "actions"]
+  projectId = 0
+  loading = false
+  editMode = false
+  currentTransactionId: number | null = null
+  typeTransaction: boolean = false;
 
   // Filter options
   filterType: "all" | "income" | "expense" = "all"
   filterCategory: number | null = null
 
+  private route = inject(ActivatedRoute)
+  private transactionService = inject(TransactionService)
+  private categoryService = inject(CategoryService)
+  private snackBarService = inject(SnackBarService)
+  private modalService = inject(ModalService)
+
   constructor(private fb: FormBuilder) {
     this.transactionForm = this.fb.group({
-      description: ["", [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       quantity: [null, [Validators.required, Validators.min(1)]],
-      type: ["expense", Validators.required],
-      category: [null, Validators.required],
-      date: [new Date(), Validators.required],
+      categoryId: [null, Validators.required],
     })
   }
 
   ngOnInit(): void {
-    // Load mock data
-    this.loadMockCategories()
-    this.loadMockTransactions()
+    this.projectId = Number(this.route.snapshot.paramMap.get("p"))
+    this.loadCategories()
+    this.loadTransactions()
   }
 
-  loadMockCategories(): void {
-    this.categories = [
-      { id: 1, name: "Alimentación", color: "#FF5722" },
-      { id: 2, name: "Transporte", color: "#2196F3" },
-      { id: 3, name: "Vivienda", color: "#4CAF50" },
-      { id: 4, name: "Entretenimiento", color: "#9C27B0" },
-      { id: 5, name: "Salud", color: "#F44336" },
-      { id: 6, name: "Educación", color: "#3F51B5" },
-      { id: 7, name: "Ropa", color: "#E91E63" },
-      { id: 8, name: "Tecnología", color: "#607D8B" },
-      { id: 9, name: "Ingresos", color: "#0a7c43" },
-      { id: 10, name: "Inversiones", color: "#FFC107" },
-    ]
+  loadCategories(): void {
+    this.loading = true
+    this.categoryService.getCategories(this.projectId).subscribe({
+      next: (data) => {
+        this.categories = data
+        this.loading = false
+      },
+      error: (error) => {
+        this.snackBarService.sendError("Error al cargar las categorías")
+        this.loading = false
+      },
+    })
   }
 
-  loadMockTransactions(): void {
-    const mockTransactions: Transaction[] = [
-      {
-        id: 1,
-        date: new Date(2025, 3, 15),
-        description: "Compra supermercado",
-        quantity: 120,
-        type: "expense",
-        category: this.categories[0], // Alimentación
+  loadTransactions(): void {
+    this.loading = true
+    this.transactionService.getTransactions(this.projectId).subscribe({
+      next: (data) => {
+        this.transactions = data
+        this.loading = false
       },
-      {
-        id: 2,
-        date: new Date(2025, 3, 14),
-        description: "Salario mensual",
-        quantity: 2500,
-        type: "income",
-        category: this.categories[8], // Ingresos
+      error: (error) => {
+        this.snackBarService.sendError("Error al cargar las transacciones")
+        this.loading = false
       },
-      {
-        id: 3,
-        date: new Date(2025, 3, 12),
-        description: "Alquiler",
-        quantity: 800,
-        type: "expense",
-        category: this.categories[2], // Vivienda
-      },
-      {
-        id: 4,
-        date: new Date(2025, 3, 10),
-        description: "Cine y cena",
-        quantity: 85,
-        type: "expense",
-        category: this.categories[3], // Entretenimiento
-      },
-      {
-        id: 5,
-        date: new Date(2025, 3, 8),
-        description: "Gasolina",
-        quantity: 60,
-        type: "expense",
-        category: this.categories[1], // Transporte
-      },
-      {
-        id: 6,
-        date: new Date(2025, 3, 5),
-        description: "Consulta médica",
-        quantity: 50,
-        type: "expense",
-        category: this.categories[4], // Salud
-      },
-      {
-        id: 7,
-        date: new Date(2025, 3, 3),
-        description: "Curso online",
-        quantity: 200,
-        type: "expense",
-        category: this.categories[5], // Educación
-      },
-      {
-        id: 8,
-        date: new Date(2025, 3, 1),
-        description: "Dividendos",
-        quantity: 150,
-        type: "income",
-        category: this.categories[9], // Inversiones
-      },
-    ]
-
-    this.transactions = mockTransactions.sort((a, b) => b.date.getTime() - a.date.getTime())
+    })
   }
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
       const formValue = this.transactionForm.value
-      const category = this.categories.find(c => c.id === formValue.category)
 
-      if (!category) {
-        return
+      if (this.editMode && this.currentTransactionId !== null) {
+        // Update existing transaction
+        const transactionPut: TransactionDTOPut = {
+          quantity: this.typeTransaction ? formValue.quantity : formValue.quantity * -1,
+          categoryId: formValue.categoryId,
+        }
+
+        this.loading = true
+        this.transactionService.updateTransaction(this.projectId, this.currentTransactionId, transactionPut).subscribe({
+          next: (updatedTransaction) => {
+            const index = this.transactions.findIndex((t) => t.id === this.currentTransactionId)
+            if (index !== -1) {
+              this.transactions[index] = updatedTransaction
+            }
+            this.snackBarService.sendSuccess("Transacción actualizada correctamente")
+            this.resetForm()
+            this.loading = false
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al actualizar la transacción")
+            this.loading = false
+          },
+        })
+      } else {
+        // Create new transaction
+        console.log(this.typeTransaction)
+        const transactionPost: TransactionDTOPost = {
+          quantity: this.typeTransaction ? formValue.quantity : formValue.quantity * -1,
+          categoryId: formValue.categoryId,
+          projectId: this.projectId,
+        }
+        console.log(this.typeTransaction ? formValue.quantity : formValue.quantity * -1)
+
+        this.loading = true
+        this.transactionService.createTransaction(transactionPost).subscribe({
+          next: (newTransaction) => {
+            this.transactions.unshift(newTransaction)
+            this.snackBarService.sendSuccess("Transacción creada correctamente")
+            this.resetForm()
+            this.loading = false
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al crear la transacción")
+            this.loading = false
+          },
+        })
       }
-
-      const newTransaction: Transaction = {
-        id: this.transactions.length + 1,
-        date: formValue.date,
-        description: formValue.description,
-        quantity: formValue.quantity,
-        type: formValue.type,
-        category: category,
-      }
-
-      this.transactions.unshift(newTransaction)
-      this.resetForm()
     }
   }
 
@@ -200,22 +177,44 @@ export class ProjectTransactionComponent {
       description: "",
       quantity: null,
       type: "expense",
-      category: null,
+      categoryId: null,
       date: new Date(),
     })
+    this.editMode = false
+    this.currentTransactionId = null
   }
 
   deleteTransaction(id: number): void {
-    this.transactions = this.transactions.filter(t => t.id !== id)
+    this.modalService.confirmDelete("transacción").subscribe((confirmed) => {
+      if (confirmed) {
+        this.loading = true
+        this.transactionService.deleteTransaction(this.projectId, id).subscribe({
+          next: () => {
+            this.transactions = this.transactions.filter((t) => t.id !== id)
+            this.snackBarService.sendSuccess("Transacción eliminada correctamente")
+            this.loading = false
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al eliminar la transacción")
+            this.loading = false
+          },
+        })
+      }
+    })
   }
 
   editTransaction(transaction: Transaction): void {
-    // In a real application, this would populate the form for editing
-    console.log("Edit transaction:", transaction)
+    this.editMode = true
+    this.currentTransactionId = transaction.id
+    this.transactionForm.setValue({
+      quantity: transaction.quantity,
+      categoryId: transaction.category.id,
+      date: new Date(transaction.createdDate),
+    })
   }
 
-  formatDate(date: Date): string {
-    return new Intl.DateTimeFormat("es-ES").format(date)
+  formatDate(date: Date | string): string {
+    return new Intl.DateTimeFormat("es-ES").format(new Date(date))
   }
 
   formatCurrency(amount: number): string {
@@ -223,12 +222,7 @@ export class ProjectTransactionComponent {
   }
 
   getFilteredTransactions(): Transaction[] {
-    return this.transactions.filter(transaction => {
-      // Filter by type
-      if (this.filterType !== "all" && transaction.type !== this.filterType) {
-        return false
-      }
-
+    return this.transactions.filter((transaction) => {
       // Filter by category
       if (this.filterCategory !== null && transaction.category.id !== this.filterCategory) {
         return false
@@ -245,20 +239,27 @@ export class ProjectTransactionComponent {
 
   getTotalBalance(): number {
     return this.transactions.reduce((total, transaction) => {
-      return total + (transaction.type === "income" ? transaction.quantity : -transaction.quantity)
+      return total + transaction.quantity
     }, 0)
   }
 
   getTotalIncome(): number {
     return this.transactions
-      .filter(t => t.type === "income")
+      .filter((t) => t.quantity >= -1)
       .reduce((total, transaction) => total + transaction.quantity, 0)
   }
 
   getTotalExpenses(): number {
     return this.transactions
-      .filter(t => t.type === "expense")
+      .filter((t) => t.quantity <= 1)
       .reduce((total, transaction) => total + transaction.quantity, 0)
   }
-}
 
+  getCategoryById(id: number): Category | undefined {
+    return this.categories.find((c) => c.id === id)
+  }
+
+  typeTransactionChange(b: boolean) {
+    this.typeTransaction = b;
+  }
+}

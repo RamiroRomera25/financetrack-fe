@@ -30,6 +30,13 @@
   margin: 1.5rem 0 2rem;
 }
 
+/* Loading Spinner */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
 /* Summary Cards */
 .summary-cards {
   display: grid;

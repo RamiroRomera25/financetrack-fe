@@ -16,7 +16,7 @@ export class TransactionService {
   }
 
   createTransaction(transactionPost: TransactionDTOPost) {
-    return this.http.post<Transaction>(`${this.host}`, transactionPost);
+    return this.http.post<Transaction>(`${this.host}/project/${transactionPost.projectId}`, transactionPost);
   }
 
   updateTransaction(projectId: number, transactionId: number, transactionPut: TransactionDTOPut) {
