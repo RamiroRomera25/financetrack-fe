@@ -3,13 +3,14 @@
   <h1 class="section-title">Transacciones</h1>
   <p class="section-subtitle">Registra y gestiona tus ingresos y gastos</p>
 
-  <!-- Loading Spinner -->
-  <div class="loading-container" *ngIf="loading">
+  <!-- Loading Spinner for Initial Data Loading -->
+  <div class="loading-container" *ngIf="isLoadingData">
     <mat-spinner diameter="40"></mat-spinner>
+    <p class="loading-text">Cargando transacciones...</p>
   </div>
 
   <!-- Financial Summary Cards -->
-  <div class="summary-cards" *ngIf="!loading">
+  <div class="summary-cards" *ngIf="!isLoadingData">
     <mat-card class="summary-card">
       <div class="summary-content">
         <div class="summary-info">
@@ -49,7 +50,7 @@
     </mat-card>
   </div>
 
-  <div class="transactions-layout" *ngIf="!loading">
+  <div class="transactions-layout" *ngIf="!isLoadingData">
     <!-- Transaction Form Section -->
     <mat-card class="transaction-form-card">
       <mat-card-header>
@@ -57,19 +58,25 @@
       </mat-card-header>
 
       <mat-card-content>
-        <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form">
+        <!-- Loading spinner for categories -->
+        <div *ngIf="isLoadingCategories" class="categories-loading-container">
+          <mat-spinner diameter="30"></mat-spinner>
+          <p class="loading-text">Cargando categorías...</p>
+        </div>
+
+        <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form" *ngIf="!isLoadingCategories">
           <!-- Transaction Type -->
           <div class="transaction-type-selector">
-            <mat-radio-group aria-label="Tipo de transacción">
-              <mat-radio-button class="income-radio" (click)="typeTransactionChange(true)">Ingreso</mat-radio-button>
-              <mat-radio-button class="expense-radio" (click)="typeTransactionChange(false)">Gasto</mat-radio-button>
+            <mat-radio-group aria-label="Tipo de transacción" [value]="typeTransaction">
+              <mat-radio-button class="income-radio" [value]="true" (click)="typeTransactionChange(true)" [disabled]="isSubmitting">Ingreso</mat-radio-button>
+              <mat-radio-button class="expense-radio" [value]="false" (click)="typeTransactionChange(false)" [disabled]="isSubmitting">Gasto</mat-radio-button>
             </mat-radio-group>
           </div>
 
           <!-- Amount Field -->
           <mat-form-field appearance="outline">
             <mat-label>Cantidad</mat-label>
-            <input matInput type="number" formControlName="quantity" placeholder="0.00">
+            <input matInput type="number" formControlName="quantity" placeholder="0.00" [disabled]="isSubmitting">
             <span matTextPrefix>$&nbsp;</span>
             <mat-error *ngIf="transactionForm.get('quantity')?.hasError('required')">
               La cantidad es obligatoria
@@ -82,7 +89,7 @@
           <!-- Category Field -->
           <mat-form-field appearance="outline">
             <mat-label>Categoría</mat-label>
-            <mat-select formControlName="categoryId">
+            <mat-select formControlName="categoryId" [disabled]="isSubmitting">
               <mat-select-trigger *ngIf="transactionForm.get('categoryId')?.value">
                 <div class="category-preview">
                   <div class="category-color"
@@ -104,13 +111,15 @@
           </mat-form-field>
 
           <div class="form-actions">
-            <button mat-button type="button" (click)="resetForm()">Cancelar</button>
+            <button mat-button type="button" (click)="resetForm()" [disabled]="isSubmitting">Cancelar</button>
             <button
               mat-raised-button
               color="primary"
               type="submit"
-              [disabled]="transactionForm.invalid">
-              {{ editMode ? 'Actualizar Transacción' : 'Registrar Transacción' }}
+              [disabled]="transactionForm.invalid || isSubmitting"
+              class="submit-button">
+              <span *ngIf="!isSubmitting">{{ editMode ? 'Actualizar Transacción' : 'Registrar Transacción' }}</span>
+              <mat-spinner *ngIf="isSubmitting" diameter="24" class="button-spinner"></mat-spinner>
             </button>
           </div>
         </form>
@@ -177,8 +186,8 @@
             <ng-container matColumnDef="quantity">
               <th mat-header-cell *matHeaderCellDef>Importe</th>
               <td mat-cell *matCellDef="let transaction"
-                  [ngClass]="{'positive': transaction.quantity >= 1, 'negative': transaction.quantity <= -1}">
-                {{ transaction.quantity >= 1 ? '+' : '' }} {{ formatCurrency(transaction.quantity) }}
+                  [ngClass]="{'positive': transaction.quantity >= 0, 'negative': transaction.quantity < 0}">
+                {{ transaction.quantity >= 0 ? '+' : '' }} {{ formatCurrency(transaction.quantity) }}
               </td>
             </ng-container>
 
@@ -187,11 +196,14 @@
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let transaction">
                 <div class="table-actions">
-                  <button mat-icon-button color="primary" (click)="editTransaction(transaction)" matTooltip="Editar">
+                  <button mat-icon-button color="primary" (click)="editTransaction(transaction)" matTooltip="Editar"
+                          [disabled]="isDeleting || isSubmitting">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button mat-icon-button color="warn" (click)="deleteTransaction(transaction.id)" matTooltip="Eliminar">
-                    <mat-icon>delete</mat-icon>
+                  <button mat-icon-button color="warn" (click)="deleteTransaction(transaction.id)" matTooltip="Eliminar"
+                          [disabled]="isDeleting && deletingTransactionId === transaction.id || isSubmitting">
+                    <mat-icon *ngIf="!(isDeleting && deletingTransactionId === transaction.id)">delete</mat-icon>
+                    <mat-spinner diameter="20" *ngIf="isDeleting && deletingTransactionId === transaction.id" class="delete-spinner"></mat-spinner>
                   </button>
                 </div>
               </td>

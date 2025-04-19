@@ -1,23 +1,25 @@
-import {Component, inject, type OnInit} from "@angular/core"
-import {CommonModule} from "@angular/common"
-import {ActivatedRoute, RouterModule} from "@angular/router"
-import {FormBuilder, type FormGroup, ReactiveFormsModule, Validators} from "@angular/forms"
-import {MatButtonModule} from "@angular/material/button"
-import {MatIconModule} from "@angular/material/icon"
-import {MatCardModule} from "@angular/material/card"
-import {MatFormFieldModule} from "@angular/material/form-field"
-import {MatInputModule} from "@angular/material/input"
-import {MatDatepickerModule} from "@angular/material/datepicker"
-import {MatNativeDateModule} from "@angular/material/core"
-import {MatProgressBarModule} from "@angular/material/progress-bar"
-import {MatMenuModule} from "@angular/material/menu"
-import {MatTooltipModule} from "@angular/material/tooltip"
-import {MatSnackBarModule} from "@angular/material/snack-bar"
-import {GoalService} from "../../services/goal.service"
-import {SnackBarService} from "../../services/snack-bar.service"
-import {ModalService} from "../../services/modal.service"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component"
-import {Goal, GoalDTOPost, GoalDTOPut} from "../../models/goal";
+import { Component, inject, type OnInit } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { ActivatedRoute, RouterModule } from "@angular/router"
+import { FormBuilder, type FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
+import { MatButtonModule } from "@angular/material/button"
+import { MatIconModule } from "@angular/material/icon"
+import { MatCardModule } from "@angular/material/card"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { MatInputModule } from "@angular/material/input"
+import { MatDatepickerModule } from "@angular/material/datepicker"
+import { MatNativeDateModule } from "@angular/material/core"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import { MatMenuModule } from "@angular/material/menu"
+import { MatTooltipModule } from "@angular/material/tooltip"
+import { MatSnackBarModule } from "@angular/material/snack-bar"
+import { GoalService } from "../../services/goal.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { ModalService } from "../../services/modal.service"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
+import type { Goal, GoalDTOPost, GoalDTOPut } from "../../models/goal"
+import { finalize } from "rxjs/operators"
 
 @Component({
   selector: "app-project-goal",
@@ -36,6 +38,7 @@ import {Goal, GoalDTOPost, GoalDTOPut} from "../../models/goal";
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatMenuModule,
     MatTooltipModule,
     MatSnackBarModule,
@@ -51,7 +54,13 @@ export class ProjectGoalComponent implements OnInit {
   totalGoalAmount = 0
   nearestGoal = ""
   projectId = 0
-  loading = false
+
+  // Loading states
+  isLoading = false
+  isSubmitting = false
+  isDeleting = false
+  deletingGoalId: number | null = null
+  filterValue = ""
 
   private goalService = inject(GoalService)
   private snackBarService = inject(SnackBarService)
@@ -73,23 +82,28 @@ export class ProjectGoalComponent implements OnInit {
   }
 
   loadGoals(): void {
-    this.loading = true
-    this.goalService.getGoals(this.projectId).subscribe({
-      next: (data) => {
-        // Add progress calculation since it might not be in the API response
-        this.goals = data.map((goal) => ({
-          ...goal,
-          // progress: goal.quantity > 0 ? Math.min(Math.round((goal.currentAmount / goal.quantity) * 100), 100) : 0,
-        }))
-        this.filteredGoals = [...this.goals]
-        this.calculateSummary()
-        this.loading = false
-      },
-      error: (error) => {
-        this.snackBarService.sendError("Error al cargar las metas")
-        this.loading = false
-      },
-    })
+    this.isLoading = true
+    this.goalService
+      .getGoals(this.projectId)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          // Add progress calculation since it might not be in the API response
+          this.goals = data.map((goal) => ({
+            ...goal,
+            // progress: goal.quantity > 0 ? Math.min(Math.round((goal.currentAmount / goal.quantity) * 100), 100) : 0,
+          }))
+          this.filteredGoals = [...this.goals]
+          this.calculateSummary()
+        },
+        error: (error) => {
+          this.snackBarService.sendError("Error al cargar las metas")
+        },
+      })
   }
 
   calculateProgress(): number {
@@ -112,6 +126,7 @@ export class ProjectGoalComponent implements OnInit {
 
   onSubmit(): void {
     if (this.goalForm.valid) {
+      this.isSubmitting = true
       const formValue = this.goalForm.value
       const progress = this.calculateProgress()
 
@@ -121,53 +136,62 @@ export class ProjectGoalComponent implements OnInit {
           objective: formValue.objective,
           quantity: formValue.quantity,
           endDate: formValue.endDate,
-          notes: formValue.notes
+          notes: formValue.notes,
         }
 
-        this.goalService.updateGoal(this.projectId, this.currentGoalId, goalPut).subscribe({
-          next: (updatedGoal) => {
-            const index = this.goals.findIndex((goal) => goal.id === this.currentGoalId)
-            if (index !== -1) {
-              // TODO: Pushear Value form
-              // this.goals[index] = {
-              //   ...updatedGoal,
-              //   progress: progress,
-              //   notes: formValue.notes,
-              //   currentAmount: formValue.currentAmount,
-              // }
-              this.snackBarService.sendSuccess("Meta actualizada correctamente")
-            }
-            this.filteredGoals = [...this.goals]
-            this.calculateSummary()
-            this.resetForm()
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al actualizar la meta")
-          },
-        })
+        this.goalService
+          .updateGoal(this.projectId, this.currentGoalId, goalPut)
+          .pipe(
+            finalize(() => {
+              this.isSubmitting = false
+            }),
+          )
+          .subscribe({
+            next: (updatedGoal) => {
+              const index = this.goals.findIndex((goal) => goal.id === this.currentGoalId)
+              if (index !== -1) {
+                // TODO: Pushear Value form
+                // this.goals[index] = {
+                //   ...updatedGoal,
+                //   progress: progress,
+                //   notes: formValue.notes,
+                //   currentAmount: formValue.currentAmount,
+                // }
+                this.snackBarService.sendSuccess("Meta actualizada correctamente")
+              }
+              this.loadGoals() // Reload goals to ensure data consistency
+              this.resetForm()
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al actualizar la meta")
+            },
+          })
       } else {
         const goalPost: GoalDTOPost = {
           objective: formValue.objective,
           quantity: formValue.quantity,
           endDate: formValue.endDate,
           notes: formValue.notes,
-          projectId: this.projectId
-        };
+          projectId: this.projectId,
+        }
 
-        this.goalService.createGoal(goalPost).subscribe({
-          next: (newGoal) => {
-            this.goals.push({
-              ...newGoal
-            })
-            this.snackBarService.sendSuccess("Meta creada correctamente")
-            this.filteredGoals = [...this.goals]
-            this.calculateSummary()
-            this.resetForm()
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al crear la meta")
-          },
-        })
+        this.goalService
+          .createGoal(goalPost)
+          .pipe(
+            finalize(() => {
+              this.isSubmitting = false
+            }),
+          )
+          .subscribe({
+            next: (newGoal) => {
+              this.snackBarService.sendSuccess("Meta creada correctamente")
+              this.loadGoals() // Reload goals to ensure data consistency
+              this.resetForm()
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al crear la meta")
+            },
+          })
       }
     }
   }
@@ -175,7 +199,6 @@ export class ProjectGoalComponent implements OnInit {
   editGoal(goal: Goal): void {
     this.editMode = true
     this.currentGoalId = goal.id
-    console.log(goal)
     this.goalForm.setValue({
       objective: goal.objective,
       quantity: goal.quantity,
@@ -187,21 +210,32 @@ export class ProjectGoalComponent implements OnInit {
   deleteGoal(id: number): void {
     this.modalService.confirmDelete("meta").subscribe((confirmed) => {
       if (confirmed) {
-        this.goalService.deleteGoal(this.projectId, id).subscribe({
-          next: () => {
-            this.goals = this.goals.filter((goal) => goal.id !== id)
-            this.filteredGoals = [...this.goals]
-            this.calculateSummary()
-            this.snackBarService.sendSuccess("Meta eliminada correctamente")
+        this.isDeleting = true
+        this.deletingGoalId = id
 
-            if (this.currentGoalId === id) {
-              this.resetForm()
-            }
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al eliminar la meta")
-          },
-        })
+        this.goalService
+          .deleteGoal(this.projectId, id)
+          .pipe(
+            finalize(() => {
+              this.isDeleting = false
+              this.deletingGoalId = null
+            }),
+          )
+          .subscribe({
+            next: () => {
+              this.goals = this.goals.filter((goal) => goal.id !== id)
+              this.filteredGoals = [...this.goals]
+              this.calculateSummary()
+              this.snackBarService.sendSuccess("Meta eliminada correctamente")
+
+              if (this.currentGoalId === id) {
+                this.resetForm()
+              }
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al eliminar la meta")
+            },
+          })
       }
     })
   }
@@ -223,8 +257,8 @@ export class ProjectGoalComponent implements OnInit {
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.toLowerCase()
-    this.filteredGoals = this.goals.filter((goal) => goal.objective.toLowerCase().includes(filterValue))
+    this.filterValue = (event.target as HTMLInputElement).value.toLowerCase()
+    this.filteredGoals = this.goals.filter((goal) => goal.objective.toLowerCase().includes(this.filterValue))
   }
 
   sortGoals(criteria: string): void {

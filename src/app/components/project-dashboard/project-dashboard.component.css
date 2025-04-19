@@ -1,4 +1,3 @@
-/* project-dashboard.component.css */
 .project-dashboard-container {
   display: flex;
   flex-direction: column;
@@ -57,9 +56,15 @@
   transition: all 0.3s ease;
 }
 
-.add-project-button:hover {
+.add-project-button:hover:not([disabled]) {
   transform: scale(1.1) rotate(90deg);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.add-project-button[disabled] {
+  background: linear-gradient(135deg, rgba(10, 124, 67, 0.5), rgba(20, 83, 176, 0.5)) !important;
+  transform: none;
+  box-shadow: none !important;
 }
 
 /* Borde lateral izquierdo decorativo */
@@ -137,9 +142,15 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
 }
 
-.nav-button:hover {
+.nav-button:hover:not([disabled]) {
   transform: scale(1.1);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.nav-button[disabled] {
+  background: linear-gradient(135deg, rgba(10, 124, 67, 0.5), rgba(20, 83, 176, 0.5)) !important;
+  transform: none;
+  box-shadow: none !important;
 }
 
 .prev-button {
@@ -240,9 +251,14 @@ mat-card-actions {
   border: 1px solid transparent !important;
 }
 
-.edit-button:hover {
+.edit-button:hover:not([disabled]) {
   background-color: rgba(20, 83, 176, 0.1) !important;
   border: 1px solid #1453b0 !important;
+}
+
+.edit-button[disabled] {
+  color: rgba(20, 83, 176, 0.5) !important;
+  border: 1px solid transparent !important;
 }
 
 .stats-button {
@@ -251,11 +267,17 @@ mat-card-actions {
   padding: 0 15px !important;
   transition: all 0.2s ease !important;
   border: 1px solid transparent !important;
+  position: relative;
 }
 
-.stats-button:hover {
+.stats-button:hover:not([disabled]) {
   background-color: rgba(10, 124, 67, 0.1) !important;
   border: 1px solid #0a7c43 !important;
+}
+
+.stats-button[disabled] {
+  color: rgba(10, 124, 67, 0.5) !important;
+  border: 1px solid transparent !important;
 }
 
 .delete-button {
@@ -264,11 +286,39 @@ mat-card-actions {
   padding: 0 15px !important;
   transition: all 0.2s ease !important;
   border: 1px solid transparent !important;
+  position: relative;
 }
 
-.delete-button:hover {
+.delete-button:hover:not([disabled]) {
   background-color: rgba(245, 101, 101, 0.1) !important;
   border: 1px solid #f56565 !important;
+}
+
+.delete-button[disabled] {
+  color: rgba(245, 101, 101, 0.5) !important;
+  border: 1px solid transparent !important;
+}
+
+/* Loading container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: #4a5568;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Button spinner */
+.button-spinner {
+  margin: 0 auto;
 }
 
 /* Responsive design */

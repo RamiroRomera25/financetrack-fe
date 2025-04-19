@@ -3,7 +3,13 @@
   <h1 class="section-title">Recordatorios</h1>
   <p class="section-subtitle">Gestiona tus recordatorios financieros y fechas importantes</p>
 
-  <div class="reminders-layout">
+  <!-- Loading Spinner for Initial Data Loading -->
+  <div class="loading-container" *ngIf="isLoadingData">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p class="loading-text">Cargando recordatorios...</p>
+  </div>
+
+  <div class="reminders-layout" *ngIf="!isLoadingData">
     <!-- Formulario de Recordatorios (50%) -->
     <mat-card class="reminder-form-card">
       <mat-card-header>
@@ -14,7 +20,7 @@
         <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()" class="reminder-form">
           <mat-form-field appearance="outline">
             <mat-label>Asunto</mat-label>
-            <input matInput formControlName="subject" placeholder="Ej: Pago de hipoteca" required>
+            <input matInput formControlName="subject" placeholder="Ej: Pago de hipoteca" required [disabled]="isSubmitting">
             <mat-icon matPrefix>subject</mat-icon>
             @if (reminderForm.get('subject')?.hasError('required') && reminderForm.get('subject')?.touched) {
               <mat-error>El asunto es obligatorio</mat-error>
@@ -23,8 +29,8 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Fecha del recordatorio</mat-label>
-            <input matInput [matDatepicker]="reminderDatePicker" formControlName="reminderDate" required>
-            <mat-datepicker-toggle matIconSuffix [for]="reminderDatePicker"></mat-datepicker-toggle>
+            <input matInput [matDatepicker]="reminderDatePicker" formControlName="reminderDate" required [disabled]="isSubmitting">
+            <mat-datepicker-toggle matIconSuffix [for]="reminderDatePicker" [disabled]="isSubmitting"></mat-datepicker-toggle>
             <mat-datepicker #reminderDatePicker></mat-datepicker>
             <mat-icon matPrefix>event</mat-icon>
             @if (reminderForm.get('reminderDate')?.hasError('required') && reminderForm.get('reminderDate')?.touched) {
@@ -33,9 +39,10 @@
           </mat-form-field>
 
           <div class="form-actions">
-            <button mat-button (click)="cancelEdit()">Cancelar</button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="reminderForm.invalid">
-              {{editMode ? 'Actualizar Recordatorio' : 'Crear Recordatorio'}}
+            <button mat-button (click)="cancelEdit()" [disabled]="isSubmitting">Cancelar</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="reminderForm.invalid || isSubmitting" class="submit-button">
+              <span *ngIf="!isSubmitting">{{editMode ? 'Actualizar Recordatorio' : 'Crear Recordatorio'}}</span>
+              <mat-spinner *ngIf="isSubmitting" diameter="24" class="button-spinner"></mat-spinner>
             </button>
           </div>
         </form>
@@ -127,11 +134,14 @@
                   {{reminder.subject}}
                 </div>
                 <div class="reminder-actions">
-                  <button mat-icon-button color="primary" (click)="editReminder(reminder)" matTooltip="Editar">
+                  <button mat-icon-button color="primary" (click)="editReminder(reminder)" matTooltip="Editar"
+                          [disabled]="isDeleting || isSubmitting">
                     <mat-icon>edit</mat-icon>
                   </button>
-                  <button mat-icon-button color="warn" (click)="deleteReminder(reminder.id)" matTooltip="Eliminar">
-                    <mat-icon>delete</mat-icon>
+                  <button mat-icon-button color="warn" (click)="deleteReminder(reminder.id)" matTooltip="Eliminar"
+                          [disabled]="isDeleting && deletingReminderId === reminder.id || isSubmitting">
+                    <mat-icon *ngIf="!(isDeleting && deletingReminderId === reminder.id)">delete</mat-icon>
+                    <mat-spinner diameter="20" *ngIf="isDeleting && deletingReminderId === reminder.id" class="delete-spinner"></mat-spinner>
                   </button>
                 </div>
               </div>

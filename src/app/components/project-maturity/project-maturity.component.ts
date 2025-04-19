@@ -1,22 +1,25 @@
-import {Component, inject, type OnInit} from "@angular/core"
-import {CommonModule} from "@angular/common"
-import {ActivatedRoute, RouterModule} from "@angular/router"
-import {FormBuilder, type FormGroup, ReactiveFormsModule, Validators} from "@angular/forms"
-import {MatButtonModule} from "@angular/material/button"
-import {MatIconModule} from "@angular/material/icon"
-import {MatCardModule} from "@angular/material/card"
-import {MatFormFieldModule} from "@angular/material/form-field"
-import {MatInputModule} from "@angular/material/input"
-import {MatSelectModule} from "@angular/material/select"
-import {MatDatepickerModule} from "@angular/material/datepicker"
-import {MatNativeDateModule} from "@angular/material/core"
-import {MatMenuModule} from "@angular/material/menu"
-import {MatSnackBarModule} from "@angular/material/snack-bar"
-import {MaturityService} from "../../services/maturity.service"
-import {SnackBarService} from "../../services/snack-bar.service"
-import {ModalService} from "../../services/modal.service"
-import {Maturity, MaturityDTOPost, MaturityDTOPut, MaturityState} from "../../models/maturity"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component"
+import { Component, inject, type OnInit } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { ActivatedRoute, RouterModule } from "@angular/router"
+import { FormBuilder, type FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
+import { MatButtonModule } from "@angular/material/button"
+import { MatIconModule } from "@angular/material/icon"
+import { MatCardModule } from "@angular/material/card"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { MatInputModule } from "@angular/material/input"
+import { MatSelectModule } from "@angular/material/select"
+import { MatDatepickerModule } from "@angular/material/datepicker"
+import { MatNativeDateModule } from "@angular/material/core"
+import { MatMenuModule } from "@angular/material/menu"
+import { MatSnackBarModule } from "@angular/material/snack-bar"
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import { MaturityService } from "../../services/maturity.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { ModalService } from "../../services/modal.service"
+import type { Maturity, MaturityDTOPost, MaturityDTOPut } from "../../models/maturity"
+import { MaturityState } from "../../models/maturity"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
+import { finalize } from "rxjs/operators"
 
 @Component({
   selector: "app-project-maturity",
@@ -37,6 +40,7 @@ import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.compon
     MatNativeDateModule,
     MatMenuModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     ProjectSidebarComponent,
   ],
 })
@@ -50,7 +54,13 @@ export class ProjectMaturityComponent implements OnInit {
   totalQuantity = 0
   upcomingMaturity = 0
   projectId = 0
-  loading = false
+
+  // Loading states
+  isLoading = false
+  isSubmitting = false
+  isDeleting = false
+  deletingMaturityId: number | null = null
+  searchTerm = ""
 
   maturityStates = [
     { value: MaturityState.SOLVED, label: "Resuelto", class: "solved" },
@@ -68,7 +78,7 @@ export class ProjectMaturityComponent implements OnInit {
     this.maturityForm = this.fb.group({
       quantity: [1, [Validators.required, Validators.min(1)]],
       endDate: [new Date(), Validators.required],
-      state: ['']
+      state: [""],
     })
   }
 
@@ -78,19 +88,24 @@ export class ProjectMaturityComponent implements OnInit {
   }
 
   loadMaturities(): void {
-    this.loading = true
-    this.maturityService.getMaturities(this.projectId).subscribe({
-      next: (data) => {
-        this.maturityItems = data
-        this.filteredMaturityItems = [...this.maturityItems]
-        this.calculateSummary()
-        this.loading = false
-      },
-      error: (error) => {
-        this.snackBarService.sendError("Error al cargar los vencimientos")
-        this.loading = false
-      },
-    })
+    this.isLoading = true
+    this.maturityService
+      .getMaturities(this.projectId)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          this.maturityItems = data
+          this.filteredMaturityItems = [...this.maturityItems]
+          this.calculateSummary()
+        },
+        error: (error) => {
+          this.snackBarService.sendError("Error al cargar los vencimientos")
+        },
+      })
   }
 
   calculateSummary(): void {
@@ -110,6 +125,7 @@ export class ProjectMaturityComponent implements OnInit {
 
   onSubmit(): void {
     if (this.maturityForm.valid) {
+      this.isSubmitting = true
       const formValue = this.maturityForm.value
 
       if (this.editMode && this.currentMaturityId !== null) {
@@ -120,21 +136,23 @@ export class ProjectMaturityComponent implements OnInit {
           state: formValue.state,
         }
 
-        this.maturityService.updateMaturity(this.projectId, this.currentMaturityId, maturityPut).subscribe({
-          next: (updatedMaturity) => {
-            const index = this.maturityItems.findIndex((item) => item.id === this.currentMaturityId)
-            if (index !== -1) {
-              this.maturityItems[index] = updatedMaturity
-              this.snackBarService.sendSuccess("Vencimiento actualizada correctamente")
-            }
-            this.filteredMaturityItems = [...this.maturityItems]
-            this.calculateSummary()
-            this.resetForm()
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al actualizar el vencimiento")
-          },
-        })
+        this.maturityService
+          .updateMaturity(this.projectId, this.currentMaturityId, maturityPut)
+          .pipe(
+            finalize(() => {
+              this.isSubmitting = false
+            }),
+          )
+          .subscribe({
+            next: (updatedMaturity) => {
+              this.snackBarService.sendSuccess("Vencimiento actualizado correctamente")
+              this.loadMaturities() // Reload maturities to ensure data consistency
+              this.resetForm()
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al actualizar el vencimiento")
+            },
+          })
       } else {
         const maturityPost: MaturityDTOPost = {
           quantity: formValue.quantity,
@@ -142,18 +160,23 @@ export class ProjectMaturityComponent implements OnInit {
           projectId: this.projectId,
         }
 
-        this.maturityService.createMaturity(maturityPost).subscribe({
-          next: (newMaturity) => {
-            this.maturityItems.push(newMaturity)
-            this.snackBarService.sendSuccess("Vencimiento añadido correctamente")
-            this.filteredMaturityItems = [...this.maturityItems]
-            this.calculateSummary()
-            this.resetForm()
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al añadir el vencimiento")
-          },
-        })
+        this.maturityService
+          .createMaturity(maturityPost)
+          .pipe(
+            finalize(() => {
+              this.isSubmitting = false
+            }),
+          )
+          .subscribe({
+            next: (newMaturity) => {
+              this.snackBarService.sendSuccess("Vencimiento añadido correctamente")
+              this.loadMaturities() // Reload maturities to ensure data consistency
+              this.resetForm()
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al añadir el vencimiento")
+            },
+          })
       }
     }
   }
@@ -161,7 +184,7 @@ export class ProjectMaturityComponent implements OnInit {
   editMaturity(item: Maturity): void {
     this.editMode = true
     this.currentMaturityId = item.id
-    this.maturityForm.controls['state'].addValidators(Validators.required)
+    this.maturityForm.controls["state"].addValidators(Validators.required)
     this.maturityForm.setValue({
       quantity: item.quantity,
       endDate: new Date(item.endDate),
@@ -172,27 +195,38 @@ export class ProjectMaturityComponent implements OnInit {
   deleteMaturity(id: number): void {
     this.modalService.confirmDelete("vencimiento").subscribe((confirmed) => {
       if (confirmed) {
-        this.maturityService.deleteMaturity(this.projectId, id).subscribe({
-          next: () => {
-            this.maturityItems = this.maturityItems.filter((item) => item.id !== id)
-            this.filteredMaturityItems = [...this.maturityItems]
-            this.calculateSummary()
-            this.snackBarService.sendSuccess("Vencimiento eliminado correctamente")
+        this.isDeleting = true
+        this.deletingMaturityId = id
 
-            if (this.currentMaturityId === id) {
-              this.resetForm()
-            }
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al eliminar el vencimiento")
-          },
-        })
+        this.maturityService
+          .deleteMaturity(this.projectId, id)
+          .pipe(
+            finalize(() => {
+              this.isDeleting = false
+              this.deletingMaturityId = null
+            }),
+          )
+          .subscribe({
+            next: () => {
+              this.maturityItems = this.maturityItems.filter((item) => item.id !== id)
+              this.filteredMaturityItems = [...this.maturityItems]
+              this.calculateSummary()
+              this.snackBarService.sendSuccess("Vencimiento eliminado correctamente")
+
+              if (this.currentMaturityId === id) {
+                this.resetForm()
+              }
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al eliminar el vencimiento")
+            },
+          })
       }
     })
   }
 
   cancelEdit(): void {
-    this.maturityForm.controls['state'].removeValidators(Validators.required)
+    this.maturityForm.controls["state"].removeValidators(Validators.required)
     this.resetForm()
   }
 
@@ -207,8 +241,8 @@ export class ProjectMaturityComponent implements OnInit {
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.toLowerCase()
-    this.filteredMaturityItems = this.maturityItems.filter((item) => item.id.toString().includes(filterValue))
+    this.searchTerm = (event.target as HTMLInputElement).value.toLowerCase()
+    this.filteredMaturityItems = this.maturityItems.filter((item) => item.id.toString().includes(this.searchTerm))
   }
 
   filterByState(state: string): void {

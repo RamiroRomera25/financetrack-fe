@@ -10,7 +10,7 @@ import { MatDividerModule } from "@angular/material/divider"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import { MatSnackBarModule } from "@angular/material/snack-bar"
 import { ActivatedRoute } from "@angular/router"
-import type {ChartConfiguration, ChartData, ChartType, TooltipItem} from "chart.js"
+import type { ChartConfiguration, ChartData, ChartType, TooltipItem } from "chart.js"
 import { BaseChartDirective } from "ng2-charts"
 import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 import { ProjectService } from "../../services/project.service"
@@ -21,6 +21,7 @@ import type { Goal } from "../../models/goal"
 import type { Investment } from "../../models/investment"
 import type { Maturity } from "../../models/maturity"
 import type { Transaction } from "../../models/transaction"
+import { finalize } from "rxjs/operators"
 
 interface CategorySummary {
   id: number
@@ -96,7 +97,7 @@ export class ProjectHomeComponent implements OnInit {
   // Project data
   project: Project | null = null
   projectId = 0
-  loading = false
+  isLoading = false
 
   // Financial summary
   totalBalance = 0
@@ -135,7 +136,7 @@ export class ProjectHomeComponent implements OnInit {
       },
       tooltip: {
         callbacks: {
-          label: (context: TooltipItem<'pie'>) => {
+          label: (context: TooltipItem<"pie">) => {
             const label = context.label || ""
             const value = context.raw as number
             // Calcular el total de forma segura
@@ -191,7 +192,7 @@ export class ProjectHomeComponent implements OnInit {
       },
       tooltip: {
         callbacks: {
-          label: (context: TooltipItem<'pie'>) => {
+          label: (context: TooltipItem<"pie">) => {
             const label = context.label || ""
             const value = context.raw as number
             // Calcular el total de forma segura
@@ -231,7 +232,7 @@ export class ProjectHomeComponent implements OnInit {
       },
       tooltip: {
         callbacks: {
-          label: (context: TooltipItem<'pie'>) => {
+          label: (context: TooltipItem<"pie">) => {
             const label = context.label || ""
             const value = context.raw as number
             // Calcular el total de forma segura
@@ -276,18 +277,23 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   loadProjectData(): void {
-    this.loading = true
-    this.projectService.getProjectById(this.projectId).subscribe({
-      next: (data) => {
-        this.project = data
-        this.processProjectData(data)
-        this.loading = false
-      },
-      error: (error) => {
-        this.snackBarService.sendError("Error al cargar los datos del proyecto")
-        this.loading = false
-      },
-    })
+    this.isLoading = true
+    this.projectService
+      .getProjectById(this.projectId)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          this.project = data
+          this.processProjectData(data)
+        },
+        error: (error) => {
+          this.snackBarService.sendError("Error al cargar los datos del proyecto")
+        },
+      })
   }
 
   processProjectData(project: Project): void {

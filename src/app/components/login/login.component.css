@@ -15,10 +15,10 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   padding: 2.5rem;
   transition: transform 0.3s ease;
+}
 
-  &:hover {
-    transform: translateY(-5px);
-  }
+.login-card:hover {
+  transform: translateY(-5px);
 }
 
 .login-header {
@@ -74,11 +74,11 @@
   color: #2563eb;
   text-decoration: none;
   transition: color 0.2s ease;
+}
 
-  &:hover {
-    color: #14a12c;
-    text-decoration: underline;
-  }
+.forgot-password:hover {
+  color: #14a12c;
+  text-decoration: underline;
 }
 
 .login-btn {
@@ -90,15 +90,28 @@
   margin: 1rem 0;
   transition: all 0.3s ease;
   height: 48px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  &:hover:not([disabled]) {
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-    transform: translateY(-2px);
-  }
+.login-btn:hover:not([disabled]) {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+}
 
-  mat-icon {
-    margin-right: 0.5rem;
-  }
+.login-btn[disabled] {
+  background: linear-gradient(90deg, rgba(20, 161, 44, 0.5) 0%, rgba(37, 99, 235, 0.5) 100%);
+  cursor: not-allowed;
+}
+
+.login-btn mat-icon {
+  margin-right: 0.5rem;
+}
+
+.button-spinner {
+  margin: 0 auto;
 }
 
 .social-login {
@@ -112,50 +125,50 @@
   color: #666;
   font-size: 0.9rem;
   margin-bottom: 1rem;
+}
 
-  &::before,
-  &::after {
-    content: "";
-    flex: 1;
-    border-bottom: 1px solid #ddd;
-  }
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
 
-  &::before {
-    margin-right: 0.5rem;
-  }
+.divider::before {
+  margin-right: 0.5rem;
+}
 
-  &::after {
-    margin-left: 0.5rem;
-  }
+.divider::after {
+  margin-left: 0.5rem;
 }
 
 .social-buttons {
   display: flex;
   justify-content: center;
   gap: 1rem;
+}
 
-  button {
-    background-color: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
+.social-buttons button {
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
 
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-  }
+.social-buttons button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
-  .google-btn {
-    color: #DB4437;
-  }
+.google-btn {
+  color: #db4437;
+}
 
-  .facebook-btn {
-    color: #4267B2;
-  }
+.facebook-btn {
+  color: #4267b2;
+}
 
-  .apple-btn {
-    color: #000000;
-  }
+.apple-btn {
+  color: #000000;
 }
 
 .register-link {
@@ -163,18 +176,24 @@
   margin-top: 1.5rem;
   font-size: 0.95rem;
   color: #555;
+  cursor: pointer;
+}
 
-  span {
-    color: #14a12c;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
+.register-link.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-    &:hover {
-      color: #2563eb;
-      text-decoration: underline;
-    }
-  }
+.register-link span {
+  color: #14a12c;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.register-link:not(.disabled):hover span {
+  color: #2563eb;
+  text-decoration: underline;
 }
 
 /* Media queries para responsive */

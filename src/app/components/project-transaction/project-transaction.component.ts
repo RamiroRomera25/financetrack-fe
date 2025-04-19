@@ -24,8 +24,9 @@ import { TransactionService } from "../../services/transaction.service"
 import { CategoryService } from "../../services/category.service"
 import { SnackBarService } from "../../services/snack-bar.service"
 import { ModalService } from "../../services/modal.service"
-import { Transaction, TransactionDTOPost, TransactionDTOPut } from "../../models/transaction"
+import type { Transaction, TransactionDTOPost, TransactionDTOPut } from "../../models/transaction"
 import type { Category } from "../../models/category"
+import { finalize } from "rxjs/operators"
 
 @Component({
   selector: "app-project-transaction",
@@ -62,10 +63,17 @@ export class ProjectTransactionComponent implements OnInit {
   categories: Category[] = []
   displayedColumns: string[] = ["date", "description", "category", "quantity", "actions"]
   projectId = 0
-  loading = false
+  typeTransaction = false
+
+  // Loading states
+  isLoadingData = false
+  isLoadingCategories = false
+  isSubmitting = false
+  isDeleting = false
+  deletingTransactionId: number | null = null
+
   editMode = false
   currentTransactionId: number | null = null
-  typeTransaction: boolean = false;
 
   // Filter options
   filterType: "all" | "income" | "expense" = "all"
@@ -91,35 +99,46 @@ export class ProjectTransactionComponent implements OnInit {
   }
 
   loadCategories(): void {
-    this.loading = true
-    this.categoryService.getCategories(this.projectId).subscribe({
-      next: (data) => {
-        this.categories = data
-        this.loading = false
-      },
-      error: (error) => {
-        this.snackBarService.sendError("Error al cargar las categorías")
-        this.loading = false
-      },
-    })
+    this.isLoadingCategories = true
+    this.categoryService
+      .getCategories(this.projectId)
+      .pipe(
+        finalize(() => {
+          this.isLoadingCategories = false
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          this.categories = data
+        },
+        error: (error) => {
+          this.snackBarService.sendError("Error al cargar las categorías")
+        },
+      })
   }
 
   loadTransactions(): void {
-    this.loading = true
-    this.transactionService.getTransactions(this.projectId).subscribe({
-      next: (data) => {
-        this.transactions = data
-        this.loading = false
-      },
-      error: (error) => {
-        this.snackBarService.sendError("Error al cargar las transacciones")
-        this.loading = false
-      },
-    })
+    this.isLoadingData = true
+    this.transactionService
+      .getTransactions(this.projectId)
+      .pipe(
+        finalize(() => {
+          this.isLoadingData = false
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          this.transactions = data
+        },
+        error: (error) => {
+          this.snackBarService.sendError("Error al cargar las transacciones")
+        },
+      })
   }
 
   onSubmit(): void {
     if (this.transactionForm.valid) {
+      this.isSubmitting = true
       const formValue = this.transactionForm.value
 
       if (this.editMode && this.currentTransactionId !== null) {
@@ -129,76 +148,88 @@ export class ProjectTransactionComponent implements OnInit {
           categoryId: formValue.categoryId,
         }
 
-        this.loading = true
-        this.transactionService.updateTransaction(this.projectId, this.currentTransactionId, transactionPut).subscribe({
-          next: (updatedTransaction) => {
-            const index = this.transactions.findIndex((t) => t.id === this.currentTransactionId)
-            if (index !== -1) {
-              this.transactions[index] = updatedTransaction
-            }
-            this.snackBarService.sendSuccess("Transacción actualizada correctamente")
-            this.resetForm()
-            this.loading = false
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al actualizar la transacción")
-            this.loading = false
-          },
-        })
+        this.transactionService
+          .updateTransaction(this.projectId, this.currentTransactionId, transactionPut)
+          .pipe(
+            finalize(() => {
+              this.isSubmitting = false
+            }),
+          )
+          .subscribe({
+            next: (updatedTransaction) => {
+              const index = this.transactions.findIndex((t) => t.id === this.currentTransactionId)
+              if (index !== -1) {
+                this.transactions[index] = updatedTransaction
+              }
+              this.snackBarService.sendSuccess("Transacción actualizada correctamente")
+              this.resetForm()
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al actualizar la transacción")
+            },
+          })
       } else {
         // Create new transaction
-        console.log(this.typeTransaction)
         const transactionPost: TransactionDTOPost = {
           quantity: this.typeTransaction ? formValue.quantity : formValue.quantity * -1,
           categoryId: formValue.categoryId,
           projectId: this.projectId,
         }
-        console.log(this.typeTransaction ? formValue.quantity : formValue.quantity * -1)
 
-        this.loading = true
-        this.transactionService.createTransaction(transactionPost).subscribe({
-          next: (newTransaction) => {
-            this.transactions.unshift(newTransaction)
-            this.snackBarService.sendSuccess("Transacción creada correctamente")
-            this.resetForm()
-            this.loading = false
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al crear la transacción")
-            this.loading = false
-          },
-        })
+        this.transactionService
+          .createTransaction(transactionPost)
+          .pipe(
+            finalize(() => {
+              this.isSubmitting = false
+            }),
+          )
+          .subscribe({
+            next: (newTransaction) => {
+              this.transactions.unshift(newTransaction)
+              this.snackBarService.sendSuccess("Transacción creada correctamente")
+              this.resetForm()
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al crear la transacción")
+            },
+          })
       }
     }
   }
 
   resetForm(): void {
     this.transactionForm.reset({
-      description: "",
       quantity: null,
-      type: "expense",
       categoryId: null,
-      date: new Date(),
     })
     this.editMode = false
     this.currentTransactionId = null
+    this.typeTransaction = false
   }
 
   deleteTransaction(id: number): void {
     this.modalService.confirmDelete("transacción").subscribe((confirmed) => {
       if (confirmed) {
-        this.loading = true
-        this.transactionService.deleteTransaction(this.projectId, id).subscribe({
-          next: () => {
-            this.transactions = this.transactions.filter((t) => t.id !== id)
-            this.snackBarService.sendSuccess("Transacción eliminada correctamente")
-            this.loading = false
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al eliminar la transacción")
-            this.loading = false
-          },
-        })
+        this.isDeleting = true
+        this.deletingTransactionId = id
+
+        this.transactionService
+          .deleteTransaction(this.projectId, id)
+          .pipe(
+            finalize(() => {
+              this.isDeleting = false
+              this.deletingTransactionId = null
+            }),
+          )
+          .subscribe({
+            next: () => {
+              this.transactions = this.transactions.filter((t) => t.id !== id)
+              this.snackBarService.sendSuccess("Transacción eliminada correctamente")
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al eliminar la transacción")
+            },
+          })
       }
     })
   }
@@ -206,10 +237,11 @@ export class ProjectTransactionComponent implements OnInit {
   editTransaction(transaction: Transaction): void {
     this.editMode = true
     this.currentTransactionId = transaction.id
+    this.typeTransaction = transaction.quantity > 0
+
     this.transactionForm.setValue({
-      quantity: transaction.quantity,
+      quantity: Math.abs(transaction.quantity),
       categoryId: transaction.category.id,
-      date: new Date(transaction.createdDate),
     })
   }
 
@@ -245,13 +277,13 @@ export class ProjectTransactionComponent implements OnInit {
 
   getTotalIncome(): number {
     return this.transactions
-      .filter((t) => t.quantity >= -1)
+      .filter((t) => t.quantity >= 0)
       .reduce((total, transaction) => total + transaction.quantity, 0)
   }
 
   getTotalExpenses(): number {
     return this.transactions
-      .filter((t) => t.quantity <= 1)
+      .filter((t) => t.quantity < 0)
       .reduce((total, transaction) => total + transaction.quantity, 0)
   }
 
@@ -260,6 +292,6 @@ export class ProjectTransactionComponent implements OnInit {
   }
 
   typeTransactionChange(b: boolean) {
-    this.typeTransaction = b;
+    this.typeTransaction = b
   }
 }

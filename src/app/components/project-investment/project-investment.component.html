@@ -15,7 +15,7 @@
           <div class="form-row">
             <mat-form-field appearance="outline">
               <mat-label>Símbolo</mat-label>
-              <input matInput formControlName="tickerSymbol" placeholder="Ej: AAPL" required>
+              <input matInput formControlName="tickerSymbol" placeholder="Ej: AAPL" required [disabled]="isSubmitting">
               <mat-icon matPrefix>label</mat-icon>
               @if (investmentForm.get('tickerSymbol')?.hasError('required') && investmentForm.get('tickerSymbol')?.touched) {
                 <mat-error>El símbolo es obligatorio</mat-error>
@@ -24,7 +24,7 @@
 
             <mat-form-field appearance="outline">
               <mat-label>Cantidad</mat-label>
-              <input matInput type="number" formControlName="quantity" min="0" step="0.01" required>
+              <input matInput type="number" formControlName="quantity" min="0" step="0.01" required [disabled]="isSubmitting">
               <mat-icon matPrefix>format_list_numbered</mat-icon>
               @if (investmentForm.get('quantity')?.hasError('required') && investmentForm.get('quantity')?.touched) {
                 <mat-error>La cantidad es obligatoria</mat-error>
@@ -36,9 +36,10 @@
           </div>
 
           <div class="form-actions">
-            <button mat-button (click)="cancelEdit()">Cancelar</button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="investmentForm.invalid">
-              {{editMode ? 'Actualizar Inversión' : 'Añadir Inversión'}}
+            <button mat-button (click)="cancelEdit()" [disabled]="isSubmitting">Cancelar</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="investmentForm.invalid || isSubmitting" class="submit-button">
+              <span *ngIf="!isSubmitting">{{editMode ? 'Actualizar Inversión' : 'Añadir Inversión'}}</span>
+              <mat-spinner *ngIf="isSubmitting" diameter="24" class="button-spinner"></mat-spinner>
             </button>
           </div>
         </form>
@@ -71,101 +72,111 @@
       </mat-card-header>
 
       <mat-card-content>
-        <div class="filter-options">
-          <div class="search-container">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Buscar</mat-label>
-              <input matInput (keyup)="applyFilter($event)" placeholder="Buscar inversión...">
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
-          </div>
-
-          <div class="filter-actions">
-            <button mat-icon-button [matMenuTriggerFor]="sortMenu" class="sort-button" matTooltip="Ordenar">
-              <mat-icon>sort</mat-icon>
-            </button>
-            <mat-menu #sortMenu="matMenu">
-              <button mat-menu-item (click)="sortInvestments('name')">
-                <mat-icon>sort_by_alpha</mat-icon>
-                <span>Ordenar por nombre</span>
-              </button>
-              <button mat-menu-item (click)="sortInvestments('value')">
-                <mat-icon>attach_money</mat-icon>
-                <span>Ordenar por valor</span>
-              </button>
-              <button mat-menu-item (click)="sortInvestments('changePercentage')">
-                <mat-icon>trending_up</mat-icon>
-                <span>Ordenar por rendimiento</span>
-              </button>
-            </mat-menu>
-          </div>
+        <!-- Loading spinner for initial data loading -->
+        <div *ngIf="isLoading" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Cargando inversiones...</p>
         </div>
 
-        <div class="investments-summary">
-          <div class="summary-card">
-            <div class="summary-value">{{totalPortfolioValue}}</div>
-            <div class="summary-label">Valor Total</div>
-          </div>
-          <div class="summary-card">
-            <div class="summary-value">{{investments.length}}</div>
-            <div class="summary-label">Activos</div>
-          </div>
-          <div class="summary-card" [ngClass]="{'positive': totalChangePercentage > 0, 'negative': totalChangePercentage < 0}">
-            <div class="summary-value">
-              <mat-icon>{{totalChangePercentage > 0 ? 'trending_up' : 'trending_down'}}</mat-icon>
-              {{totalChangePercentage | number:'1.2-2'}}%
+        <div *ngIf="!isLoading">
+          <div class="filter-options">
+            <div class="search-container">
+              <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Buscar</mat-label>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Buscar inversión...">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
             </div>
-            <div class="summary-label">Rendimiento</div>
-          </div>
-        </div>
 
-        <div class="investments-list">
-          @if (filteredInvestments.length === 0) {
-            <div class="empty-state">
-              <mat-icon>account_balance</mat-icon>
-              <p>No tienes inversiones registradas</p>
+            <div class="filter-actions">
+              <button mat-icon-button [matMenuTriggerFor]="sortMenu" class="sort-button" matTooltip="Ordenar">
+                <mat-icon>sort</mat-icon>
+              </button>
+              <mat-menu #sortMenu="matMenu">
+                <button mat-menu-item (click)="sortInvestments('name')">
+                  <mat-icon>sort_by_alpha</mat-icon>
+                  <span>Ordenar por nombre</span>
+                </button>
+                <button mat-menu-item (click)="sortInvestments('value')">
+                  <mat-icon>attach_money</mat-icon>
+                  <span>Ordenar por valor</span>
+                </button>
+                <button mat-menu-item (click)="sortInvestments('changePercentage')">
+                  <mat-icon>trending_up</mat-icon>
+                  <span>Ordenar por rendimiento</span>
+                </button>
+              </mat-menu>
             </div>
-          } @else {
-            @for (investment of filteredInvestments; track investment) {
-              <div class="investment-item">
-                <div class="investment-header">
-                  <div class="investment-symbol">{{investment.tickerSymbol}}</div>
-                  <div class="investment-actions">
-                    <button mat-icon-button color="primary" (click)="editInvestment(investment)" matTooltip="Editar">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" (click)="deleteInvestment(investment.id)" matTooltip="Eliminar">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
-                </div>
+          </div>
 
-                <div class="investment-name">{{investment.name}}</div>
-
-                <div class="investment-details">
-                  <div class="detail-item">
-                    <span class="detail-label">Cantidad</span>
-                    <span class="detail-value">{{investment.quantity | number:'1.2-2'}}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Precio</span>
-                    <span class="detail-value">${{investment.price | number:'1.2-2'}}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="detail-label">Valor</span>
-                    <span class="detail-value">${{investment.value | number:'1.2-2'}}</span>
-                  </div>
-                </div>
-
-                <div class="investment-performance" [ngClass]="{'positive': investment.changePercentage > 0, 'negative': investment.changePercentage < 0}">
-                  <div class="change-value">
-                    <mat-icon>{{investment.changePercentage > 0 ? 'trending_up' : 'trending_down'}}</mat-icon>
-                    ${{investment.change | number:'1.2-2'}} ({{investment.changePercentage | number:'1.2-2'}}%)
-                  </div>
-                </div>
+          <div class="investments-summary">
+            <div class="summary-card">
+              <div class="summary-value">{{totalPortfolioValue | number:'1.2-2'}}</div>
+              <div class="summary-label">Valor Total</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-value">{{investments.length}}</div>
+              <div class="summary-label">Activos</div>
+            </div>
+            <div class="summary-card" [ngClass]="{'positive': totalChangePercentage > 0, 'negative': totalChangePercentage < 0}">
+              <div class="summary-value">
+                <mat-icon>{{totalChangePercentage > 0 ? 'trending_up' : 'trending_down'}}</mat-icon>
+                {{totalChangePercentage | number:'1.2-2'}}%
               </div>
+              <div class="summary-label">Rendimiento</div>
+            </div>
+          </div>
+
+          <div class="investments-list">
+            @if (filteredInvestments.length === 0) {
+              <div class="empty-state">
+                <mat-icon>account_balance</mat-icon>
+                <p>No tienes inversiones registradas</p>
+              </div>
+            } @else {
+              @for (investment of filteredInvestments; track investment) {
+                <div class="investment-item">
+                  <div class="investment-header">
+                    <div class="investment-symbol">{{investment.tickerSymbol}}</div>
+                    <div class="investment-actions">
+                      <button mat-icon-button color="primary" (click)="editInvestment(investment)" matTooltip="Editar" [disabled]="isSubmitting">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" (click)="deleteInvestment(investment.id)" matTooltip="Eliminar"
+                              [disabled]="isDeleting && deletingInvestmentId === investment.id">
+                        <mat-icon *ngIf="!(isDeleting && deletingInvestmentId === investment.id)">delete</mat-icon>
+                        <mat-spinner *ngIf="isDeleting && deletingInvestmentId === investment.id" diameter="20" class="delete-spinner"></mat-spinner>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="investment-name">{{investment.name}}</div>
+
+                  <div class="investment-details">
+                    <div class="detail-item">
+                      <span class="detail-label">Cantidad</span>
+                      <span class="detail-value">{{investment.quantity | number:'1.2-2'}}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Precio</span>
+                      <span class="detail-value">${{investment.price | number:'1.2-2'}}</span>
+                    </div>
+                    <div class="detail-item">
+                      <span class="detail-label">Valor</span>
+                      <span class="detail-value">${{investment.value | number:'1.2-2'}}</span>
+                    </div>
+                  </div>
+
+                  <div class="investment-performance" [ngClass]="{'positive': investment.changePercentage > 0, 'negative': investment.changePercentage < 0}">
+                    <div class="change-value">
+                      <mat-icon>{{investment.changePercentage > 0 ? 'trending_up' : 'trending_down'}}</mat-icon>
+                      ${{investment.change | number:'1.2-2'}} ({{investment.changePercentage | number:'1.2-2'}}%)
+                    </div>
+                  </div>
+                </div>
+              }
             }
-          }
+          </div>
         </div>
       </mat-card-content>
     </mat-card>

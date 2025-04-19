@@ -11,7 +11,7 @@
       <div class="name-fields">
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Nombre</mat-label>
-          <input matInput type="text" formControlName="firstName">
+          <input matInput type="text" formControlName="firstName" [disabled]="isLoading">
           <mat-icon matPrefix>person</mat-icon>
           @if (registerForm.get('firstName')?.hasError('required') && registerForm.get('firstName')?.touched) {
             <mat-error>
@@ -22,7 +22,7 @@
 
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Apellido</mat-label>
-          <input matInput type="text" formControlName="lastName">
+          <input matInput type="text" formControlName="lastName" [disabled]="isLoading">
           @if (registerForm.get('lastName')?.hasError('required') && registerForm.get('lastName')?.touched) {
             <mat-error>
               El apellido es obligatorio
@@ -33,7 +33,7 @@
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Correo electrónico</mat-label>
-        <input matInput type="email" formControlName="email">
+        <input matInput type="email" formControlName="email" [disabled]="isLoading">
         <mat-icon matPrefix>email</mat-icon>
         @if (registerForm.get('email')?.hasError('required') && registerForm.get('email')?.touched) {
           <mat-error>
@@ -59,29 +59,23 @@
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Contraseña</mat-label>
-        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+        <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" [disabled]="isLoading">
         <mat-icon matPrefix>lock</mat-icon>
-        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button" [disabled]="isLoading">
           <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
         </button>
-<!--        <mat-hint>Mínimo 8 caracteres, incluyendo mayúsculas, minúsculas y números</mat-hint>-->
         @if (registerForm.get('password')?.hasError('required') && registerForm.get('password')?.touched) {
           <mat-error>
             La contraseña es obligatoria
           </mat-error>
         }
-        <!--        @if (registerForm.get('password')?.hasError('minlength') && registerForm.get('password')?.touched) {-->
-        <!--          <mat-error>-->
-        <!--            La contraseña debe tener al menos 8 caracteres-->
-        <!--          </mat-error>-->
-        <!--        }-->
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Confirmar contraseña</mat-label>
-        <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword">
+        <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" [disabled]="isLoading">
         <mat-icon matPrefix>lock</mat-icon>
-        <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button">
+        <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button" [disabled]="isLoading">
           <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
         </button>
         @if (registerForm.get('confirmPassword')?.hasError('required') && registerForm.get('confirmPassword')?.touched) {
@@ -97,7 +91,7 @@
       </mat-form-field>
 
       <div class="terms-container">
-        <mat-checkbox color="primary" formControlName="termsAccepted">
+        <mat-checkbox color="primary" formControlName="termsAccepted" [disabled]="isLoading">
           Acepto los <a href="#" class="terms-link">Términos y Condiciones</a> y la <a href="#" class="terms-link">Política de Privacidad</a>
         </mat-checkbox>
         @if (registerForm.get('termsAccepted')?.hasError('required') && registerForm.get('termsAccepted')?.touched) {
@@ -107,14 +101,17 @@
         }
       </div>
 
-      <button mat-raised-button type="submit" class="register-btn">
-        <mat-icon>person_add</mat-icon>
-        <span>Crear Cuenta</span>
+      <button mat-raised-button type="submit" class="register-btn" [disabled]="registerForm.invalid || isLoading">
+        @if (isLoading) {
+          <mat-spinner diameter="24" class="button-spinner"></mat-spinner>
+        } @else {
+          <span>Crear Cuenta</span>
+        }
       </button>
     </form>
 
-    <div class="login-link">
-      ¿Ya tienes una cuenta? <a href="#" routerLink="/login">Inicia sesión</a>
+    <div class="login-link" [class.disabled]="isLoading">
+      ¿Ya tienes una cuenta? <a href="#" routerLink="/login" [class.disabled]="isLoading">Inicia sesión</a>
     </div>
   </div>
 </div>

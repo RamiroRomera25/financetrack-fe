@@ -33,8 +33,24 @@
 /* Loading Spinner */
 .loading-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   padding: 40px 0;
+}
+
+.loading-text {
+  margin-top: 16px;
+  color: #718096;
+  font-size: 1rem;
+}
+
+.categories-loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
 }
 
 /* Summary Cards */
@@ -199,6 +215,20 @@
   justify-content: flex-end;
   gap: 8px;
   margin-top: 16px;
+}
+
+/* Button with spinner */
+.submit-button {
+  min-width: 180px;
+  position: relative;
+}
+
+.button-spinner {
+  margin: 0 auto;
+}
+
+.delete-spinner {
+  margin: 0 auto;
 }
 
 /* Transactions List */

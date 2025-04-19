@@ -1,18 +1,20 @@
-import {Component, inject} from "@angular/core"
-import {animate, style, transition, trigger} from "@angular/animations"
-import {CommonModule} from "@angular/common"
-import {MatCardModule} from "@angular/material/card"
-import {MatButtonModule} from "@angular/material/button"
-import {MatIconModule} from "@angular/material/icon"
-import {MatDialog, MatDialogModule} from "@angular/material/dialog"
-import {MatSnackBarModule} from "@angular/material/snack-bar"
-import type {Project} from "../../models/project"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component"
-import {Router} from "@angular/router"
-import {ProjectFormModalComponent} from "./project-form-modal/project-form-modal.component"
-import {ProjectService} from "../../services/project.service"
-import {SnackBarService} from "../../services/snack-bar.service"
-import {ModalService} from "../../services/modal.service"
+import { Component, inject } from "@angular/core"
+import { animate, style, transition, trigger } from "@angular/animations"
+import { CommonModule } from "@angular/common"
+import { MatCardModule } from "@angular/material/card"
+import { MatButtonModule } from "@angular/material/button"
+import { MatIconModule } from "@angular/material/icon"
+import { MatDialog, MatDialogModule } from "@angular/material/dialog"
+import { MatSnackBarModule } from "@angular/material/snack-bar"
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import type { Project } from "../../models/project"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
+import { Router } from "@angular/router"
+import { ProjectFormModalComponent } from "./project-form-modal/project-form-modal.component"
+import { ProjectService } from "../../services/project.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { ModalService } from "../../services/modal.service"
+import { finalize } from "rxjs/operators"
 
 @Component({
   selector: "app-project-dashboard",
@@ -24,6 +26,7 @@ import {ModalService} from "../../services/modal.service"
     MatIconModule,
     MatDialogModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     ProjectSidebarComponent,
   ],
   templateUrl: "./project-dashboard.component.html",
@@ -40,37 +43,51 @@ import {ModalService} from "../../services/modal.service"
 })
 export class ProjectDashboardComponent {
   private router = inject(Router)
-
   private projectService = inject(ProjectService)
-
   private snackBarService = inject(SnackBarService)
   private modalService = inject(ModalService)
   private dialog = inject(MatDialog)
 
   projects: Project[] = []
-
   currentIndex = 0
+
+  // Loading states
+  isLoadingProjects = false
+  isDeleting = false
+  isNavigating = false
+
+  // Button-specific loading states
+  loadingProjectId: number | null = null
 
   get currentProject(): Project {
     return this.projects[this.currentIndex]
   }
 
   ngOnInit() {
-    this.projectService.getUserProjects().subscribe({
-      next: (projects: Project[]) => {
-        console.log(projects.length)
-        if (projects.length == 0) {
-          this.projects = []
-          console.log("No projects available")
-        } else {
-          this.projects = projects
-        }
-      },
-      error: (error: any) => {
-        this.snackBarService.sendError("Error al obtener los proyectos")
-        // this.ngOnInit();
-      },
-    })
+    this.loadProjects()
+  }
+
+  loadProjects() {
+    this.isLoadingProjects = true
+    this.projectService
+      .getUserProjects()
+      .pipe(
+        finalize(() => {
+          this.isLoadingProjects = false
+        }),
+      )
+      .subscribe({
+        next: (projects: Project[]) => {
+          if (projects.length == 0) {
+            this.projects = []
+          } else {
+            this.projects = projects
+          }
+        },
+        error: (error: any) => {
+          this.snackBarService.sendError("Error al obtener los proyectos")
+        },
+      })
   }
 
   nextProject(): void {
@@ -94,7 +111,17 @@ export class ProjectDashboardComponent {
   }
 
   goToProjectHome() {
-    this.router.navigate([`/project/home/${this.currentProject.id}`])
+    if (this.isNavigating) return
+
+    this.isNavigating = true
+    this.loadingProjectId = this.currentProject.id
+
+    // Simulate navigation delay
+    setTimeout(() => {
+      this.isNavigating = false
+      this.loadingProjectId = null
+      this.router.navigate([`/project/home/${this.currentProject.id}`])
+    }, 800)
   }
 
   addNewProject(): void {
@@ -165,12 +192,30 @@ export class ProjectDashboardComponent {
   }
 
   performDelete(): void {
-    this.projectService.deleteProject(this.currentProject.id).subscribe({
-      next: () => {
-        this.projects.splice(this.currentIndex, 1)
-        this.nextProject()
-        this.snackBarService.sendSuccess("Proyecto eliminado correctamente")
-      },
-    })
+    this.isDeleting = true
+    this.loadingProjectId = this.currentProject.id
+
+    this.projectService
+      .deleteProject(this.currentProject.id)
+      .pipe(
+        finalize(() => {
+          this.isDeleting = false
+          this.loadingProjectId = null
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.projects.splice(this.currentIndex, 1)
+          if (this.projects.length === 0) {
+            this.currentIndex = 0
+          } else if (this.currentIndex >= this.projects.length) {
+            this.currentIndex = this.projects.length - 1
+          }
+          this.snackBarService.sendSuccess("Proyecto eliminado correctamente")
+        },
+        error: (error) => {
+          this.snackBarService.sendError("Error al eliminar el proyecto")
+        },
+      })
   }
 }

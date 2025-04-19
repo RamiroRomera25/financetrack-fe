@@ -1,25 +1,26 @@
-import {Component, inject} from "@angular/core"
-import {CommonModule} from "@angular/common"
-import {MatCardModule} from "@angular/material/card"
-import {MatIconModule} from "@angular/material/icon"
-import {MatButtonModule} from "@angular/material/button"
-import {MatInputModule} from "@angular/material/input"
-import {MatFormFieldModule} from "@angular/material/form-field"
-import {MatSelectModule} from "@angular/material/select"
-import {MatDividerModule} from "@angular/material/divider"
-import {MatListModule} from "@angular/material/list"
-import {MatTooltipModule} from "@angular/material/tooltip"
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
-import {ActivatedRoute} from "@angular/router";
-import {CategoryService} from "../../services/category.service";
-import {Category, CategoryDTOPost, CategoryDTOPut} from "../../models/category";
-import {ModalService} from "../../services/modal.service";
-import {SnackBarService} from "../../services/snack-bar.service";
-
+import { Component, inject, type OnInit } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { MatCardModule } from "@angular/material/card"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatInputModule } from "@angular/material/input"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { MatSelectModule } from "@angular/material/select"
+import { MatDividerModule } from "@angular/material/divider"
+import { MatListModule } from "@angular/material/list"
+import { MatTooltipModule } from "@angular/material/tooltip"
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import { FormBuilder, type FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
+import { ActivatedRoute } from "@angular/router"
+import { CategoryService } from "../../services/category.service"
+import type { Category, CategoryDTOPost, CategoryDTOPut } from "../../models/category"
+import { ModalService } from "../../services/modal.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { finalize } from "rxjs/operators"
 
 @Component({
-  selector: 'app-project-category',
+  selector: "app-project-category",
   standalone: true,
   imports: [
     CommonModule,
@@ -32,23 +33,31 @@ import {SnackBarService} from "../../services/snack-bar.service";
     MatDividerModule,
     MatListModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
     FormsModule,
     ReactiveFormsModule,
     ProjectSidebarComponent,
   ],
-  templateUrl: './project-category.component.html',
-  styleUrl: './project-category.component.css'
+  templateUrl: "./project-category.component.html",
+  styleUrl: "./project-category.component.css",
 })
-export class ProjectCategoryComponent {
-  projectId: number = 0;
-  currentCategoryId?: number;
+export class ProjectCategoryComponent implements OnInit {
+  projectId = 0
+  currentCategoryId?: number
   categories: Category[] = []
   categoryForm: FormGroup
-  editForm: boolean = false;
+  editForm = false
+  searchTerm = ""
 
-  private categoryService = inject(CategoryService);
-  private modalService = inject(ModalService);
-  private snackBarService = inject(SnackBarService);
+  // Loading states
+  isLoading = false
+  isSubmitting = false
+  isDeleting = false
+  deletingCategoryId?: number
+
+  private categoryService = inject(CategoryService)
+  private modalService = inject(ModalService)
+  private snackBarService = inject(SnackBarService)
 
   // Predefined colors for the color picker
   predefinedColors = [
@@ -73,8 +82,10 @@ export class ProjectCategoryComponent {
     { name: "Azul Gris", value: "#607D8B" },
   ]
 
-  constructor(private fb: FormBuilder,
-              private activatedRoute: ActivatedRoute) {
+  constructor(
+    private fb: FormBuilder,
+    private activatedRoute: ActivatedRoute,
+  ) {
     this.categoryForm = this.fb.group({
       name: ["", [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
       color: ["#4CAF50", Validators.required],
@@ -82,57 +93,80 @@ export class ProjectCategoryComponent {
   }
 
   ngOnInit(): void {
-    this.projectId = Number(this.activatedRoute.snapshot.paramMap.get('p'));
-    this.categoryService.getCategories(this.projectId).subscribe({
-      next: (categories) => {
-        this.categories = categories;
-      },
-      error: (error: any) => {
+    this.projectId = Number(this.activatedRoute.snapshot.paramMap.get("p"))
+    this.loadCategories()
+  }
 
-      }
-    })
+  loadCategories(): void {
+    this.isLoading = true
+    this.categoryService
+      .getCategories(this.projectId)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false
+        }),
+      )
+      .subscribe({
+        next: (categories) => {
+          this.categories = categories
+        },
+        error: (error: any) => {
+          this.snackBarService.sendError("Error al cargar las categorías")
+        },
+      })
   }
 
   onSubmit(): void {
     if (this.categoryForm.valid) {
+      this.isSubmitting = true
 
       if (this.editForm) {
         this.confirmEdit()
-        return;
+        return
       }
 
       const newCategory: CategoryDTOPost = {
         name: this.categoryForm.value.name,
         color: this.categoryForm.value.color,
-        projectId: this.projectId
+        projectId: this.projectId,
       }
-      this.categoryService.createCategory(newCategory).subscribe({
-        next: (categorySaved) => {
-          categorySaved.transactionCount = 0;
-          this.categories.unshift(categorySaved)
-          this.categoryForm.setValue({
-            name: "",
-            color: "#009688",
-          })
-        }
-      })
+
+      this.categoryService
+        .createCategory(newCategory)
+        .pipe(
+          finalize(() => {
+            this.isSubmitting = false
+          }),
+        )
+        .subscribe({
+          next: (categorySaved) => {
+            categorySaved.transactionCount = 0
+            this.categories.unshift(categorySaved)
+            this.categoryForm.setValue({
+              name: "",
+              color: "#009688",
+            })
+            this.snackBarService.sendSuccess("Categoría creada correctamente")
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al crear la categoría")
+          },
+        })
     }
   }
 
   cancel() {
-    this.editForm = false;
-    this.currentCategoryId = undefined;
+    this.editForm = false
+    this.currentCategoryId = undefined
     this.categoryForm.setValue({
       name: "",
       color: "#4CAF50",
-    });
+    })
   }
 
   editCategory(category: Category): void {
-    console.log(category)
-    this.editForm = true;
-    this.currentCategoryId = category.id;
-    console.log(this.currentCategoryId)
+    this.editForm = true
+    this.currentCategoryId = category.id
     this.categoryForm.setValue({
       name: category.name,
       color: category.color,
@@ -140,47 +174,73 @@ export class ProjectCategoryComponent {
   }
 
   confirmEdit() {
-    console.warn("HOLA 2")
-    console.log(this.currentCategoryId)
     if (this.currentCategoryId !== undefined) {
-      console.warn("HOLA 1")
-      const newCategory: CategoryDTOPut = {
+      const updatedCategory: CategoryDTOPut = {
         name: this.categoryForm.value.name,
-        color: this.categoryForm.value.color
+        color: this.categoryForm.value.color,
       }
 
-      this.categoryService.updateCategory(this.projectId, this.currentCategoryId, newCategory).subscribe({
-        next: (categoryUpdate) => {
-          // TODO: Cambiar
-          this.cancel();
-          this.ngOnInit();
-        },
-        error: (error: any) => {
-
-        }
-      })
+      this.categoryService
+        .updateCategory(this.projectId, this.currentCategoryId, updatedCategory)
+        .pipe(
+          finalize(() => {
+            this.isSubmitting = false
+          }),
+        )
+        .subscribe({
+          next: (categoryUpdate) => {
+            this.cancel()
+            this.loadCategories()
+            this.snackBarService.sendSuccess("Categoría actualizada correctamente")
+          },
+          error: (error: any) => {
+            this.snackBarService.sendError("Error al actualizar la categoría")
+          },
+        })
     }
   }
 
   deleteCategory(categoryId: number): void {
-    this.currentCategoryId = categoryId;
+    this.currentCategoryId = categoryId
     this.modalService.confirmDelete("categoria").subscribe((confirmed) => {
       if (confirmed) {
         this.performDelete()
       } else {
-        this.currentCategoryId = undefined;
+        this.currentCategoryId = undefined
       }
     })
   }
 
   performDelete(): void {
     if (this.currentCategoryId !== undefined) {
-      this.categoryService.deleteCategory(this.projectId, this.currentCategoryId).subscribe({
-        next: () => {
-          this.ngOnInit()
-          this.snackBarService.sendSuccess("Categoría eliminada correctamente")
-        },
-      })
+      this.isDeleting = true
+      this.deletingCategoryId = this.currentCategoryId
+
+      this.categoryService
+        .deleteCategory(this.projectId, this.currentCategoryId)
+        .pipe(
+          finalize(() => {
+            this.isDeleting = false
+            this.deletingCategoryId = undefined
+          }),
+        )
+        .subscribe({
+          next: () => {
+            this.loadCategories()
+            this.snackBarService.sendSuccess("Categoría eliminada correctamente")
+          },
+          error: (error) => {
+            this.snackBarService.sendError("Error al eliminar la categoría")
+          },
+        })
     }
+  }
+
+  filterCategories(): Category[] {
+    if (!this.searchTerm.trim()) {
+      return this.categories
+    }
+
+    return this.categories.filter((category) => category.name.toLowerCase().includes(this.searchTerm.toLowerCase()))
   }
 }

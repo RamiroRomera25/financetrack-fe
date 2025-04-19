@@ -4,12 +4,13 @@
   <p class="section-subtitle">Vista general de tu situación financiera actual</p>
 
   <!-- Loading Spinner -->
-  <div class="loading-container" *ngIf="loading">
+  <div class="loading-container" *ngIf="isLoading">
     <mat-spinner diameter="40"></mat-spinner>
+    <p class="loading-text">Cargando datos del proyecto...</p>
   </div>
 
   <!-- Content Container (hidden while loading) -->
-  <div *ngIf="!loading">
+  <div *ngIf="!isLoading">
     <!-- Financial Overview Cards -->
     <div class="cards-grid">
       <mat-card class="overview-card">
@@ -81,7 +82,7 @@
       </mat-card>
     </div>
 
-    <!-- Eliminar la sección "charts-section" existente y reemplazarla con esta nueva sección -->
+    <!-- Charts Section -->
     <div class="charts-section">
       <h2 class="section-subtitle">Visualización de Datos Financieros</h2>
 

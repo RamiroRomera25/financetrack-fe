@@ -1,57 +1,7 @@
-/* Variables CSS */
-:root {
-  --primary-color: #14a12c;
-  --secondary-color: #2563eb;
-  --primary-light: rgba(20, 161, 44, 0.1);
-  --secondary-light: rgba(37, 99, 235, 0.1);
-  --text-color: #333;
-  --light-text: #666;
-  --white: #fff;
-  --light-bg: #f8f9fa;
-  --border-color: #ddd;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --border-radius: 8px;
-  --gradient: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  --positive-color: #14a12c;
-  --negative-color: #e53935;
-}
-
-/* Estilos generales */
-:host {
-  display: block;
-  background-color: #f8f9fa;
-  color: #333;
-  min-height: 100vh;
-  padding: 20px 0 40px;
-}
-
 .investments-container {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
-}
-
-/* Encabezado de página */
-.page-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.page-title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  background: linear-gradient(90deg, #14a12c 0%, #2563eb 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: inline-block;
-}
-
-.page-subtitle {
-  font-size: 1.1rem;
-  color: #666;
-  margin: 0;
 }
 
 .section-title {
@@ -80,41 +30,11 @@
   margin: 1.5rem 0 2rem;
 }
 
-/* Contenido principal - Layout de 50/50 */
-.investments-content {
-  display: flex;
-  gap: 30px;
-}
-
-.investment-form-section,
-.investment-list-section {
-  flex: 1;
-  width: 50%;
-}
-
 /* Layout */
 .investments-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-}
-
-/* Estilos del formulario */
-.form-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-}
-
-.form-card mat-card-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.form-card mat-card-subtitle {
-  color: #666;
 }
 
 /* Card Styles */
@@ -201,19 +121,32 @@
   margin-top: 16px;
 }
 
-/* Tarjeta de consejos */
-.tips-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.tips-icon {
-  background-color: rgba(20, 161, 44, 0.1);
-  color: #14a12c;
+/* Loading Styles */
+.loading-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 40px 0;
+}
+
+.loading-text {
+  margin-top: 16px;
+  color: #718096;
+  font-size: 1rem;
+}
+
+.button-spinner {
+  margin: 0 auto;
+}
+
+.submit-button {
+  min-width: 120px;
+  min-height: 36px;
+}
+
+.delete-spinner {
+  margin: 0 auto;
 }
 
 /* Tips Info */
@@ -249,27 +182,6 @@
   flex-shrink: 0;
 }
 
-/* Estilos de la lista */
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.list-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-  color: #333;
-}
-
-.list-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 /* Filter and Search */
 .filter-options {
   display: flex;
@@ -292,7 +204,7 @@
 }
 
 .search-field {
-  width: 200px;
+  width: 100%;
   font-size: 0.9rem;
 }
 
@@ -300,7 +212,7 @@
   color: #2563eb;
 }
 
-/* Resumen de inversiones */
+/* Summary Cards */
 .investments-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -346,7 +258,7 @@
   color: #e53935;
 }
 
-/* Lista de inversiones */
+/* Investments List */
 .investments-list {
   max-height: 500px;
   overflow-y: auto;
@@ -454,36 +366,6 @@
   background-color: rgba(229, 57, 53, 0.1);
 }
 
-/* Estado vacío */
-.empty-list {
-  text-align: center;
-  padding: 50px 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.empty-icon {
-  font-size: 60px;
-  height: 60px;
-  width: 60px;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-.empty-list p {
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin: 0 0 10px;
-  color: #333;
-}
-
-.empty-subtitle {
-  font-size: 1rem !important;
-  font-weight: 400 !important;
-  color: #666 !important;
-}
-
 /* Empty State */
 .empty-state {
   display: flex;
@@ -499,18 +381,6 @@
   height: 48px;
   width: 48px;
   margin-bottom: 16px;
-}
-
-/* Media Queries */
-@media (max-width: 992px) {
-  .investments-content {
-    flex-direction: column;
-  }
-
-  .investment-form-section,
-  .investment-list-section {
-    width: 100%;
-  }
 }
 
 /* Responsive Adjustments */
@@ -552,22 +422,8 @@
     gap: 16px;
   }
 
-  .list-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-
-  .list-actions {
-    width: 100%;
-  }
-
   .filter-actions {
     width: 100%;
     justify-content: flex-end;
-  }
-
-  .search-field {
-    width: 100%;
   }
 }

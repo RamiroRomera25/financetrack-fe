@@ -1,34 +1,25 @@
-import {Component, inject, type OnInit} from "@angular/core"
-import {CommonModule} from "@angular/common"
-import {ActivatedRoute, RouterModule} from "@angular/router"
-import {FormBuilder, type FormGroup, ReactiveFormsModule, Validators} from "@angular/forms"
-import {MatButtonModule} from "@angular/material/button"
-import {MatIconModule} from "@angular/material/icon"
-import {MatCardModule} from "@angular/material/card"
-import {MatFormFieldModule} from "@angular/material/form-field"
-import {MatInputModule} from "@angular/material/input"
-import {MatDatepickerModule} from "@angular/material/datepicker"
-import {MatNativeDateModule} from "@angular/material/core"
-import {MatSelectModule} from "@angular/material/select"
-import {MatCheckboxModule} from "@angular/material/checkbox"
-import {MatMenuModule} from "@angular/material/menu"
-import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar"
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component"
-import {ReminderService} from "../../services/reminder.service";
-import {SnackBarService} from "../../services/snack-bar.service";
-import {ModalService} from "../../services/modal.service";
-import {Reminder, ReminderDTOPost, ReminderDTOPut} from "../../models/reminder";
-
-interface ReminderEntity {
-  id: number
-  reminderDate: Date
-  subject: string
-  description?: string
-  isRecurring?: boolean
-  frequency?: string
-  endDate?: Date
-  priority: string
-}
+import { Component, inject, type OnInit } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { ActivatedRoute, RouterModule } from "@angular/router"
+import { FormBuilder, type FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
+import { MatButtonModule } from "@angular/material/button"
+import { MatIconModule } from "@angular/material/icon"
+import { MatCardModule } from "@angular/material/card"
+import { MatFormFieldModule } from "@angular/material/form-field"
+import { MatInputModule } from "@angular/material/input"
+import { MatDatepickerModule } from "@angular/material/datepicker"
+import { MatNativeDateModule } from "@angular/material/core"
+import { MatSelectModule } from "@angular/material/select"
+import { MatCheckboxModule } from "@angular/material/checkbox"
+import { MatMenuModule } from "@angular/material/menu"
+import { MatSnackBarModule } from "@angular/material/snack-bar"
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
+import { ReminderService } from "../../services/reminder.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import { ModalService } from "../../services/modal.service"
+import type { Reminder, ReminderDTOPost, ReminderDTOPut } from "../../models/reminder"
+import { finalize } from "rxjs/operators"
 
 @Component({
   selector: "app-project-reminders",
@@ -50,6 +41,7 @@ interface ReminderEntity {
     MatCheckboxModule,
     MatMenuModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     ProjectSidebarComponent,
   ],
 })
@@ -62,7 +54,12 @@ export class ProjectRemindersComponent implements OnInit {
   upcomingCount = 0
   overdueCount = 0
   projectId = 0
-  loading = false
+
+  // Loading states
+  isLoadingData = false
+  isSubmitting = false
+  isDeleting = false
+  deletingReminderId: number | null = null
 
   private reminderService = inject(ReminderService)
   private snackBarService = inject(SnackBarService)
@@ -71,17 +68,15 @@ export class ProjectRemindersComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private snackBar: MatSnackBar,
   ) {
     this.reminderForm = this.fb.group({
       subject: ["", Validators.required],
-      reminderDate: [new Date(), Validators.required]
+      reminderDate: [new Date(), Validators.required],
     })
 
     this.filteredReminders = [...this.reminders]
     this.calculateSummary()
   }
-
 
   ngOnInit(): void {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
@@ -89,19 +84,24 @@ export class ProjectRemindersComponent implements OnInit {
   }
 
   loadReminders(): void {
-    this.loading = true
-    this.reminderService.getReminders(this.projectId).subscribe({
-      next: (data) => {
-        this.reminders = data
-        this.filteredReminders = [...this.reminders]
-        this.calculateSummary()
-        this.loading = false
-      },
-      error: (error) => {
-        this.snackBarService.sendError("Error al cargar los recordatorios")
-        this.loading = false
-      },
-    })
+    this.isLoadingData = true
+    this.reminderService
+      .getReminders(this.projectId)
+      .pipe(
+        finalize(() => {
+          this.isLoadingData = false
+        }),
+      )
+      .subscribe({
+        next: (data) => {
+          this.reminders = data
+          this.filteredReminders = [...this.reminders]
+          this.calculateSummary()
+        },
+        error: (error) => {
+          this.snackBarService.sendError("Error al cargar los recordatorios")
+        },
+      })
   }
 
   calculateSummary(): void {
@@ -123,6 +123,7 @@ export class ProjectRemindersComponent implements OnInit {
 
   onSubmit(): void {
     if (this.reminderForm.valid) {
+      this.isSubmitting = true
       const formValue = this.reminderForm.value
 
       if (this.editMode && this.currentReminderId !== null) {
@@ -130,63 +131,60 @@ export class ProjectRemindersComponent implements OnInit {
         const reminderPut: ReminderDTOPut = {
           subject: formValue.subject,
           reminderDate: formValue.reminderDate,
-          // description: formValue.description,
-          // isRecurring: formValue.isRecurring,
-          // frequency: formValue.frequency,
-          // endDate: formValue.endDate,
-          // priority: formValue.priority,
         }
 
-        this.reminderService.updateReminder(this.projectId, this.currentReminderId, reminderPut).subscribe({
-          next: (updatedReminder) => {
-            const index = this.reminders.findIndex((reminder) => reminder.id === this.currentReminderId)
-            if (index !== -1) {
-              this.reminders[index] = {
-                ...this.reminders[index],
-                ...updatedReminder,
+        this.reminderService
+          .updateReminder(this.projectId, this.currentReminderId, reminderPut)
+          .pipe(
+            finalize(() => {
+              this.isSubmitting = false
+            }),
+          )
+          .subscribe({
+            next: (updatedReminder) => {
+              const index = this.reminders.findIndex((reminder) => reminder.id === this.currentReminderId)
+              if (index !== -1) {
+                this.reminders[index] = {
+                  ...this.reminders[index],
+                  ...updatedReminder,
+                }
+                this.snackBarService.sendSuccess("Recordatorio actualizado correctamente")
               }
-              this.snackBarService.sendSuccess("Recordatorio actualizado correctamente")
-            }
-            this.filteredReminders = [...this.reminders]
-            this.calculateSummary()
-            this.resetForm()
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al actualizar el recordatorio")
-          },
-        })
+              this.filteredReminders = [...this.reminders]
+              this.calculateSummary()
+              this.resetForm()
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al actualizar el recordatorio")
+            },
+          })
       } else {
         // Añadir nuevo recordatorio
         const reminderPost: ReminderDTOPost = {
           subject: formValue.subject,
           reminderDate: formValue.reminderDate,
-          // description: formValue.description,
-          // isRecurring: formValue.isRecurring,
-          // frequency: formValue.frequency,
-          // endDate: formValue.endDate,
-          // priority: formValue.priority,
           projectId: this.projectId,
         }
 
-        this.reminderService.createReminder(reminderPost).subscribe({
-          next: (newReminder) => {
-            this.reminders.push({
-              ...newReminder,
-              description: formValue.description,
-              isRecurring: formValue.isRecurring,
-              frequency: formValue.frequency,
-              endDate: formValue.endDate,
-              priority: formValue.priority,
-            })
-            this.snackBarService.sendSuccess("Recordatorio creado correctamente")
-            this.filteredReminders = [...this.reminders]
-            this.calculateSummary()
-            this.resetForm()
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al crear el recordatorio")
-          },
-        })
+        this.reminderService
+          .createReminder(reminderPost)
+          .pipe(
+            finalize(() => {
+              this.isSubmitting = false
+            }),
+          )
+          .subscribe({
+            next: (newReminder) => {
+              this.reminders.push(newReminder)
+              this.snackBarService.sendSuccess("Recordatorio creado correctamente")
+              this.filteredReminders = [...this.reminders]
+              this.calculateSummary()
+              this.resetForm()
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al crear el recordatorio")
+            },
+          })
       }
     }
   }
@@ -196,28 +194,39 @@ export class ProjectRemindersComponent implements OnInit {
     this.currentReminderId = reminder.id
     this.reminderForm.setValue({
       subject: reminder.subject,
-      reminderDate: new Date(reminder.reminderDate)
+      reminderDate: new Date(reminder.reminderDate),
     })
   }
 
   deleteReminder(id: number): void {
     this.modalService.confirmDelete("recordatorio").subscribe((confirmed) => {
       if (confirmed) {
-        this.reminderService.deleteReminder(this.projectId, id).subscribe({
-          next: () => {
-            this.reminders = this.reminders.filter((reminder) => reminder.id !== id)
-            this.filteredReminders = [...this.reminders]
-            this.calculateSummary()
-            this.snackBarService.sendSuccess("Recordatorio eliminado correctamente")
+        this.isDeleting = true
+        this.deletingReminderId = id
 
-            if (this.currentReminderId === id) {
-              this.resetForm()
-            }
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al eliminar el recordatorio")
-          },
-        })
+        this.reminderService
+          .deleteReminder(this.projectId, id)
+          .pipe(
+            finalize(() => {
+              this.isDeleting = false
+              this.deletingReminderId = null
+            }),
+          )
+          .subscribe({
+            next: () => {
+              this.reminders = this.reminders.filter((reminder) => reminder.id !== id)
+              this.filteredReminders = [...this.reminders]
+              this.calculateSummary()
+              this.snackBarService.sendSuccess("Recordatorio eliminado correctamente")
+
+              if (this.currentReminderId === id) {
+                this.resetForm()
+              }
+            },
+            error: (error) => {
+              this.snackBarService.sendError("Error al eliminar el recordatorio")
+            },
+          })
       }
     })
   }

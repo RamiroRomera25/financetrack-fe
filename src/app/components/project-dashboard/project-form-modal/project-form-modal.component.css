@@ -63,6 +63,10 @@
   color: #4a5568;
 }
 
+.close-button[disabled] {
+  color: rgba(74, 85, 104, 0.5);
+}
+
 .modal-content {
   padding: 24px;
 }
@@ -84,6 +88,8 @@
   border-radius: 20px !important;
   padding: 0 20px !important;
   transition: all 0.3s ease !important;
+  min-width: 160px;
+  position: relative;
 }
 
 .submit-button:hover:not([disabled]) {
@@ -102,6 +108,15 @@
   transition: all 0.3s ease !important;
 }
 
-.cancel-button:hover {
+.cancel-button:hover:not([disabled]) {
   background-color: rgba(74, 85, 104, 0.1) !important;
+}
+
+.cancel-button[disabled] {
+  color: rgba(74, 85, 104, 0.5) !important;
+}
+
+/* Button spinner */
+.button-spinner {
+  margin: 0 auto;
 }

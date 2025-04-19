@@ -203,6 +203,24 @@
   margin-top: 16px;
 }
 
+/* Loading Spinners */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.button-spinner {
+  margin: 0 auto;
+}
+
+/* Button with spinner */
+button mat-spinner {
+  display: inline-block;
+  margin: 0 auto;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .categories-layout {
