@@ -15,20 +15,20 @@ export interface Reminder {
 export interface ReminderDTOPost {
   reminderDate: Date
   subject: string
-  description?: string
-  isRecurring?: boolean
-  frequency?: string
-  endDate?: Date
-  priority: string
+  // description?: string
+  // isRecurring?: boolean
+  // frequency?: string
+  // endDate?: Date
+  // priority: string
   projectId: number
 }
 
 export interface ReminderDTOPut {
   reminderDate: Date
   subject: string
-  description?: string
-  isRecurring?: boolean
-  frequency?: string
-  endDate?: Date
-  priority: string
+  // description?: string
+  // isRecurring?: boolean
+  // frequency?: string
+  // endDate?: Date
+  // priority: string
 }

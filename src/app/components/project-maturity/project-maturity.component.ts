@@ -87,7 +87,7 @@ export class ProjectMaturityComponent implements OnInit {
         this.loading = false
       },
       error: (error) => {
-        this.snackBarService.sendError("Error al cargar las madureces")
+        this.snackBarService.sendError("Error al cargar los vencimientos")
         this.loading = false
       },
     })
@@ -113,7 +113,7 @@ export class ProjectMaturityComponent implements OnInit {
       const formValue = this.maturityForm.value
 
       if (this.editMode && this.currentMaturityId !== null) {
-        // Actualizar madurez existente
+        // Actualizar vencimiento existente
         const maturityPut: MaturityDTOPut = {
           quantity: formValue.quantity,
           endDate: formValue.endDate,
@@ -125,14 +125,14 @@ export class ProjectMaturityComponent implements OnInit {
             const index = this.maturityItems.findIndex((item) => item.id === this.currentMaturityId)
             if (index !== -1) {
               this.maturityItems[index] = updatedMaturity
-              this.snackBarService.sendSuccess("Madurez actualizada correctamente")
+              this.snackBarService.sendSuccess("Vencimiento actualizada correctamente")
             }
             this.filteredMaturityItems = [...this.maturityItems]
             this.calculateSummary()
             this.resetForm()
           },
           error: (error) => {
-            this.snackBarService.sendError("Error al actualizar la madurez")
+            this.snackBarService.sendError("Error al actualizar el vencimiento")
           },
         })
       } else {
@@ -145,13 +145,13 @@ export class ProjectMaturityComponent implements OnInit {
         this.maturityService.createMaturity(maturityPost).subscribe({
           next: (newMaturity) => {
             this.maturityItems.push(newMaturity)
-            this.snackBarService.sendSuccess("Madurez añadida correctamente")
+            this.snackBarService.sendSuccess("Vencimiento añadido correctamente")
             this.filteredMaturityItems = [...this.maturityItems]
             this.calculateSummary()
             this.resetForm()
           },
           error: (error) => {
-            this.snackBarService.sendError("Error al añadir la madurez")
+            this.snackBarService.sendError("Error al añadir el vencimiento")
           },
         })
       }
@@ -170,21 +170,21 @@ export class ProjectMaturityComponent implements OnInit {
   }
 
   deleteMaturity(id: number): void {
-    this.modalService.confirmDelete("madurez").subscribe((confirmed) => {
+    this.modalService.confirmDelete("vencimiento").subscribe((confirmed) => {
       if (confirmed) {
         this.maturityService.deleteMaturity(this.projectId, id).subscribe({
           next: () => {
             this.maturityItems = this.maturityItems.filter((item) => item.id !== id)
             this.filteredMaturityItems = [...this.maturityItems]
             this.calculateSummary()
-            this.snackBarService.sendSuccess("Madurez eliminada correctamente")
+            this.snackBarService.sendSuccess("Vencimiento eliminado correctamente")
 
             if (this.currentMaturityId === id) {
               this.resetForm()
             }
           },
           error: (error) => {
-            this.snackBarService.sendError("Error al eliminar la madurez")
+            this.snackBarService.sendError("Error al eliminar el vencimiento")
           },
         })
       }

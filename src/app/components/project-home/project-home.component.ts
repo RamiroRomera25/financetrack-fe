@@ -1,67 +1,82 @@
-import {Component, type OnInit} from "@angular/core"
-import {CommonModule} from "@angular/common"
-import {MatCardModule} from "@angular/material/card"
-import {MatIconModule} from "@angular/material/icon"
-import {MatButtonModule} from "@angular/material/button"
-import {MatTableModule} from "@angular/material/table"
-import {MatProgressBarModule} from "@angular/material/progress-bar"
-import {MatTabsModule} from "@angular/material/tabs"
-import {MatDividerModule} from "@angular/material/divider"
-import type {ChartConfiguration, ChartData, ChartType} from "chart.js"
-import {BaseChartDirective} from "ng2-charts";
-import {ProjectSidebarComponent} from "../project-sidebar/project-sidebar.component";
+import { Component, type OnInit, inject } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { MatCardModule } from "@angular/material/card"
+import { MatIconModule } from "@angular/material/icon"
+import { MatButtonModule } from "@angular/material/button"
+import { MatTableModule } from "@angular/material/table"
+import { MatProgressBarModule } from "@angular/material/progress-bar"
+import { MatTabsModule } from "@angular/material/tabs"
+import { MatDividerModule } from "@angular/material/divider"
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
+import { MatSnackBarModule } from "@angular/material/snack-bar"
+import { ActivatedRoute } from "@angular/router"
+import type {ChartConfiguration, ChartData, ChartType, TooltipItem} from "chart.js"
+import { BaseChartDirective } from "ng2-charts"
+import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
+import { ProjectService } from "../../services/project.service"
+import { SnackBarService } from "../../services/snack-bar.service"
+import type { Project } from "../../models/project"
+import type { Category } from "../../models/category"
+import type { Goal } from "../../models/goal"
+import type { Investment } from "../../models/investment"
+import type { Maturity } from "../../models/maturity"
+import type { Transaction } from "../../models/transaction"
 
-interface Transaction {
-    id: number
-    date: Date
-    description: string
-    amount: number
-    category: string
-    categoryColor: string
+interface CategorySummary {
+  id: number
+  name: string
+  color: string
+  amount: number
+  percentage: number
 }
 
-interface Category {
-    id: number
-    name: string
-    color: string
-    amount: number
-    percentage: number
+interface TransactionDisplay {
+  id: number
+  date: Date
+  description: string
+  amount: number
+  category: string
+  categoryColor: string
 }
 
-interface Goal {
-    id: number
-    objective: string
-    endDate: Date
-    targetAmount: number
-    currentAmount: number
-    progress: number
+interface GoalDisplay {
+  id: number
+  objective: string
+  endDate: Date
+  targetAmount: number
 }
 
-interface Investment {
-    id: number
-    tickerSymbol: string
-    name: string
-    quantity: number
-    price: number
-    value: number
-    change: number
-    changePercentage: number
+interface InvestmentDisplay {
+  id: number
+  tickerSymbol: string
+  name: string
+  quantity: number
+  price: number
+  value: number
+  change: number
+  changePercentage: number
 }
 
-interface Maturity {
-    id: number
-    description: string
-    amount: number
-    endDate: Date
-    daysLeft: number
-    state: "PENDING" | "COMPLETED" | "OVERDUE"
+interface MaturityDisplay {
+  id: number
+  description: string
+  amount: number
+  endDate: Date
+  daysLeft: number
+  state: "PENDING" | "COMPLETED" | "OVERDUE"
+}
+
+interface MonthlyData {
+  month: string
+  income: number
+  expenses: number
 }
 
 @Component({
-    selector: 'app-project-home',
-    standalone: true,
-    templateUrl: './project-home.component.html',
-    styleUrl: './project-home.component.css',
+  selector: "app-project-home",
+  standalone: true,
+  templateUrl: "./project-home.component.html",
+  styleUrl: "./project-home.component.css",
   imports: [
     CommonModule,
     MatCardModule,
@@ -71,316 +86,505 @@ interface Maturity {
     MatProgressBarModule,
     MatTabsModule,
     MatDividerModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
     BaseChartDirective,
     ProjectSidebarComponent,
-  ]
+  ],
 })
 export class ProjectHomeComponent implements OnInit {
-    // Financial summary
-    totalBalance = 24500
-    totalIncome = 8750
-    totalExpenses = 3250
-    savingsRate = 62.9
+  // Project data
+  project: Project | null = null
+  projectId = 0
+  loading = false
 
-    // Transactions
-    recentTransactions: Transaction[] = []
-    displayedColumns: string[] = ["date", "description", "category", "amount"]
+  // Financial summary
+  totalBalance = 0
+  totalIncome = 0
+  totalExpenses = 0
+  savingsRate = 0
 
-    // Categories
-    categories: Category[] = []
+  // Transactions
+  recentTransactions: TransactionDisplay[] = []
+  displayedColumns: string[] = ["date", "description", "category", "amount"]
 
-    // Goals
-    goals: Goal[] = []
+  // Categories
+  categories: CategorySummary[] = []
 
-    // Investments
-    investments: Investment[] = []
-    investmentTotal = 0
-    investmentChange = 0
-    investmentChangePercentage = 0
+  // Goals
+  goals: GoalDisplay[] = []
 
-    // Maturities
-    upcomingMaturities: Maturity[] = []
+  // Investments
+  investments: InvestmentDisplay[] = []
+  investmentTotal = 0
+  investmentChange = 0
+  investmentChangePercentage = 0
 
-    // Charts
-  public barChartOptions: ChartConfiguration['options'] = {
+  // Maturities
+  upcomingMaturities: MaturityDisplay[] = []
+
+  // Monthly data for charts
+  monthlyData: MonthlyData[] = []
+
+  // Income and Expense Pie Chart
+  public incomeExpensePieChartOptions: ChartConfiguration["options"] = {
     responsive: true,
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: 'Meses',
-        },
+    plugins: {
+      legend: {
+        position: "right",
       },
-      y: {
-        title: {
-          display: true,
-          text: 'Cantidad',
+      tooltip: {
+        callbacks: {
+          label: (context: TooltipItem<'pie'>) => {
+            const label = context.label || ""
+            const value = context.raw as number
+            // Calcular el total de forma segura
+            const dataArray = context.dataset.data || []
+            let total = 0
+            for (let i = 0; i < dataArray.length; i++) {
+              const item = dataArray[i]
+              if (typeof item === "number") {
+                total += item
+              }
+            }
+            const percentage = total > 0 ? Math.round((value / total) * 100) : 0
+            return `${label}: ${this.formatCurrency(value)} (${percentage}%)`
+          },
         },
-        beginAtZero: true,
       },
     },
-  };
+  }
 
-  public barChartType: ChartType = 'bar';
+  public incomeExpensePieChartType: ChartType = "pie"
 
-  public barChartData: ChartData<'bar'> = {
-    labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+  public incomeExpensePieChartData: ChartData<"pie"> = {
+    labels: ["Ingresos", "Gastos"],
     datasets: [
       {
-        data: [1500, 2500, 1200, 1800, 2200],
-        label: 'Ingresos',
-        backgroundColor: '#4caf50',
-      },
-      {
-        data: [1000, 1500, 800, 1200, 1300],
-        label: 'Gastos',
-        backgroundColor: '#f44336',
+        data: [0, 0],
+        backgroundColor: ["#4caf50", "#f44336"],
       },
     ],
-  };
+  }
 
-  public pieChartOptions: ChartConfiguration['options'] = {
+  public pieChartOptions: ChartConfiguration["options"] = {
     responsive: true,
-  };
+  }
 
-  public pieChartType: ChartType = 'pie';
+  public pieChartType: ChartType = "pie"
 
-  public pieChartData: ChartData<'pie'> = {
-    labels: ['Alimentos', 'Transporte', 'Vivienda', 'Salud'],
+  public pieChartData: ChartData<"pie"> = {
+    labels: ["Alimentos", "Transporte", "Vivienda", "Salud"],
     datasets: [
       {
         data: [50, 30, 15, 5],
-        backgroundColor: ['#ff0000', '#ff9900', '#33cc33', '#3399ff'],
+        backgroundColor: ["#ff0000", "#ff9900", "#33cc33", "#3399ff"],
       },
     ],
-  };
+  }
 
-  public lineChartOptions: ChartConfiguration['options'] = {
+  public expensePieChartOptions: ChartConfiguration["options"] = {
     responsive: true,
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: 'Meses',
-        },
+    plugins: {
+      legend: {
+        position: "right",
       },
-      y: {
-        title: {
-          display: true,
-          text: 'Balance',
+      tooltip: {
+        callbacks: {
+          label: (context: TooltipItem<'pie'>) => {
+            const label = context.label || ""
+            const value = context.raw as number
+            // Calcular el total de forma segura
+            const dataArray = context.dataset.data || []
+            let total = 0
+            for (let i = 0; i < dataArray.length; i++) {
+              const item = dataArray[i]
+              if (typeof item === "number") {
+                total += item
+              }
+            }
+            const percentage = total > 0 ? Math.round((value / total) * 100) : 0
+            return `${label}: ${this.formatCurrency(value)} (${percentage}%)`
+          },
         },
-        beginAtZero: true,
       },
     },
-  };
+  }
 
-  public lineChartType: ChartType = 'line';
+  public expensePieChartType: ChartType = "pie"
 
-  public lineChartData: {
-    datasets: { borderColor: string; data: number[]; label: string; fill: boolean }[];
-    labels: string[]
-  } = {
-    labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+  public expensePieChartData: ChartData<"pie"> = {
+    labels: [],
     datasets: [
       {
-        data: [10000, 12000, 11500, 13000, 14000],
-        label: 'Balance Total',
-        borderColor: '#2196f3',
-        fill: false,
+        data: [],
+        backgroundColor: [],
       },
     ],
-  };
+  }
 
-    ngOnInit(): void {
-        this.generateMockData()
-        this.updateCharts()
+  public incomePieChartOptions: ChartConfiguration["options"] = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "right",
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: TooltipItem<'pie'>) => {
+            const label = context.label || ""
+            const value = context.raw as number
+            // Calcular el total de forma segura
+            const dataArray = context.dataset.data || []
+            let total = 0
+            for (let i = 0; i < dataArray.length; i++) {
+              const item = dataArray[i]
+              if (typeof item === "number") {
+                total += item
+              }
+            }
+            const percentage = total > 0 ? Math.round((value / total) * 100) : 0
+            return `${label}: ${this.formatCurrency(value)} (${percentage}%)`
+          },
+        },
+      },
+    },
+  }
+
+  public incomePieChartType: ChartType = "pie"
+
+  public incomePieChartData: ChartData<"pie"> = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: [],
+      },
+    ],
+  }
+
+  // Add a new property for income categories
+  incomeCategories: CategorySummary[] = []
+
+  private route = inject(ActivatedRoute)
+  private projectService = inject(ProjectService)
+  private snackBarService = inject(SnackBarService)
+
+  ngOnInit(): void {
+    this.projectId = Number(this.route.snapshot.paramMap.get("p"))
+    this.loadProjectData()
+  }
+
+  loadProjectData(): void {
+    this.loading = true
+    this.projectService.getProjectById(this.projectId).subscribe({
+      next: (data) => {
+        this.project = data
+        this.processProjectData(data)
+        this.loading = false
+      },
+      error: (error) => {
+        this.snackBarService.sendError("Error al cargar los datos del proyecto")
+        this.loading = false
+      },
+    })
+  }
+
+  processProjectData(project: Project): void {
+    // Process categories and transactions
+    this.processCategories(project.categories || [])
+
+    // Process goals
+    this.processGoals(project.goals || [])
+
+    // Process investments
+    this.processInvestments(project.investments || [])
+
+    // Process maturities
+    this.processMaturities(project.maturities || [])
+
+    // Calculate financial summary
+    this.calculateFinancialSummary()
+
+    // Update charts
+    this.updateCharts()
+  }
+
+  // Update the processCategories method to also process income categories
+  processCategories(categories: Category[]): void {
+    // Extract transactions from categories
+    const allTransactions: Transaction[] = []
+    let totalExpenses = 0
+    let totalIncome = 0
+    const incomeByCategory: Map<string, number> = new Map()
+
+    categories.forEach((category: Category) => {
+      if (category.transactions && category.transactions.length > 0) {
+        category.transactions.forEach((transaction) => {
+          allTransactions.push({
+            ...transaction,
+            category: {
+              id: category.id,
+              name: category.name,
+              color: category.color,
+            },
+          } as Transaction)
+
+          // Sum up expenses (negative quantities)
+          if (transaction.quantity < 0) {
+            totalExpenses += Math.abs(transaction.quantity)
+          }
+          // Sum up income (positive quantities)
+          else if (transaction.quantity > 0) {
+            totalIncome += transaction.quantity
+
+            // Track income by category
+            const currentAmount = incomeByCategory.get(category.name) || 0
+            incomeByCategory.set(category.name, currentAmount + transaction.quantity)
+          }
+        })
+      }
+    })
+
+    // Sort transactions by date (most recent first)
+    allTransactions.sort((a, b) => {
+      const dateA = new Date(a.createdDate || 0).getTime()
+      const dateB = new Date(b.createdDate || 0).getTime()
+      return dateB - dateA
+    })
+
+    // Take the 5 most recent transactions
+    this.recentTransactions = allTransactions.slice(0, 5).map((t: Transaction) => ({
+      id: t.id,
+      date: new Date(t.createdDate || new Date()),
+      description: `Transaction #${t.id}`,
+      amount: t.quantity,
+      category: t.category.name,
+      categoryColor: t.category.color,
+    }))
+
+    // Calculate category summaries for expenses
+    if (totalExpenses > 0) {
+      this.categories = categories
+        .map((category) => {
+          const categoryExpenses = this.calculateCategoryExpenses(category)
+          const percentage = totalExpenses > 0 ? (categoryExpenses / totalExpenses) * 100 : 0
+
+          return {
+            id: category.id,
+            name: category.name,
+            color: category.color,
+            amount: categoryExpenses,
+            percentage: Math.round(percentage),
+          }
+        })
+        .filter((c) => c.amount > 0)
+    } else {
+      // If no expenses, create empty category summaries
+      this.categories = categories.map((category) => ({
+        id: category.id,
+        name: category.name,
+        color: category.color,
+        amount: 0,
+        percentage: 0,
+      }))
     }
 
-    generateMockData(): void {
-        // Generate categories
-        this.categories = [
-            { id: 1, name: "Alimentación", color: "#FF5722", amount: 850, percentage: 26.2 },
-            { id: 2, name: "Transporte", color: "#2196F3", amount: 450, percentage: 13.8 },
-            { id: 3, name: "Vivienda", color: "#4CAF50", amount: 1200, percentage: 36.9 },
-            { id: 4, name: "Entretenimiento", color: "#9C27B0", amount: 350, percentage: 10.8 },
-            { id: 5, name: "Salud", color: "#F44336", amount: 200, percentage: 6.2 },
-            { id: 6, name: "Otros", color: "#607D8B", amount: 200, percentage: 6.2 },
-        ]
+    // Calculate category summaries for income
+    if (totalIncome > 0) {
+      this.incomeCategories = categories
+        .map((category) => {
+          const categoryIncome = incomeByCategory.get(category.name) || 0
+          const percentage = totalIncome > 0 ? (categoryIncome / totalIncome) * 100 : 0
 
-        // Generate transactions
-        this.recentTransactions = [
-            {
-                id: 1,
-                date: new Date(2025, 3, 15),
-                description: "Supermercado El Corte",
-                amount: -120,
-                category: "Alimentación",
-                categoryColor: "#FF5722",
-            },
-            {
-                id: 2,
-                date: new Date(2025, 3, 14),
-                description: "Transferencia recibida",
-                amount: 2500,
-                category: "Ingresos",
-                categoryColor: "#0a7c43",
-            },
-            {
-                id: 3,
-                date: new Date(2025, 3, 12),
-                description: "Pago de alquiler",
-                amount: -800,
-                category: "Vivienda",
-                categoryColor: "#4CAF50",
-            },
-            {
-                id: 4,
-                date: new Date(2025, 3, 10),
-                description: "Cine y restaurante",
-                amount: -85,
-                category: "Entretenimiento",
-                categoryColor: "#9C27B0",
-            },
-            {
-                id: 5,
-                date: new Date(2025, 3, 8),
-                description: "Gasolina",
-                amount: -60,
-                category: "Transporte",
-                categoryColor: "#2196F3",
-            },
-        ]
-
-        // Generate goals
-        this.goals = [
-            {
-                id: 1,
-                objective: "Fondo de emergencia",
-                endDate: new Date(2025, 8, 30),
-                targetAmount: 10000,
-                currentAmount: 6500,
-                progress: 65,
-            },
-            {
-                id: 2,
-                objective: "Vacaciones",
-                endDate: new Date(2025, 5, 15),
-                targetAmount: 3000,
-                currentAmount: 2100,
-                progress: 70,
-            },
-            {
-                id: 3,
-                objective: "Nuevo ordenador",
-                endDate: new Date(2025, 4, 20),
-                targetAmount: 1500,
-                currentAmount: 1200,
-                progress: 80,
-            },
-        ]
-
-        // Generate investments
-        this.investments = [
-            {
-                id: 1,
-                tickerSymbol: "AAPL",
-                name: "Apple Inc.",
-                quantity: 10,
-                price: 185.92,
-                value: 1859.2,
-                change: 3.45,
-                changePercentage: 1.89,
-            },
-            {
-                id: 2,
-                tickerSymbol: "MSFT",
-                name: "Microsoft Corp.",
-                quantity: 8,
-                price: 417.88,
-                value: 3343.04,
-                change: 2.12,
-                changePercentage: 0.51,
-            },
-            {
-                id: 3,
-                tickerSymbol: "AMZN",
-                name: "Amazon.com Inc.",
-                quantity: 5,
-                price: 182.41,
-                value: 912.05,
-                change: -1.23,
-                changePercentage: -0.67,
-            },
-            {
-                id: 4,
-                tickerSymbol: "GOOGL",
-                name: "Alphabet Inc.",
-                quantity: 6,
-                price: 174.13,
-                value: 1044.78,
-                change: 0.87,
-                changePercentage: 0.5,
-            },
-        ]
-
-        // Calculate investment totals
-        this.investmentTotal = this.investments.reduce((sum, inv) => sum + inv.value, 0)
-        this.investmentChange = this.investments.reduce((sum, inv) => sum + inv.change * inv.quantity, 0)
-        this.investmentChangePercentage = (this.investmentChange / (this.investmentTotal - this.investmentChange)) * 100
-
-        // Generate maturities
-        this.upcomingMaturities = [
-            {
-                id: 1,
-                description: "Pago de hipoteca",
-                amount: 950,
-                endDate: new Date(2025, 3, 30),
-                daysLeft: 15,
-                state: "PENDING",
-            },
-            {
-                id: 2,
-                description: "Seguro de coche",
-                amount: 320,
-                endDate: new Date(2025, 4, 5),
-                daysLeft: 20,
-                state: "PENDING",
-            },
-            {
-                id: 3,
-                description: "Depósito a plazo fijo",
-                amount: 5000,
-                endDate: new Date(2025, 5, 15),
-                daysLeft: 60,
-                state: "PENDING",
-            },
-        ]
+          return {
+            id: category.id,
+            name: category.name,
+            color: category.color,
+            amount: categoryIncome,
+            percentage: Math.round(percentage),
+          }
+        })
+        .filter((c) => c.amount > 0)
+    } else {
+      // If no income, create empty category summaries
+      this.incomeCategories = []
     }
 
-    updateCharts(): void {
-        // Update pie chart with categories
-        this.pieChartData = {
-            labels: this.categories.map((cat) => cat.name),
-            datasets: [
-                {
-                    data: this.categories.map((cat) => cat.amount),
-                    backgroundColor: this.categories.map((cat) => cat.color),
-                },
-            ],
-        }
+    // Update total income and expenses
+    this.totalIncome = totalIncome
+    this.totalExpenses = totalExpenses
+  }
+
+  // Helper method to safely calculate category expenses
+  calculateCategoryExpenses(category: Category): number {
+    if (!category.transactions || category.transactions.length === 0) {
+      return 0
     }
 
-    getDaysLeft(date: Date): number {
-        const today = new Date()
-        const diffTime = date.getTime() - today.getTime()
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    let total = 0
+    for (const transaction of category.transactions) {
+      if (transaction.quantity < 0) {
+        total += Math.abs(transaction.quantity)
+      }
     }
+    return total
+  }
 
-    formatCurrency(amount: number): string {
-        return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(amount)
-    }
+  processGoals(goals: Goal[]): void {
+    this.goals = goals.map((goal) => {
+      return {
+        id: goal.id,
+        objective: goal.objective,
+        endDate: new Date(goal.endDate),
+        targetAmount: goal.quantity,
+      }
+    })
+  }
 
-    formatDate(date: Date): string {
-        return new Intl.DateTimeFormat("es-ES").format(date)
+  processInvestments(investments: Investment[]): void {
+    // For simplicity, we'll use mock data for some investment details
+    // In a real app, you would get this data from the API
+    this.investments = investments.map((investment) => {
+      // Mock price and change data
+      const price = 100 + Math.random() * 200
+      const change = Math.random() * 10 - 5
+      const changePercentage = (change / price) * 100
+      const value = investment.quantity * price
+
+      return {
+        id: investment.id,
+        tickerSymbol: investment.tickerSymbol,
+        name: investment.tickerSymbol + " Inc.", // Mock company name
+        quantity: investment.quantity,
+        price: price,
+        value: value,
+        change: change,
+        changePercentage: changePercentage,
+      }
+    })
+
+    // Calculate investment totals
+    this.investmentTotal = this.investments.reduce((sum, inv) => sum + inv.value, 0)
+    this.investmentChange = this.investments.reduce((sum, inv) => sum + inv.change * inv.quantity, 0)
+
+    // Avoid division by zero
+    if (this.investmentTotal - this.investmentChange !== 0) {
+      this.investmentChangePercentage = (this.investmentChange / (this.investmentTotal - this.investmentChange)) * 100
+    } else {
+      this.investmentChangePercentage = 0
     }
+  }
+
+  processMaturities(maturities: Maturity[]): void {
+    this.upcomingMaturities = maturities.map((maturity) => {
+      const endDate = new Date(maturity.endDate)
+      const daysLeft = this.getDaysLeft(endDate)
+
+      // Determine state based on date and maturity state
+      let state: "PENDING" | "COMPLETED" | "OVERDUE" = "PENDING"
+      if (maturity.state === "SOLVED") {
+        state = "COMPLETED"
+      } else if (maturity.state === "LATE") {
+        state = "OVERDUE"
+      } else if (daysLeft < 0) {
+        state = "OVERDUE"
+      }
+
+      return {
+        id: maturity.id,
+        description: `Maturity #${maturity.id}`, // Mock description
+        amount: maturity.quantity,
+        endDate: endDate,
+        daysLeft: Math.max(0, daysLeft),
+        state: state,
+      }
+    })
+  }
+
+  calculateFinancialSummary(): void {
+    // Calculate total balance
+    this.totalBalance = this.totalIncome - this.totalExpenses
+
+    // Calculate savings rate
+    this.savingsRate =
+      this.totalIncome > 0 ? Math.round(((this.totalIncome - this.totalExpenses) / this.totalIncome) * 100) : 0
+  }
+
+  updateCharts(): void {
+    // Actualizar gráfico de distribución de gastos
+    this.updateExpensePieChart()
+
+    // Actualizar gráfico de distribución de ingresos
+    this.updateIncomePieChart()
+  }
+
+  updateExpensePieChart(): void {
+    if (this.categories.length > 0) {
+      this.expensePieChartData = {
+        labels: this.categories.map((cat) => cat.name),
+        datasets: [
+          {
+            data: this.categories.map((cat) => cat.amount),
+            backgroundColor: this.categories.map((cat) => cat.color),
+          },
+        ],
+      }
+    } else {
+      // Si no hay categorías, mostrar un gráfico vacío
+      this.expensePieChartData = {
+        labels: ["No hay datos"],
+        datasets: [
+          {
+            data: [1],
+            backgroundColor: ["#e0e0e0"],
+          },
+        ],
+      }
+    }
+  }
+
+  updateIncomePieChart(): void {
+    if (this.incomeCategories.length > 0) {
+      this.incomePieChartData = {
+        labels: this.incomeCategories.map((cat) => cat.name),
+        datasets: [
+          {
+            data: this.incomeCategories.map((cat) => cat.amount),
+            backgroundColor: this.incomeCategories.map((cat) => cat.color),
+          },
+        ],
+      }
+    } else {
+      // Si no hay categorías de ingresos, mostrar un gráfico vacío
+      this.incomePieChartData = {
+        labels: ["No hay datos"],
+        datasets: [
+          {
+            data: [1],
+            backgroundColor: ["#e0e0e0"],
+          },
+        ],
+      }
+    }
+  }
+
+  getDaysLeft(date: Date): number {
+    const today = new Date()
+    const diffTime = date.getTime() - today.getTime()
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat("es-ES", { style: "currency", currency: "ARS" }).format(amount)
+  }
+
+  formatDate(date: Date | string | any[]): string {
+    // Handle array format from API
+    if (Array.isArray(date)) {
+      // Format: [year, month, day]
+      return new Intl.DateTimeFormat("es-ES").format(new Date(date[0], date[1] - 1, date[2]))
+    }
+    return new Intl.DateTimeFormat("es-ES").format(new Date(date))
+  }
 }

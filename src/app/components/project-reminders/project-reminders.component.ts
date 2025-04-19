@@ -75,57 +75,8 @@ export class ProjectRemindersComponent implements OnInit {
   ) {
     this.reminderForm = this.fb.group({
       subject: ["", Validators.required],
-      reminderDate: [new Date(), Validators.required],
-      description: [""],
-      isRecurring: [false],
-      frequency: ["monthly"],
-      endDate: [null],
-      priority: ["medium"],
+      reminderDate: [new Date(), Validators.required]
     })
-
-    // Datos de ejemplo para mostrar en el mock-up
-    const today = new Date()
-    const tomorrow = new Date(today)
-    tomorrow.setDate(today.getDate() + 1)
-    const nextWeek = new Date(today)
-    nextWeek.setDate(today.getDate() + 7)
-    const lastWeek = new Date(today)
-    lastWeek.setDate(today.getDate() - 7)
-
-    this.reminders = [
-      {
-        id: 1,
-        subject: "Pago de hipoteca",
-        reminderDate: tomorrow,
-        description: "Pago mensual de la hipoteca de la casa",
-        isRecurring: true,
-        frequency: "monthly",
-        endDate: new Date(today.getFullYear() + 5, today.getMonth(), today.getDate()),
-        priority: "high",
-      },
-      {
-        id: 2,
-        subject: "Revisión de inversiones",
-        reminderDate: nextWeek,
-        description: "Revisar el rendimiento de las inversiones y ajustar la cartera si es necesario",
-        isRecurring: true,
-        frequency: "quarterly",
-        priority: "medium",
-      },
-      {
-        id: 3,
-        subject: "Pago de seguro de auto",
-        reminderDate: lastWeek,
-        priority: "high",
-      },
-      {
-        id: 4,
-        subject: "Renovación de suscripción",
-        reminderDate: today,
-        description: "Renovar suscripción anual de servicios financieros",
-        priority: "low",
-      },
-    ]
 
     this.filteredReminders = [...this.reminders]
     this.calculateSummary()
@@ -179,11 +130,11 @@ export class ProjectRemindersComponent implements OnInit {
         const reminderPut: ReminderDTOPut = {
           subject: formValue.subject,
           reminderDate: formValue.reminderDate,
-          description: formValue.description,
-          isRecurring: formValue.isRecurring,
-          frequency: formValue.frequency,
-          endDate: formValue.endDate,
-          priority: formValue.priority,
+          // description: formValue.description,
+          // isRecurring: formValue.isRecurring,
+          // frequency: formValue.frequency,
+          // endDate: formValue.endDate,
+          // priority: formValue.priority,
         }
 
         this.reminderService.updateReminder(this.projectId, this.currentReminderId, reminderPut).subscribe({
@@ -209,11 +160,11 @@ export class ProjectRemindersComponent implements OnInit {
         const reminderPost: ReminderDTOPost = {
           subject: formValue.subject,
           reminderDate: formValue.reminderDate,
-          description: formValue.description,
-          isRecurring: formValue.isRecurring,
-          frequency: formValue.frequency,
-          endDate: formValue.endDate,
-          priority: formValue.priority,
+          // description: formValue.description,
+          // isRecurring: formValue.isRecurring,
+          // frequency: formValue.frequency,
+          // endDate: formValue.endDate,
+          // priority: formValue.priority,
           projectId: this.projectId,
         }
 
@@ -245,12 +196,7 @@ export class ProjectRemindersComponent implements OnInit {
     this.currentReminderId = reminder.id
     this.reminderForm.setValue({
       subject: reminder.subject,
-      reminderDate: new Date(reminder.reminderDate),
-      description: reminder.description || "",
-      isRecurring: reminder.isRecurring || false,
-      frequency: reminder.frequency || "monthly",
-      endDate: reminder.endDate ? new Date(reminder.endDate) : null,
-      priority: reminder.priority,
+      reminderDate: new Date(reminder.reminderDate)
     })
   }
 
@@ -284,11 +230,6 @@ export class ProjectRemindersComponent implements OnInit {
     this.reminderForm.reset({
       subject: "",
       reminderDate: new Date(),
-      description: "",
-      isRecurring: false,
-      frequency: "monthly",
-      endDate: null,
-      priority: "medium",
     })
     this.editMode = false
     this.currentReminderId = null

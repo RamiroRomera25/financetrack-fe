@@ -1,267 +1,287 @@
 <app-project-sidebar></app-project-sidebar>
-
 <div class="dashboard-container">
-  <h1 class="section-title">Resumen Financiero</h1>
+  <h1 class="section-title">{{ project?.name || 'Resumen Financiero' }}</h1>
   <p class="section-subtitle">Vista general de tu situación financiera actual</p>
 
-  <!-- Financial Overview Cards -->
-  <div class="cards-grid">
-    <mat-card class="overview-card">
-      <div class="card-content">
-        <div class="card-info">
-          <h3>Balance Total</h3>
-          <div class="amount">{{ formatCurrency(totalBalance) }}</div>
-        </div>
-        <div class="card-icon primary-icon">
-          <mat-icon>account_balance_wallet</mat-icon>
-        </div>
-      </div>
-      <div class="card-footer">
-        <span class="trend positive">
-          <mat-icon>trending_up</mat-icon> 7.5% desde el mes pasado
-        </span>
-      </div>
-    </mat-card>
-
-    <mat-card class="overview-card">
-      <div class="card-content">
-        <div class="card-info">
-          <h3>Ingresos</h3>
-          <div class="amount">{{ formatCurrency(totalIncome) }}</div>
-        </div>
-        <div class="card-icon success-icon">
-          <mat-icon>arrow_upward</mat-icon>
-        </div>
-      </div>
-      <div class="card-footer">
-        <span class="trend positive">
-          <mat-icon>trending_up</mat-icon> 6.7% desde el mes pasado
-        </span>
-      </div>
-    </mat-card>
-
-    <mat-card class="overview-card">
-      <div class="card-content">
-        <div class="card-info">
-          <h3>Gastos</h3>
-          <div class="amount">{{ formatCurrency(totalExpenses) }}</div>
-        </div>
-        <div class="card-icon warning-icon">
-          <mat-icon>arrow_downward</mat-icon>
-        </div>
-      </div>
-      <div class="card-footer">
-        <span class="trend negative">
-          <mat-icon>trending_up</mat-icon> 4.8% desde el mes pasado
-        </span>
-      </div>
-    </mat-card>
-
-    <mat-card class="overview-card">
-      <div class="card-content">
-        <div class="card-info">
-          <h3>Tasa de Ahorro</h3>
-          <div class="amount">{{ savingsRate }}%</div>
-        </div>
-        <div class="card-icon info-icon">
-          <mat-icon>savings</mat-icon>
-        </div>
-      </div>
-      <div class="card-footer">
-        <span class="trend positive">
-          <mat-icon>trending_up</mat-icon> 2.3% desde el mes pasado
-        </span>
-      </div>
-    </mat-card>
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
   </div>
 
-  <!-- Charts Section -->
-  <div class="charts-section">
-    <div class="charts-grid">
-      <mat-card class="chart-card">
+  <!-- Content Container (hidden while loading) -->
+  <div *ngIf="!loading">
+    <!-- Financial Overview Cards -->
+    <div class="cards-grid">
+      <mat-card class="overview-card">
+        <div class="card-content">
+          <div class="card-info">
+            <h3>Balance Total</h3>
+            <div class="amount">{{ formatCurrency(totalBalance) }}</div>
+          </div>
+          <div class="card-icon primary-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="trend positive">
+            <mat-icon>trending_up</mat-icon> 7.5% desde el mes pasado
+          </span>
+        </div>
+      </mat-card>
+
+      <mat-card class="overview-card">
+        <div class="card-content">
+          <div class="card-info">
+            <h3>Ingresos</h3>
+            <div class="amount">{{ formatCurrency(totalIncome) }}</div>
+          </div>
+          <div class="card-icon success-icon">
+            <mat-icon>arrow_upward</mat-icon>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="trend positive">
+            <mat-icon>trending_up</mat-icon> 6.7% desde el mes pasado
+          </span>
+        </div>
+      </mat-card>
+
+      <mat-card class="overview-card">
+        <div class="card-content">
+          <div class="card-info">
+            <h3>Gastos</h3>
+            <div class="amount">{{ formatCurrency(totalExpenses) }}</div>
+          </div>
+          <div class="card-icon warning-icon">
+            <mat-icon>arrow_downward</mat-icon>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="trend negative">
+            <mat-icon>trending_up</mat-icon> 4.8% desde el mes pasado
+          </span>
+        </div>
+      </mat-card>
+
+      <mat-card class="overview-card">
+        <div class="card-content">
+          <div class="card-info">
+            <h3>Tasa de Ahorro</h3>
+            <div class="amount">{{ savingsRate }}%</div>
+          </div>
+          <div class="card-icon info-icon">
+            <mat-icon>savings</mat-icon>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="trend positive">
+            <mat-icon>trending_up</mat-icon> 2.3% desde el mes pasado
+          </span>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Eliminar la sección "charts-section" existente y reemplazarla con esta nueva sección -->
+    <div class="charts-section">
+      <h2 class="section-subtitle">Visualización de Datos Financieros</h2>
+
+      <div class="charts-grid">
+        <!-- Gráfico de Distribución de Gastos por Categoría -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>Distribución de Gastos por Categoría</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <canvas baseChart
+                      [data]="expensePieChartData"
+                      [options]="expensePieChartOptions"
+                      [type]="expensePieChartType">
+              </canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Gráfico de Distribución de Ingresos por Categoría -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>Distribución de Ingresos por Categoría</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <canvas baseChart
+                      [data]="incomePieChartData"
+                      [options]="incomePieChartOptions"
+                      [type]="incomePieChartType">
+              </canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Transactions and Categories -->
+    <div class="two-column-grid">
+      <mat-card class="data-card">
         <mat-card-header>
-          <mat-card-title>Evolución de Ingresos y Gastos</mat-card-title>
+          <mat-card-title>Transacciones Recientes</mat-card-title>
+          <button mat-button color="primary">Ver todas</button>
         </mat-card-header>
         <mat-card-content>
-          <canvas baseChart
-                  [data]="barChartData"
-                  [options]="barChartOptions"
-                  [type]="barChartType">
-          </canvas>
+          <div *ngIf="recentTransactions.length === 0" class="empty-state">
+            <mat-icon>receipt_long</mat-icon>
+            <p>No hay transacciones recientes</p>
+          </div>
+          <table *ngIf="recentTransactions.length > 0" mat-table [dataSource]="recentTransactions" class="transactions-table">
+            <!-- Date Column -->
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Fecha</th>
+              <td mat-cell *matCellDef="let transaction">{{ formatDate(transaction.date) }}</td>
+            </ng-container>
+
+            <!-- Description Column -->
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef>Descripción</th>
+              <td mat-cell *matCellDef="let transaction">{{ transaction.description }}</td>
+            </ng-container>
+
+            <!-- Category Column -->
+            <ng-container matColumnDef="category">
+              <th mat-header-cell *matHeaderCellDef>Categoría</th>
+              <td mat-cell *matCellDef="let transaction">
+                <span class="category-badge" [style.background-color]="transaction.categoryColor">
+                  {{ transaction.category }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Amount Column -->
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef>Importe</th>
+              <td mat-cell *matCellDef="let transaction" [class.positive]="transaction.amount > 0" [class.negative]="transaction.amount < 0">
+                {{ formatCurrency(transaction.amount) }}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="chart-card">
+      <mat-card class="data-card">
         <mat-card-header>
-          <mat-card-title>Distribución de Gastos</mat-card-title>
+          <mat-card-title>Gastos por Categoría</mat-card-title>
+          <button mat-button color="primary">Ver detalles</button>
         </mat-card-header>
         <mat-card-content>
-          <canvas baseChart
-                  [data]="pieChartData"
-                  [options]="pieChartOptions"
-                  [type]="pieChartType">
-          </canvas>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="chart-card full-width">
-        <mat-card-header>
-          <mat-card-title>Evolución del Balance</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <canvas baseChart
-                  [data]="lineChartData"
-                  [options]="lineChartOptions"
-                  [type]="lineChartType">
-          </canvas>
+          <div *ngIf="categories.length === 0" class="empty-state">
+            <mat-icon>category</mat-icon>
+            <p>No hay categorías de gastos</p>
+          </div>
+          <div *ngIf="categories.length > 0" class="categories-list">
+            <div class="category-item" *ngFor="let category of categories">
+              <div class="category-header">
+                <div class="category-name">
+                  <span class="category-color" [style.background-color]="category.color"></span>
+                  {{ category.name }}
+                </div>
+                <div class="category-amount">{{ formatCurrency(category.amount) }}</div>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="category.percentage" [color]="'primary'"></mat-progress-bar>
+              <div class="category-percentage">{{ category.percentage }}%</div>
+            </div>
+          </div>
         </mat-card-content>
       </mat-card>
     </div>
-  </div>
 
-  <!-- Transactions and Categories -->
-  <div class="two-column-grid">
-    <mat-card class="data-card">
-      <mat-card-header>
-        <mat-card-title>Transacciones Recientes</mat-card-title>
-        <button mat-button color="primary">Ver todas</button>
-      </mat-card-header>
-      <mat-card-content>
-        <table mat-table [dataSource]="recentTransactions" class="transactions-table">
-          <!-- Date Column -->
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef>Fecha</th>
-            <td mat-cell *matCellDef="let transaction">{{ formatDate(transaction.date) }}</td>
-          </ng-container>
-
-          <!-- Description Column -->
-          <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef>Descripción</th>
-            <td mat-cell *matCellDef="let transaction">{{ transaction.description }}</td>
-          </ng-container>
-
-          <!-- Category Column -->
-          <ng-container matColumnDef="category">
-            <th mat-header-cell *matHeaderCellDef>Categoría</th>
-            <td mat-cell *matCellDef="let transaction">
-              <span class="category-badge" [style.background-color]="transaction.categoryColor">
-                {{ transaction.category }}
-              </span>
-            </td>
-          </ng-container>
-
-          <!-- Amount Column -->
-          <ng-container matColumnDef="amount">
-            <th mat-header-cell *matHeaderCellDef>Importe</th>
-            <td mat-cell *matCellDef="let transaction" [class.positive]="transaction.amount > 0" [class.negative]="transaction.amount < 0">
-              {{ formatCurrency(transaction.amount) }}
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="data-card">
-      <mat-card-header>
-        <mat-card-title>Gastos por Categoría</mat-card-title>
-        <button mat-button color="primary">Ver detalles</button>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="categories-list">
-          <div class="category-item" *ngFor="let category of categories">
-            <div class="category-header">
-              <div class="category-name">
-                <span class="category-color" [style.background-color]="category.color"></span>
-                {{ category.name }}
+    <!-- Goals and Investments -->
+    <div class="two-column-grid">
+      <mat-card class="data-card">
+        <mat-card-header>
+          <mat-card-title>Metas Financieras</mat-card-title>
+          <button mat-button color="primary">Gestionar metas</button>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="goals.length === 0" class="empty-state">
+            <mat-icon>flag</mat-icon>
+            <p>No hay metas financieras</p>
+          </div>
+          <div *ngIf="goals.length > 0" class="goals-list">
+            <div class="goal-item" *ngFor="let goal of goals">
+              <div class="goal-header">
+                <div class="goal-name">{{ goal.objective }}</div>
               </div>
-              <div class="category-amount">{{ formatCurrency(category.amount) }}</div>
-            </div>
-            <mat-progress-bar mode="determinate" [value]="category.percentage" [color]="'primary'"></mat-progress-bar>
-            <div class="category-percentage">{{ category.percentage }}%</div>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <!-- Goals and Investments -->
-  <div class="two-column-grid">
-    <mat-card class="data-card">
-      <mat-card-header>
-        <mat-card-title>Metas Financieras</mat-card-title>
-        <button mat-button color="primary">Gestionar metas</button>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="goals-list">
-          <div class="goal-item" *ngFor="let goal of goals">
-            <div class="goal-header">
-              <div class="goal-name">{{ goal.objective }}</div>
-              <div class="goal-progress-text">{{ goal.progress }}%</div>
-            </div>
-            <mat-progress-bar mode="determinate" [value]="goal.progress" [color]="'primary'"></mat-progress-bar>
-            <div class="goal-details">
-              <div class="goal-amount">{{ formatCurrency(goal.currentAmount) }} / {{ formatCurrency(goal.targetAmount) }}</div>
-              <div class="goal-date">Fecha límite: {{ formatDate(goal.endDate) }}</div>
-            </div>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="data-card">
-      <mat-card-header>
-        <mat-card-title>Inversiones</mat-card-title>
-        <div class="investment-summary">
-          <div class="investment-total">{{ formatCurrency(investmentTotal) }}</div>
-          <div class="investment-change" [class.positive]="investmentChange > 0" [class.negative]="investmentChange < 0">
-            {{ formatCurrency(investmentChange) }} ({{ investmentChangePercentage.toFixed(2) }}%)
-          </div>
-        </div>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="investments-list">
-          <div class="investment-item" *ngFor="let investment of investments">
-            <div class="investment-header">
-              <div class="investment-name">
-                <div class="ticker">{{ investment.tickerSymbol }}</div>
-                <div class="company">{{ investment.name }}</div>
-              </div>
-              <div class="investment-value">{{ formatCurrency(investment.value) }}</div>
-            </div>
-            <div class="investment-details">
-              <div class="investment-quantity">{{ investment.quantity }} acciones a {{ formatCurrency(investment.price) }}</div>
-              <div class="investment-change" [class.positive]="investment.change > 0" [class.negative]="investment.change < 0">
-                {{ formatCurrency(investment.change * investment.quantity) }} ({{ investment.changePercentage.toFixed(2) }}%)
+              <div class="goal-details">
+                <div class="goal-amount">{{ formatCurrency(goal.targetAmount) }}</div>
+                <div class="goal-date">Fecha límite: {{ formatDate(goal.endDate) }}</div>
               </div>
             </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="data-card">
+        <mat-card-header>
+          <mat-card-title>Inversiones</mat-card-title>
+          <div class="investment-summary">
+            <div class="investment-total">{{ formatCurrency(investmentTotal) }}</div>
+            <div class="investment-change" [class.positive]="investmentChange > 0" [class.negative]="investmentChange < 0">
+              {{ formatCurrency(investmentChange) }} ({{ investmentChangePercentage.toFixed(2) }}%)
+            </div>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="investments.length === 0" class="empty-state">
+            <mat-icon>trending_up</mat-icon>
+            <p>No hay inversiones</p>
+          </div>
+          <div *ngIf="investments.length > 0" class="investments-list">
+            <div class="investment-item" *ngFor="let investment of investments">
+              <div class="investment-header">
+                <div class="investment-name">
+                  <div class="ticker">{{ investment.tickerSymbol }}</div>
+                  <div class="company">{{ investment.name }}</div>
+                </div>
+                <div class="investment-value">{{ formatCurrency(investment.value) }}</div>
+              </div>
+              <div class="investment-details">
+                <div class="investment-quantity">{{ investment.quantity }} acciones a {{ formatCurrency(investment.price) }}</div>
+                <div class="investment-change" [class.positive]="investment.change > 0" [class.negative]="investment.change < 0">
+                  {{ formatCurrency(investment.change * investment.quantity) }} ({{ investment.changePercentage.toFixed(2) }}%)
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Upcoming Maturities -->
+    <mat-card class="data-card full-width">
+      <mat-card-header>
+        <mat-card-title>Próximos Vencimientos</mat-card-title>
+        <button mat-button color="primary">Ver todos</button>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="upcomingMaturities.length === 0" class="empty-state">
+          <mat-icon>event</mat-icon>
+          <p>No hay vencimientos próximos</p>
+        </div>
+        <div *ngIf="upcomingMaturities.length > 0" class="maturities-list">
+          <div class="maturity-item" *ngFor="let maturity of upcomingMaturities">
+            <div class="maturity-icon" [ngClass]="{'pending': maturity.state === 'PENDING', 'completed': maturity.state === 'COMPLETED', 'overdue': maturity.state === 'OVERDUE'}">
+              <mat-icon>{{ maturity.state === 'COMPLETED' ? 'check_circle' : (maturity.state === 'OVERDUE' ? 'error' : 'schedule') }}</mat-icon>
+            </div>
+            <div class="maturity-content">
+              <div class="maturity-description">{{ maturity.description }}</div>
+              <div class="maturity-date">Vencimiento: {{ formatDate(maturity.endDate) }} ({{ maturity.daysLeft }} días)</div>
+            </div>
+            <div class="maturity-amount">{{ formatCurrency(maturity.amount) }}</div>
           </div>
         </div>
       </mat-card-content>
     </mat-card>
   </div>
-
-  <!-- Upcoming Maturities -->
-  <mat-card class="data-card full-width">
-    <mat-card-header>
-      <mat-card-title>Próximos Vencimientos</mat-card-title>
-      <button mat-button color="primary">Ver todos</button>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="maturities-list">
-        <div class="maturity-item" *ngFor="let maturity of upcomingMaturities">
-          <div class="maturity-icon" [ngClass]="{'pending': maturity.state === 'PENDING', 'completed': maturity.state === 'COMPLETED', 'overdue': maturity.state === 'OVERDUE'}">
-            <mat-icon>{{ maturity.state === 'COMPLETED' ? 'check_circle' : (maturity.state === 'OVERDUE' ? 'error' : 'schedule') }}</mat-icon>
-          </div>
-          <div class="maturity-content">
-            <div class="maturity-description">{{ maturity.description }}</div>
-            <div class="maturity-date">Vencimiento: {{ formatDate(maturity.endDate) }} ({{ maturity.daysLeft }} días)</div>
-          </div>
-          <div class="maturity-amount">{{ formatCurrency(maturity.amount) }}</div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
 </div>

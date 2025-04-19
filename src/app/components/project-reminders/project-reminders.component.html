@@ -32,64 +32,6 @@
             }
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Descripción</mat-label>
-            <textarea matInput formControlName="description" rows="3" placeholder="Añade detalles sobre este recordatorio"></textarea>
-            <mat-icon matPrefix>description</mat-icon>
-          </mat-form-field>
-
-          <div class="checkbox-field">
-            <mat-checkbox formControlName="isRecurring" color="primary">Recordatorio recurrente</mat-checkbox>
-          </div>
-
-          @if (reminderForm.get('isRecurring')?.value) {
-            <div class="recurring-options">
-              <mat-form-field appearance="outline">
-                <mat-label>Frecuencia</mat-label>
-                <mat-select formControlName="frequency">
-                  <mat-option value="weekly">Semanal</mat-option>
-                  <mat-option value="monthly">Mensual</mat-option>
-                  <mat-option value="quarterly">Trimestral</mat-option>
-                  <mat-option value="yearly">Anual</mat-option>
-                </mat-select>
-                <mat-icon matPrefix>repeat</mat-icon>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>Repetir hasta</mat-label>
-                <input matInput [matDatepicker]="endDatePicker" formControlName="endDate">
-                <mat-datepicker-toggle matIconSuffix [for]="endDatePicker"></mat-datepicker-toggle>
-                <mat-datepicker #endDatePicker></mat-datepicker>
-                <mat-icon matPrefix>event_busy</mat-icon>
-              </mat-form-field>
-            </div>
-          }
-
-          <mat-form-field appearance="outline">
-            <mat-label>Prioridad</mat-label>
-            <mat-select formControlName="priority">
-              <mat-option value="low">
-                <div class="priority-option">
-                  <span class="priority-indicator low"></span>
-                  <span>Baja</span>
-                </div>
-              </mat-option>
-              <mat-option value="medium">
-                <div class="priority-option">
-                  <span class="priority-indicator medium"></span>
-                  <span>Media</span>
-                </div>
-              </mat-option>
-              <mat-option value="high">
-                <div class="priority-option">
-                  <span class="priority-indicator high"></span>
-                  <span>Alta</span>
-                </div>
-              </mat-option>
-            </mat-select>
-            <mat-icon matPrefix>priority_high</mat-icon>
-          </mat-form-field>
-
           <div class="form-actions">
             <button mat-button (click)="cancelEdit()">Cancelar</button>
             <button mat-raised-button color="primary" type="submit" [disabled]="reminderForm.invalid">
