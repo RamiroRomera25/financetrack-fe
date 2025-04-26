@@ -2,3 +2,58 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* En styles.scss o tu archivo de estilos global */
+.success-snackbar {
+  background-color: #e8f5e9; /* Fondo verde claro */
+}
+
+.error-snackbar {
+  background-color: #ffebee; /* Fondo rojo claro */
+}
+
+.warning-snackbar {
+  background-color: #fff3e0; /* Fondo naranja claro */
+}
+
+.info-snackbar {
+  background-color: #e3f2fd; /* Fondo azul claro */
+}
+
+/* Estilo para el texto de los snackbars */
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  /* Aumenta el padding para un mejor aspecto */
+  padding: 8px 12px !important;
+}
+
+/* En styles.scss o tu archivo de estilos global */
+
+/* Estilos para los diferentes tipos de diálogos */
+.confirmation-dialog.warning .mat-dialog-container {
+  border-top: 4px solid #ff9800;
+}
+
+.confirmation-dialog.error .mat-dialog-container {
+  border-top: 4px solid #f44336;
+}
+
+.confirmation-dialog.info .mat-dialog-container {
+  border-top: 4px solid #2196f3;
+}
+
+.confirmation-dialog.question .mat-dialog-container {
+  border-top: 4px solid #673ab7;
+}
+
+/* Mejora el espaciado y la legibilidad */
+.mat-dialog-container {
+  padding: 24px !important;
+}
+
+.mat-dialog-title {
+  margin-bottom: 16px !important;
+}
+
+.mat-dialog-content {
+  margin-bottom: 16px !important;
+}

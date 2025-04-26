@@ -1,0 +1,397 @@
+.project-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f8faff;
+  padding: 20px;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+.project-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 40px;
+}
+
+.project-card-container {
+  padding: 20px;
+  perspective: 1000px;
+}
+
+.project-card {
+  width: 360px;
+  min-height: 400px;
+  background: #ffffff;
+  color: #2d3748;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 0 0 2px rgba(10, 124, 67, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Efecto de línea superior con gradiente */
+.project-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+}
+
+/* Botón para agregar nuevo proyecto */
+.add-project-button {
+  margin-top: 30px;
+  background: linear-gradient(135deg, #0a7c43, #1453b0) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease;
+}
+
+.add-project-button:hover:not([disabled]) {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.add-project-button[disabled] {
+  background: linear-gradient(135deg, rgba(10, 124, 67, 0.5), rgba(20, 83, 176, 0.5)) !important;
+  transform: none;
+  box-shadow: none !important;
+}
+
+/* Borde lateral izquierdo decorativo */
+.project-card::after {
+  content: "";
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+}
+
+.project-card:hover {
+  transform: translateY(-5px) rotateY(2deg);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(20, 83, 176, 0.08);
+}
+
+.project-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.project-visual {
+  width: 88%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0f7ff, #f8faff);
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Patrón decorativo para el fondo visual */
+.project-visual::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+.project-icon {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  color: #0a7c43;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  z-index: 2;
+}
+
+.project-icon-bg {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(10, 124, 67, 0.1) 0%, transparent 70%);
+  z-index: 1;
+}
+
+.nav-button {
+  position: absolute;
+  z-index: 10;
+  background: linear-gradient(135deg, #0a7c43, #1453b0) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+}
+
+.nav-button:hover:not([disabled]) {
+  transform: scale(1.1);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.nav-button[disabled] {
+  background: linear-gradient(135deg, rgba(10, 124, 67, 0.5), rgba(20, 83, 176, 0.5)) !important;
+  transform: none;
+  box-shadow: none !important;
+}
+
+.prev-button {
+  left: 0;
+}
+
+.next-button {
+  right: 0;
+}
+
+.project-indicators {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.indicator {
+  width: 12px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.indicator:hover {
+  transform: scale(1.2);
+  background-color: #4a5568;
+}
+
+.indicator.active {
+  background: linear-gradient(135deg, #0a7c43, #1453b0);
+  width: 30px;
+}
+
+mat-card-header {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+/* Añadir un pequeño detalle después del encabezado */
+mat-card-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(135deg, #0a7c43, #1453b0);
+}
+
+mat-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1453b0;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-left: 15px;
+}
+
+/* Añadir un pequeño indicador al título */
+mat-card-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 20px;
+  background: linear-gradient(135deg, #0a7c43, #1453b0);
+  border-radius: 3px;
+}
+
+mat-card-subtitle {
+  color: #4a5568;
+  font-size: 0.9rem;
+  padding-left: 15px;
+}
+
+mat-card-actions {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 15px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Botones personalizados */
+.edit-button {
+  color: #1453b0 !important;
+  border-radius: 20px !important;
+  padding: 0 15px !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+}
+
+.edit-button:hover:not([disabled]) {
+  background-color: rgba(20, 83, 176, 0.1) !important;
+  border: 1px solid #1453b0 !important;
+}
+
+.edit-button[disabled] {
+  color: rgba(20, 83, 176, 0.5) !important;
+  border: 1px solid transparent !important;
+}
+
+.stats-button {
+  color: #0a7c43 !important;
+  border-radius: 20px !important;
+  padding: 0 15px !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+  position: relative;
+}
+
+.stats-button:hover:not([disabled]) {
+  background-color: rgba(10, 124, 67, 0.1) !important;
+  border: 1px solid #0a7c43 !important;
+}
+
+.stats-button[disabled] {
+  color: rgba(10, 124, 67, 0.5) !important;
+  border: 1px solid transparent !important;
+}
+
+.delete-button {
+  color: #f56565 !important;
+  border-radius: 20px !important;
+  padding: 0 15px !important;
+  transition: all 0.2s ease !important;
+  border: 1px solid transparent !important;
+  position: relative;
+}
+
+.delete-button:hover:not([disabled]) {
+  background-color: rgba(245, 101, 101, 0.1) !important;
+  border: 1px solid #f56565 !important;
+}
+
+.delete-button[disabled] {
+  color: rgba(245, 101, 101, 0.5) !important;
+  border: 1px solid transparent !important;
+}
+
+/* Loading container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: #4a5568;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Button spinner */
+.button-spinner {
+  margin: 0 auto;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .project-card {
+    width: 250px;
+    min-height: 350px;
+  }
+
+  .project-visual {
+    height: 160px;
+  }
+
+  .project-icon {
+    font-size: 60px;
+    width: 60px;
+    height: 60px;
+  }
+
+  .nav-button {
+    transform: scale(0.8);
+  }
+}
+
+@media (max-width: 400px) {
+  .project-card {
+    width: 240px;
+    min-height: 300px;
+  }
+
+  .project-visual {
+    height: 140px;
+  }
+}
+
+/* Empty state styles */
+.empty-state-container {
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.empty-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state-icon {
+  font-size: 80px;
+  width: 80px;
+  height: 80px;
+  color: #1453b0;
+  margin-bottom: 20px;
+}
+
+.empty-state-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1453b0;
+  margin-bottom: 10px;
+}
+
+.empty-state-message {
+  color: #4a5568;
+  font-size: 1rem;
+  max-width: 300px;
+  line-height: 1.5;
+}

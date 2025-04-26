@@ -1,0 +1,181 @@
+<app-project-sidebar></app-project-sidebar>
+<div class="goals-container">
+  <h1 class="section-title">Metas Financieras</h1>
+  <p class="section-subtitle">Establece y monitorea tus objetivos financieros</p>
+
+  <div class="goals-layout">
+    <!-- Formulario de Metas (50%) -->
+    <mat-card class="goal-form-card">
+      <mat-card-header>
+        <mat-card-title>{{ editMode ? 'Editar Meta' : 'Crear Nueva Meta' }}</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" class="goal-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Objetivo</mat-label>
+            <input matInput formControlName="objective" placeholder="Ej: Comprar un auto" required [disabled]="isSubmitting">
+            <mat-icon matPrefix>flag</mat-icon>
+            @if (goalForm.get('objective')?.hasError('required') && goalForm.get('objective')?.touched) {
+              <mat-error>El objetivo es obligatorio</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Cantidad objetivo ($)</mat-label>
+            <input matInput type="number" formControlName="quantity" min="1" required [disabled]="isSubmitting">
+            <mat-icon matPrefix>attach_money</mat-icon>
+            @if (goalForm.get('quantity')?.hasError('required') && goalForm.get('quantity')?.touched) {
+              <mat-error>La cantidad es obligatoria</mat-error>
+            }
+            @if (goalForm.get('quantity')?.hasError('min') && goalForm.get('quantity')?.touched) {
+              <mat-error>La cantidad debe ser mayor a 0</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha límite</mat-label>
+            <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" required [disabled]="isSubmitting">
+            <mat-datepicker-toggle matIconSuffix [for]="endDatePicker" [disabled]="isSubmitting"></mat-datepicker-toggle>
+            <mat-datepicker #endDatePicker></mat-datepicker>
+            <mat-icon matPrefix>event</mat-icon>
+            @if (goalForm.get('endDate')?.hasError('required') && goalForm.get('endDate')?.touched) {
+              <mat-error>La fecha límite es obligatoria</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Notas</mat-label>
+            <textarea matInput formControlName="notes" rows="3" placeholder="Añade detalles sobre tu meta financiera" [disabled]="isSubmitting"></textarea>
+            <mat-icon matPrefix>note</mat-icon>
+          </mat-form-field>
+
+          <div class="progress-preview" *ngIf="goalForm.get('quantity')?.value && goalForm.get('currentAmount')?.value">
+            <div class="progress-label">
+              <span>Progreso estimado:</span>
+              <span>{{ calculateProgress() }}%</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="calculateProgress()"></mat-progress-bar>
+            <div class="progress-amounts">
+              <span>${{ goalForm.get('currentAmount')?.value || 0 }}</span>
+              <span>${{ goalForm.get('quantity')?.value || 0 }}</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button (click)="cancelEdit()" [disabled]="isSubmitting">Cancelar</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="goalForm.invalid || isSubmitting" class="submit-button">
+              <span *ngIf="!isSubmitting">{{editMode ? 'Actualizar Meta' : 'Crear Meta'}}</span>
+              <mat-spinner *ngIf="isSubmitting" diameter="24" class="button-spinner"></mat-spinner>
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Lista de Metas (50%) -->
+    <mat-card class="goals-list-card">
+      <mat-card-header>
+        <mat-card-title>Mis Metas Financieras</mat-card-title>
+        <span class="goal-count">{{ goals.length }} metas</span>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Loading spinner for initial data loading -->
+        <div *ngIf="isLoading" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p class="loading-text">Cargando metas...</p>
+        </div>
+
+        <div *ngIf="!isLoading">
+          <div class="goals-summary">
+            <div class="summary-card">
+              <div class="summary-value">{{goals.length}}</div>
+              <div class="summary-label">Metas Activas</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-value">${{totalGoalAmount | number:'1.0-0'}}</div>
+              <div class="summary-label">Objetivo Total</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-value">{{nearestGoal}}</div>
+              <div class="summary-label">Próxima Meta</div>
+            </div>
+          </div>
+
+          <!-- Search and filter controls -->
+          <div class="search-container">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar meta</mat-label>
+              <input matInput (keyup)="applyFilter($event)" placeholder="Buscar por objetivo...">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="filter-actions">
+            <button mat-button [matMenuTriggerFor]="sortMenu">
+              <mat-icon>sort</mat-icon> Ordenar
+            </button>
+            <mat-menu #sortMenu="matMenu">
+              <button mat-menu-item (click)="sortGoals('endDate')">
+                <mat-icon>event</mat-icon> Por fecha límite
+              </button>
+              <button mat-menu-item (click)="sortGoals('quantity')">
+                <mat-icon>attach_money</mat-icon> Por cantidad
+              </button>
+            </mat-menu>
+          </div>
+
+          <div class="goals-list">
+            @if (filteredGoals.length === 0) {
+              <div class="empty-state">
+                <mat-icon>flag</mat-icon>
+                <p>No tienes metas financieras</p>
+              </div>
+            } @else {
+              <div class="goal-item" *ngFor="let goal of filteredGoals">
+                <div class="goal-header">
+                  <div class="goal-objective">{{goal.objective}}</div>
+                  <div class="goal-actions">
+                    <button mat-icon-button color="primary" (click)="editGoal(goal)" matTooltip="Editar" [disabled]="isSubmitting">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="deleteGoal(goal.id)" matTooltip="Eliminar"
+                            [disabled]="isDeleting && deletingGoalId === goal.id">
+                      <mat-icon *ngIf="!(isDeleting && deletingGoalId === goal.id)">delete</mat-icon>
+                      <mat-spinner *ngIf="isDeleting && deletingGoalId === goal.id" diameter="20" class="delete-spinner"></mat-spinner>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="goal-details">
+                  <div class="detail-item">
+                    <span class="detail-label">Objetivo</span>
+                    <span class="detail-value">${{goal.quantity | number:'1.0-0'}}</span>
+                  </div>
+                  <div class="detail-item">
+                    <span class="detail-label">Fecha Límite</span>
+                    <span class="detail-value">{{goal.endDate | date:'dd/MM/yyyy'}}</span>
+                  </div>
+                </div>
+
+                <div class="goal-footer">
+                  <div class="time-remaining" [ngClass]="getTimeRemainingClass(goal.endDate)">
+                    <mat-icon>{{getTimeRemainingIcon(goal.endDate)}}</mat-icon>
+                    <span>{{getTimeRemainingText(goal.endDate)}}</span>
+                  </div>
+
+                  @if (goal.notes != "") {
+                    <button mat-icon-button class="notes-button" [matTooltip]="goal.notes">
+                      <mat-icon>info</mat-icon>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+<div class="project-dashboard-container">
+  <!-- Loading spinner for initial data loading -->
+  <div class="loading-container" *ngIf="isLoadingProjects">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="loading-text">Cargando proyectos...</p>
+  </div>
+
+  <div class="project-carousel" *ngIf="!isLoadingProjects">
+    @if (projects.length > 0) {
+      <!-- Botón de navegación izquierdo -->
+      <button mat-fab class="nav-button prev-button" (click)="previousProject()" [disabled]="isDeleting || isNavigating">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <!-- Tarjeta del proyecto actual -->
+      <div class="project-card-container" @cardAnimation>
+        <mat-card class="project-card">
+          <mat-card-header>
+            <mat-card-title>{{ currentProject.name }}</mat-card-title>
+            <mat-card-subtitle>Proyecto #{{ currentProject.id }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content class="project-content">
+            <div class="project-visual">
+              <div class="project-icon-bg"></div>
+              <mat-icon class="project-icon">account_balance</mat-icon>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button class="edit-button" (click)="editProject()" [disabled]="isDeleting || isNavigating">
+              <p><mat-icon>edit</mat-icon> Editar</p>
+            </button>
+            <button mat-button class="stats-button" (click)="goToProjectHome()" [disabled]="isDeleting || isNavigating">
+              @if (isNavigating && loadingProjectId === currentProject.id) {
+                <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+              } @else {
+                <p><mat-icon>bar_chart</mat-icon> Administrar</p>
+              }
+            </button>
+            <button mat-button class="delete-button" (click)="deleteProject()" [disabled]="isDeleting || isNavigating">
+              @if (isDeleting && loadingProjectId === currentProject.id) {
+                <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+              } @else {
+                <p><mat-icon>delete</mat-icon>Eliminar</p>
+              }
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <!-- Botón de navegación derecho -->
+      <button mat-fab class="nav-button next-button" (click)="nextProject()" [disabled]="isDeleting || isNavigating">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    } @else {
+      <!-- Empty state message -->
+      <div class="empty-state-container" @cardAnimation>
+        <mat-card class="empty-state-card">
+          <mat-icon class="empty-state-icon">folder_open</mat-icon>
+          <h2 class="empty-state-title">No hay proyectos disponibles</h2>
+          <p class="empty-state-message">Comienza creando tu primer proyecto haciendo clic en el botón de abajo.</p>
+        </mat-card>
+      </div>
+    }
+  </div>
+
+  <!-- Indicadores de proyecto (modificados para ser más elegantes) -->
+  <div class="project-indicators" *ngIf="!isLoadingProjects && projects.length > 0">
+    @for (project of projects; track project.id; let i = $index) {
+      <div
+        class="indicator"
+        [class.active]="i === currentIndex"
+        (click)="selectProject(i)">
+      </div>
+    }
+  </div>
+
+  <!-- Botón para agregar nuevo proyecto -->
+  <button mat-fab class="add-project-button" (click)="addNewProject()" [disabled]="isLoadingProjects || isDeleting || isNavigating">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>

@@ -1,0 +1,107 @@
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-content">
+      <h1>Bienvenido a FinanceTrack</h1>
+      <p>Tu solución completa para la gestión financiera personal</p>
+      <div class="hero-cta">
+        <a routerLink="/register" mat-raised-button class="cta-button primary-button">
+          <mat-icon>person_add</mat-icon>
+          Crear Cuenta
+        </a>
+        <a routerLink="/login" mat-stroked-button class="secondary-button">
+          <mat-icon>login</mat-icon>
+          Iniciar Sesión
+        </a>
+      </div>
+    </div>
+    <div class="hero-graphic">
+      <div class="chart-icon"></div>
+      <div class="money-icon"></div>
+      <div class="card-icon"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+  <div class="container">
+    <h2 class="section-title">¿Por qué elegir FinanceTrack?</h2>
+    <p class="section-subtitle">Descubre cómo podemos ayudarte a gestionar tus finanzas de manera eficiente</p>
+
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <div class="feature-icon-container" [ngClass]="feature.iconClass">
+          <mat-icon class="feature-icon">{{feature.icon}}</mat-icon>
+        </div>
+        <h3 class="feature-title">{{feature.title}}</h3>
+        <p class="feature-description">{{feature.description}}</p>
+      </div>
+    </div>
+  </div>
+  <div class="wave-divider"></div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section">
+  <div class="container">
+    <h2 class="section-title">Cómo Funciona</h2>
+    <p class="section-subtitle">Comienza a gestionar tus finanzas en simples pasos</p>
+
+    <div class="steps-container">
+      <div class="step" *ngFor="let step of steps; let i = index">
+        <div class="step-number">{{i + 1}}</div>
+        <div class="step-content">
+          <h3>{{step.title}}</h3>
+          <p>{{step.description}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Plans Section -->
+<section class="plans-section">
+  <div class="container">
+    <h2 class="section-title">Nuestros Planes</h2>
+    <p class="section-subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
+
+    <div class="plans-grid">
+      <mat-card class="plan-card" style="margin-bottom: 10px" *ngFor="let plan of plans" [class.highlighted]="plan.highlighted">
+        <mat-card-header>
+          <mat-card-title class="plan-title">{{plan.name}}</mat-card-title>
+          <mat-card-subtitle class="plan-price">{{plan.price}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <ul class="plan-features">
+            <li *ngFor="let feature of plan.features">
+              <mat-icon class="feature-check">check_circle</mat-icon>
+              <span>{{feature}}</span>
+            </li>
+          </ul>
+        </mat-card-content>
+<!--        <mat-card-actions>-->
+<!--          <button mat-raised-button [ngClass]="plan.highlighted ? 'primary-plan-button' : 'secondary-plan-button'" class="plan-button">-->
+<!--            {{plan.cta}}-->
+<!--          </button>-->
+<!--        </mat-card-actions>-->
+      </mat-card>
+    </div>
+  </div>
+  <div class="wave-divider wave-divider-inverted"></div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+  <div class="finance-background"></div>
+  <div class="container">
+    <div class="cta-content">
+      <h2>Comienza a controlar tus finanzas hoy mismo</h2>
+      <p>Únete a miles de usuarios que ya están gestionando sus finanzas de manera eficiente con FinanceTrack.</p>
+      <button mat-raised-button class="cta-button" routerLink="/register">
+        <mat-icon>arrow_forward</mat-icon>
+        Comenzar Ahora
+      </button>
+    </div>
+  </div>
+</section>

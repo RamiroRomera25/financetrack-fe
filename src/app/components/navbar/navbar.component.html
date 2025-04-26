@@ -8,32 +8,37 @@
   <!-- Navegación central -->
   <div class="nav-links">
 <!--    La clase active le proporciona el focus verde -->
-    <a class="nav-item active" (click)="goToHome()">
+    <a class="nav-item" [ngClass]="{'active': isActive('/')}" (click)="goToHome()">
       <mat-icon>home</mat-icon>
       <span>Principal</span>
     </a>
-    <a class="nav-item">
-      <mat-icon>bar_chart</mat-icon>
-      <span>Estadísticas</span>
-    </a>
-    <a class="nav-item">
-      <mat-icon>account_balance_wallet</mat-icon>
-      <span>Transacciones</span>
-    </a>
-    <a class="nav-item">
-      <mat-icon>settings</mat-icon>
-      <span>Configuración</span>
+    <a class="nav-item" [ngClass]="{'active': isActive('/projects')}" (click)="goToProjects()">
+      <mat-icon>dashboard</mat-icon>
+      <span>Proyectos</span>
     </a>
   </div>
 
   <!-- Acciones a la derecha -->
   <div class="actions">
-    <button mat-icon-button class="notification-btn">
-      <mat-icon [matBadge]="3" matBadgeColor="accent">notifications</mat-icon>
-    </button>
-    <button mat-raised-button color="accent" class="login-btn" (click)="goToLogin()">
-      <mat-icon>login</mat-icon>
-      <span>Iniciar Sesión</span>
-    </button>
+      @if (authService.logged) {
+        <button mat-raised-button color="accent" class="login-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar Sesión</span>
+        </button>
+      } @else {
+        <button mat-raised-button color="accent" class="login-btn" (click)="goToLogin()">
+          <mat-icon>login</mat-icon>
+        <span>Iniciar Sesión</span>
+        </button>
+      }
   </div>
 </mat-toolbar>
+
+<button
+  *ngIf="sidebarService.mobile"
+  mat-fab
+  color="primary"
+  class="mobile-menu-fab"
+  (click)="toggleSidebar()">
+  <mat-icon>menu</mat-icon>
+</button>

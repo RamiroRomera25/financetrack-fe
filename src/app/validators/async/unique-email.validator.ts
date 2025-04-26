@@ -1,6 +1,6 @@
-import { AuthService } from "../../services/auth.service";
-import { AbstractControl, AsyncValidatorFn, ValidationErrors } from "@angular/forms";
-import { catchError, map, Observable, of, switchMap, timer } from "rxjs";
+import {AuthService} from "../../services/auth.service";
+import {AbstractControl, AsyncValidatorFn, ValidationErrors} from "@angular/forms";
+import {catchError, map, Observable, of, switchMap, timer} from "rxjs";
 
 export const uniqueEmailValidator = (service: AuthService): AsyncValidatorFn => {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
