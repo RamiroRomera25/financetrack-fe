@@ -250,7 +250,7 @@ export class ProjectTransactionComponent implements OnInit {
   }
 
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(amount)
+    return new Intl.NumberFormat("es-ES", { style: "currency", currency: "ARS" }).format(amount)
   }
 
   getFilteredTransactions(): Transaction[] {

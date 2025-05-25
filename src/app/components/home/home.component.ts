@@ -4,13 +4,14 @@ import {RouterModule} from "@angular/router"
 import {MatButtonModule} from "@angular/material/button"
 import {MatIconModule} from "@angular/material/icon"
 import {MatCardModule} from "@angular/material/card"
+import {MatDivider} from "@angular/material/divider";
 
 @Component({
     selector: "app-home",
     templateUrl: "./home.component.html",
     styleUrls: ["./home.component.css"],
     standalone: true,
-    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatCardModule],
+  imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatCardModule, MatDivider],
 })
 export class HomeComponent {
     features = [
@@ -89,7 +90,7 @@ export class HomeComponent {
         },
         {
             name: "Premium",
-            price: "$9.99/mes",
+            price: "$10.000 ARS",
             features: [
                 "Todas las características del plan Básico",
                 "Categorías ilimitadas",

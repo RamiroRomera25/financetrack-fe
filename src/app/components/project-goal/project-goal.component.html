@@ -22,7 +22,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Cantidad objetivo ($)</mat-label>
+            <mat-label>Cantidad objetivo (ARS)</mat-label>
             <input matInput type="number" formControlName="quantity" min="1" required [disabled]="isSubmitting">
             <mat-icon matPrefix>attach_money</mat-icon>
             @if (goalForm.get('quantity')?.hasError('required') && goalForm.get('quantity')?.touched) {
@@ -94,7 +94,7 @@
               <div class="summary-label">Metas Activas</div>
             </div>
             <div class="summary-card">
-              <div class="summary-value">${{totalGoalAmount | number:'1.0-0'}}</div>
+              <div class="summary-value">{{totalGoalAmount | number:'1.0-0'}} ARS</div>
               <div class="summary-label">Objetivo Total</div>
             </div>
             <div class="summary-card">
