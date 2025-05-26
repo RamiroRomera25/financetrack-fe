@@ -11,10 +11,15 @@ import {ProjectMaturityComponent} from "./components/project-maturity/project-ma
 import {ProjectGoalComponent} from "./components/project-goal/project-goal.component";
 import {ProjectRemindersComponent} from "./components/project-reminders/project-reminders.component";
 import {authGuard} from "./guards/auth.guard";
+import {TermsconditionsComponent} from "./components/termsconditions/termsconditions.component";
+import {QuestionsComponent} from "./components/questions/questions.component";
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
   { path: "login", component: LoginComponent },
+  { path: "register", component: RegisterComponent },
+  { path: "terms-and-conditions", component: TermsconditionsComponent },
+  { path: "questions-and-answers", component: QuestionsComponent },
   { path: "register", component: RegisterComponent },
   { path: "projects", component: ProjectDashboardComponent, canActivate: [authGuard] },
   { path: "project/home/:p", component: ProjectHomeComponent, canActivate: [authGuard] },

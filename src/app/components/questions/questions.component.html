@@ -1,0 +1,101 @@
+<div class="questions-container">
+  <!-- Header Section -->
+  <div class="questions-header">
+    <h1 class="questions-title">Preguntas Frecuentes</h1>
+    <p class="questions-subtitle">Encuentra respuestas a las preguntas más comunes sobre FinanceTrack</p>
+
+    <div class="premium-highlight">
+      <mat-icon>workspace_premium</mat-icon>
+      <span>¡Descubre los beneficios exclusivos de la suscripción Premium!</span>
+    </div>
+  </div>
+
+  <!-- Categories Section -->
+  <div class="categories-section">
+    <mat-card class="categories-card">
+      <mat-card-content>
+        <h2 class="categories-title">Filtrar por Categoría</h2>
+        <div class="categories-grid">
+          <div
+            *ngFor="let category of categories"
+            class="category-chip"
+            [class.active]="selectedCategory === category.id"
+            (click)="selectCategory(category.id)">
+            <mat-icon>{{ category.icon }}</mat-icon>
+            <span>{{ category.name }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- FAQs Section -->
+  <div class="faqs-section">
+    <p class="faqs-count">
+      Mostrando {{ filteredFaqs.length }} de {{ faqs.length }} preguntas
+    </p>
+
+    <mat-accordion multi="true">
+      <mat-expansion-panel
+        *ngFor="let faq of filteredFaqs"
+        class="faq-item"
+        [class.premium-faq]="faq.isPremium">
+
+        <mat-expansion-panel-header class="faq-header">
+          <mat-panel-title class="faq-question">
+            <mat-icon class="faq-category-icon">{{ getCategoryIcon(faq.category) }}</mat-icon>
+            {{ faq.question }}
+            <span *ngIf="faq.isPremium" class="premium-badge">
+              <mat-icon>star</mat-icon>
+              Premium
+            </span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="faq-content">
+          <p class="faq-answer">{{ faq.answer }}</p>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="cta-section">
+    <h2 class="cta-title">¿Listo para tomar control de tus finanzas?</h2>
+    <p class="cta-description">
+      Únete a miles de usuarios que ya están gestionando sus finanzas de manera eficiente con FinanceTrack
+    </p>
+    <div class="cta-buttons">
+      <button mat-raised-button class="" routerLink="/register">
+        <mat-icon>person_add</mat-icon>
+        Crear Cuenta Gratuita
+      </button>
+      <button mat-stroked-button class="secondary-button" routerLink="/terms-and-conditions">
+        <mat-icon>description</mat-icon>
+        Ver Términos y Condiciones
+      </button>
+    </div>
+  </div>
+
+  <!-- Contact Section -->
+  <div class="contact-section">
+    <h3 class="contact-title">¿No encontraste lo que buscabas?</h3>
+    <p class="contact-description">
+      Nuestro equipo de soporte está aquí para ayudarte con cualquier pregunta adicional
+    </p>
+    <div class="contact-info">
+      <div class="contact-item">
+        <mat-icon>email</mat-icon>
+        <span>{{ "support@financetrack.com" }}</span>
+      </div>
+      <div class="contact-item">
+        <mat-icon>schedule</mat-icon>
+        <span>Lun-Vie 9:00-18:00</span>
+      </div>
+      <div class="contact-item">
+        <mat-icon>workspace_premium</mat-icon>
+        <span>Soporte Premium 24/7</span>
+      </div>
+    </div>
+  </div>
+</div>

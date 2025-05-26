@@ -1,0 +1,360 @@
+<div class="terms-container">
+  <!-- Header Section -->
+  <div class="terms-header">
+    <h1 class="terms-title">Términos y Condiciones</h1>
+    <p class="terms-subtitle">FinanceTrack - Aplicación de Gestión Financiera</p>
+    <p class="last-updated">Última actualización: {{ lastUpdated | date:'dd/MM/yyyy' }}</p>
+  </div>
+
+  <!-- Navigation Card -->
+  <mat-card class="navigation-card">
+    <mat-card-content>
+      <h2 class="nav-title">Navegación Rápida</h2>
+      <div class="nav-links">
+        <a class="nav-link" (click)="scrollToSection('acceptance')">
+          <mat-icon>check_circle</mat-icon>
+          <span>Aceptación de Términos</span>
+        </a>
+        <a class="nav-link" (click)="scrollToSection('services')">
+          <mat-icon>business</mat-icon>
+          <span>Descripción del Servicio</span>
+        </a>
+        <a class="nav-link" (click)="scrollToSection('accounts')">
+          <mat-icon>account_circle</mat-icon>
+          <span>Cuentas de Usuario</span>
+        </a>
+        <a class="nav-link" (click)="scrollToSection('premium')">
+          <mat-icon>workspace_premium</mat-icon>
+          <span>Suscripción Premium</span>
+        </a>
+        <a class="nav-link" (click)="scrollToSection('responsibilities')">
+          <mat-icon>assignment</mat-icon>
+          <span>Responsabilidades</span>
+        </a>
+        <a class="nav-link" (click)="scrollToSection('privacy')">
+          <mat-icon>security</mat-icon>
+          <span>Privacidad y Datos</span>
+        </a>
+        <a class="nav-link" (click)="scrollToSection('limitations')">
+          <mat-icon>warning</mat-icon>
+          <span>Limitaciones</span>
+        </a>
+        <a class="nav-link" (click)="scrollToSection('contact')">
+          <mat-icon>contact_support</mat-icon>
+          <span>Contacto</span>
+        </a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Content Sections -->
+  <div class="content-section">
+    <!-- Acceptance Section -->
+    <mat-card class="section-card" id="acceptance">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>check_circle</mat-icon>
+          1. Aceptación de los Términos
+        </h2>
+      </div>
+      <div class="section-content">
+        <p>
+          Al acceder y utilizar FinanceTrack ("la Aplicación"), usted acepta estar sujeto a estos Términos y Condiciones ("Términos").
+          Si no está de acuerdo con alguna parte de estos términos, no debe utilizar nuestra aplicación.
+        </p>
+        <p>
+          Estos términos constituyen un acuerdo legal vinculante entre usted ("Usuario") y FinanceTrack ("Nosotros", "Nuestro", "la Empresa").
+          Al crear una cuenta o utilizar cualquier función de la aplicación, confirma que ha leído, entendido y acepta cumplir con estos términos.
+        </p>
+        <div class="important-notice">
+          <strong>Importante:</strong> Nos reservamos el derecho de modificar estos términos en cualquier momento.
+          Los cambios entrarán en vigor inmediatamente después de su publicación en la aplicación.
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Services Section -->
+    <mat-card class="section-card" id="services">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>business</mat-icon>
+          2. Descripción del Servicio
+        </h2>
+      </div>
+      <div class="section-content">
+        <p>
+          FinanceTrack es una aplicación de gestión financiera personal que permite a los usuarios:
+        </p>
+        <ul>
+          <li>Crear y gestionar múltiples proyectos financieros</li>
+          <li>Registrar y categorizar transacciones de ingresos y gastos</li>
+          <li>Establecer y monitorear metas financieras</li>
+          <li>Gestionar inversiones y seguir su rendimiento</li>
+          <li>Configurar recordatorios para pagos y eventos financieros</li>
+          <li>Generar reportes y análisis financieros</li>
+          <li>Controlar vencimientos y fechas importantes</li>
+        </ul>
+
+        <h3>2.1 Disponibilidad del Servicio</h3>
+        <p>
+          Nos esforzamos por mantener la aplicación disponible las 24 horas del día, los 7 días de la semana.
+          Sin embargo, podemos experimentar interrupciones ocasionales debido a mantenimiento, actualizaciones o circunstancias imprevistas.
+        </p>
+
+        <h3>2.2 Actualizaciones y Mejoras</h3>
+        <p>
+          Nos reservamos el derecho de actualizar, modificar o descontinuar cualquier aspecto de la aplicación en cualquier momento,
+          con o sin previo aviso. Estas actualizaciones pueden incluir nuevas funciones, mejoras de seguridad o correcciones de errores.
+        </p>
+      </div>
+    </mat-card>
+
+    <!-- Accounts Section -->
+    <mat-card class="section-card" id="accounts">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>account_circle</mat-icon>
+          3. Cuentas de Usuario y Registro
+        </h2>
+      </div>
+      <div class="section-content">
+        <h3>3.1 Creación de Cuenta</h3>
+        <p>
+          Para utilizar FinanceTrack, debe crear una cuenta proporcionando información precisa y completa.
+          Usted es responsable de mantener la confidencialidad de sus credenciales de acceso.
+        </p>
+
+        <h3>3.2 Información Requerida</h3>
+        <p>Durante el registro, debe proporcionar:</p>
+        <ul>
+          <li>Nombre y apellido válidos</li>
+          <li>Dirección de correo electrónico verificable</li>
+          <li>Contraseña segura que cumpla con nuestros requisitos</li>
+        </ul>
+
+        <h3>3.3 Responsabilidades del Usuario</h3>
+        <ul>
+          <li>Mantener la información de su cuenta actualizada y precisa</li>
+          <li>Proteger sus credenciales de acceso</li>
+          <li>Notificar inmediatamente cualquier uso no autorizado de su cuenta</li>
+          <li>Utilizar la aplicación de manera responsable y legal</li>
+          <li>No compartir su cuenta con terceros</li>
+        </ul>
+
+        <h3>3.4 Suspensión y Terminación</h3>
+        <p>
+          Nos reservamos el derecho de suspender o terminar su cuenta si:
+        </p>
+        <ul>
+          <li>Viola estos términos y condiciones</li>
+          <li>Proporciona información falsa o engañosa</li>
+          <li>Utiliza la aplicación para actividades ilegales</li>
+          <li>No paga las tarifas de suscripción correspondientes</li>
+          <li>La pagina necesita ser cerrada sin motivo aparente</li>
+        </ul>
+      </div>
+    </mat-card>
+
+    <!-- Premium Section -->
+    <mat-card class="section-card" id="premium">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>workspace_premium</mat-icon>
+          4. Suscripción Premium
+        </h2>
+      </div>
+      <div class="section-content">
+        <div class="premium-highlight">
+          <h4>
+            <mat-icon>star</mat-icon>
+            Beneficios de la Suscripción Premium
+          </h4>
+          <p>
+            La suscripción Premium desbloquea funcionalidades avanzadas y mejora significativamente su experiencia financiera.
+          </p>
+        </div>
+
+        <h3>4.1 Funcionalidades Premium</h3>
+        <p>Los usuarios Premium tienen acceso a:</p>
+        <ul>
+          <li><strong>Proyectos Ilimitados:</strong> Cree tantos proyectos financieros como necesite</li>
+          <li><strong>Soporte Prioritario:</strong> Atención al cliente prioritaria y especializada</li>
+          <li><strong>Funciones Beta:</strong> Acceso anticipado a nuevas funcionalidades</li>
+        </ul>
+
+        <h3>4.2 Precios y Facturación</h3>
+        <p>
+          La suscripción Premium tiene un costo de <strong>$10000 ARS</strong>.
+        </p>
+      </div>
+    </mat-card>
+
+    <!-- Responsibilities Section -->
+    <mat-card class="section-card" id="responsibilities">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>assignment</mat-icon>
+          5. Responsabilidades y Uso Aceptable
+        </h2>
+      </div>
+      <div class="section-content">
+        <h3>5.1 Uso Responsable</h3>
+        <p>Al utilizar FinanceTrack, usted se compromete a:</p>
+        <ul>
+          <li>Utilizar la aplicación únicamente para fines legales y legítimos</li>
+          <li>Proporcionar información financiera precisa y actualizada</li>
+          <li>Respetar los derechos de propiedad intelectual</li>
+          <li>No intentar acceder a cuentas de otros usuarios</li>
+          <li>No utilizar la aplicación para actividades fraudulentas</li>
+        </ul>
+
+        <h3>5.2 Prohibiciones</h3>
+        <p>Está estrictamente prohibido:</p>
+        <ul>
+          <li>Realizar ingeniería inversa de la aplicación</li>
+          <li>Intentar vulnerar la seguridad del sistema</li>
+          <li>Distribuir malware o contenido malicioso</li>
+          <li>Utilizar bots o scripts automatizados</li>
+          <li>Revender o redistribuir el servicio</li>
+        </ul>
+
+        <h3>5.3 Responsabilidad por el Contenido</h3>
+        <p>
+          Usted es el único responsable de toda la información financiera y datos que ingrese en la aplicación.
+          FinanceTrack no verifica la exactitud de la información proporcionada por los usuarios.
+        </p>
+
+        <h3>5.4 Asesoramiento Financiero</h3>
+        <div class="important-notice">
+          <strong>Descargo de Responsabilidad:</strong> FinanceTrack es una herramienta de gestión financiera y NO proporciona
+          asesoramiento financiero profesional. Todas las decisiones financieras son responsabilidad exclusiva del usuario.
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Privacy Section -->
+    <mat-card class="section-card" id="privacy">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>security</mat-icon>
+          6. Privacidad y Protección de Datos
+        </h2>
+      </div>
+      <div class="section-content">
+        <h3>6.1 Recopilación de Datos</h3>
+        <p>Recopilamos y procesamos los siguientes tipos de información:</p>
+        <ul>
+          <li><strong>Información de Cuenta:</strong> Nombre, email, contraseña encriptada</li>
+          <li><strong>Datos Financieros:</strong> Transacciones, categorías, metas e inversiones</li>
+          <li><strong>Datos de Uso:</strong> Patrones de uso, preferencias y configuraciones</li>
+          <li><strong>Información Técnica:</strong> Dirección IP, tipo de dispositivo, navegador</li>
+        </ul>
+
+        <h3>6.2 Uso de la Información</h3>
+        <p>Utilizamos su información para:</p>
+        <ul>
+          <li>Proporcionar y mejorar nuestros servicios</li>
+          <li>Personalizar su experiencia de usuario</li>
+          <li>Comunicarnos con usted sobre su cuenta</li>
+          <li>Cumplir con obligaciones legales</li>
+          <li>Prevenir fraudes y garantizar la seguridad</li>
+        </ul>
+
+        <h3>6.3 Seguridad de Datos</h3>
+        <p>
+          Implementamos medidas de seguridad robustas incluyendo encriptación de datos,
+          autenticación segura y monitoreo continuo para proteger su información.
+        </p>
+
+        <h3>6.4 Compartir Información</h3>
+        <p>
+          No vendemos, alquilamos ni compartimos su información personal con terceros,
+          excepto cuando sea requerido por ley o para proporcionar servicios esenciales.
+        </p>
+
+        <h3>6.5 Retención de Datos</h3>
+        <p>
+          Conservamos su información mientras su cuenta esté activa o según sea necesario
+          para proporcionar servicios, cumplir con obligaciones legales y resolver disputas.
+        </p>
+      </div>
+    </mat-card>
+
+    <!-- Limitations Section -->
+    <mat-card class="section-card" id="limitations">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>warning</mat-icon>
+          7. Limitaciones y Descargos de Responsabilidad
+        </h2>
+      </div>
+      <div class="section-content">
+        <h3>7.1 Limitación de Responsabilidad</h3>
+        <p>
+          FinanceTrack se proporciona "tal como está" sin garantías de ningún tipo.
+          No seremos responsables por daños directos, indirectos, incidentales o consecuentes.
+        </p>
+
+        <h3>7.2 Disponibilidad del Servicio</h3>
+        <p>
+          No garantizamos que la aplicación esté disponible de forma ininterrumpida o libre de errores.
+          Podemos experimentar interrupciones debido a mantenimiento, actualizaciones o problemas técnicos.
+        </p>
+
+        <h3>7.3 Exactitud de la Información</h3>
+        <p>
+          Aunque nos esforzamos por proporcionar información precisa, no garantizamos la exactitud,
+          integridad o actualidad de toda la información en la aplicación.
+        </p>
+
+        <h3>7.4 Decisiones Financieras</h3>
+        <div class="important-notice">
+          <strong>Importante:</strong> FinanceTrack es una herramienta de gestión, no un asesor financiero.
+          Todas las decisiones financieras son responsabilidad exclusiva del usuario.
+        </div>
+
+        <h3>7.5 Fuerza Mayor</h3>
+        <p>
+          No seremos responsables por retrasos o fallas en el cumplimiento debido a causas
+          fuera de nuestro control razonable, incluyendo desastres naturales, guerras, o fallas de internet.
+        </p>
+      </div>
+    </mat-card>
+
+    <!-- Contact Section -->
+    <mat-card class="section-card" id="contact">
+      <div class="section-header">
+        <h2 class="section-title">
+          <mat-icon>contact_support</mat-icon>
+          8. Contacto y Soporte
+        </h2>
+      </div>
+      <div class="section-content">
+
+        <h3>8.1 Modificaciones a los Términos</h3>
+        <p>
+          Nos reservamos el derecho de modificar estos términos en cualquier momento.
+          Los cambios se notificarán a través de la aplicación y por correo electrónico.
+        </p>
+
+        <h3>8.2 Ley Aplicable</h3>
+        <p>
+          Estos términos se rigen por las leyes de Argentina.
+          Cualquier disputa se resolverá en los tribunales competentes de Buenos Aires, Argentina.
+        </p>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    <button mat-raised-button class="primary-button" routerLink="/register">
+      <mat-icon>person_add</mat-icon>
+      Crear Cuenta Ahora
+    </button>
+    <button mat-stroked-button class="secondary-button" routerLink="/questions-and-answers">
+      <mat-icon>help</mat-icon>
+      Preguntas Frecuentes
+    </button>
+  </div>
+</div>

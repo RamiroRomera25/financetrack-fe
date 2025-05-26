@@ -92,7 +92,7 @@
 
       <div class="terms-container">
         <mat-checkbox color="primary" formControlName="termsAccepted" [disabled]="isLoading">
-          Acepto los <a href="#" class="terms-link">Términos y Condiciones</a> y la <a href="#" class="terms-link">Política de Privacidad</a>
+          Acepto los <a href="/terms-and-conditions" class="terms-link">Términos y Condiciones</a>
         </mat-checkbox>
         @if (registerForm.get('termsAccepted')?.hasError('required') && registerForm.get('termsAccepted')?.touched) {
           <mat-error class="terms-error">
