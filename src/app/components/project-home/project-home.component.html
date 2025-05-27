@@ -11,6 +11,59 @@
 
   <!-- Content Container (hidden while loading) -->
   <div *ngIf="!isLoading">
+
+    <!-- Filtros -->
+    <!-- Sección de Filtros -->
+    <mat-card class="filter-card mb-4">
+      <mat-card-header>
+        <mat-card-title>Filtros</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="filter-row">
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Fecha Desde</mat-label>
+            <input matInput type="date" [(ngModel)]="dateFrom" (change)="applyFilter()">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Fecha Hasta</mat-label>
+            <input matInput type="date" [(ngModel)]="dateTo" (change)="applyFilter()">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Categoría</mat-label>
+            <mat-select [(ngModel)]="selectedCategory" (selectionChange)="applyFilter()">
+              <mat-option [value]="null">Todas las categorías</mat-option>
+              <mat-option *ngFor="let category of categoriesAvailable" [value]="category">
+                <span [style.color]="category.color">●</span> {{category.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-raised-button (click)="clearFilters()" class="clear-filters-btn">
+            <mat-icon>clear</mat-icon>
+            Limpiar Filtros
+          </button>
+        </div>
+
+        <!-- Indicadores de filtros activos -->
+        <div class="active-filters" *ngIf="dateFrom || dateTo || selectedCategory">
+          <span class="filter-label">Filtros activos:</span>
+          <mat-chip-set>
+            <mat-chip *ngIf="dateFrom" removable (removed)="dateFrom = ''; applyFilter()">
+              Desde: {{dateFrom}}
+            </mat-chip>
+            <mat-chip *ngIf="dateTo" removable (removed)="dateTo = ''; applyFilter()">
+              Hasta: {{dateTo}}
+            </mat-chip>
+            <mat-chip *ngIf="selectedCategory" removable (removed)="selectedCategory = null; applyFilter()">
+              <span [style.color]="selectedCategory.color">●</span> {{selectedCategory.name}}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Financial Overview Cards -->
     <div class="cards-grid">
       <mat-card class="overview-card">
@@ -22,11 +75,6 @@
           <div class="card-icon primary-icon">
             <mat-icon>account_balance_wallet</mat-icon>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="trend positive">
-            <mat-icon>trending_up</mat-icon> 7.5% desde el mes pasado
-          </span>
         </div>
       </mat-card>
 
@@ -40,11 +88,6 @@
             <mat-icon>arrow_upward</mat-icon>
           </div>
         </div>
-        <div class="card-footer">
-          <span class="trend positive">
-            <mat-icon>trending_up</mat-icon> 6.7% desde el mes pasado
-          </span>
-        </div>
       </mat-card>
 
       <mat-card class="overview-card">
@@ -57,27 +100,17 @@
             <mat-icon>arrow_downward</mat-icon>
           </div>
         </div>
-        <div class="card-footer">
-          <span class="trend negative">
-            <mat-icon>trending_up</mat-icon> 4.8% desde el mes pasado
-          </span>
-        </div>
       </mat-card>
 
       <mat-card class="overview-card">
         <div class="card-content">
           <div class="card-info">
             <h3>Tasa de Ahorro</h3>
-            <div class="amount">{{ savingsRate }}%</div>
+            <div class="amount">{{ savingsRate }} %</div>
           </div>
           <div class="card-icon info-icon">
             <mat-icon>savings</mat-icon>
           </div>
-        </div>
-        <div class="card-footer">
-          <span class="trend positive">
-            <mat-icon>trending_up</mat-icon> 2.3% desde el mes pasado
-          </span>
         </div>
       </mat-card>
     </div>

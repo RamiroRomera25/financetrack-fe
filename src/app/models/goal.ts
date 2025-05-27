@@ -4,6 +4,7 @@ export interface Goal {
   endDate: Date
   quantity: number
   notes: string
+  createdDate: any
 }
 
 export interface GoalDTOPost {
