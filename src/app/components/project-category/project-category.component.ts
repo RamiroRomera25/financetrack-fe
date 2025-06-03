@@ -1,4 +1,4 @@
-import { Component, inject, type OnInit } from "@angular/core"
+import { Component, inject, OnInit } from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { MatCardModule } from "@angular/material/card"
 import { MatIconModule } from "@angular/material/icon"
@@ -10,14 +10,18 @@ import { MatDividerModule } from "@angular/material/divider"
 import { MatListModule } from "@angular/material/list"
 import { MatTooltipModule } from "@angular/material/tooltip"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
-import { FormBuilder, type FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms"
+import { MatDialogModule } from "@angular/material/dialog"
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms"
 import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 import { ActivatedRoute } from "@angular/router"
 import { CategoryService } from "../../services/category.service"
-import type { Category, CategoryDTOPost, CategoryDTOPut } from "../../models/category"
+import { Category, CategoryDTOPost, CategoryDTOPut } from "../../models/category"
 import { ModalService } from "../../services/modal.service"
 import { SnackBarService } from "../../services/snack-bar.service"
 import { finalize } from "rxjs/operators"
+import { ProjectService } from "../../services/project.service"
+import { MatDialog } from "@angular/material/dialog"
+import { ImportCategoriesModalComponent } from "./import-categories-modal/import-categories-modal.component"
 
 @Component({
   selector: "app-project-category",
@@ -34,6 +38,7 @@ import { finalize } from "rxjs/operators"
     MatListModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
     FormsModule,
     ReactiveFormsModule,
     ProjectSidebarComponent,
@@ -56,8 +61,10 @@ export class ProjectCategoryComponent implements OnInit {
   deletingCategoryId?: number
 
   private categoryService = inject(CategoryService)
+  private projectService = inject(ProjectService)
   private modalService = inject(ModalService)
   private snackBarService = inject(SnackBarService)
+  private dialog = inject(MatDialog)
 
   // Predefined colors for the color picker
   predefinedColors = [
@@ -242,5 +249,86 @@ export class ProjectCategoryComponent implements OnInit {
     }
 
     return this.categories.filter((category) => category.name.toLowerCase().includes(this.searchTerm.toLowerCase()))
+  }
+
+  importCategories() {
+    this.projectService.getUserProjects().subscribe({
+      next: (projects) => {
+        // Filtramos para excluir el proyecto actual
+        const availableProjects = projects.filter((project) => project.id !== this.projectId)
+
+        if (availableProjects.length === 0) {
+          this.snackBarService.sendInfo("No hay otros proyectos disponibles para importar categorías")
+          return
+        }
+
+        const dialogRef = this.dialog.open(ImportCategoriesModalComponent, {
+          width: "500px",
+          data: { projects: availableProjects },
+        })
+
+        dialogRef.afterClosed().subscribe((selectedProject) => {
+          if (selectedProject) {
+            this.importCategoriesFromProject(selectedProject)
+          }
+        })
+      },
+      error: (error) => {
+        this.snackBarService.sendError("Error al cargar los proyectos")
+      },
+    })
+  }
+
+  private importCategoriesFromProject(sourceProject: any): void {
+    if (!sourceProject || !sourceProject.categories || sourceProject.categories.length === 0) {
+      this.snackBarService.sendInfo("El proyecto seleccionado no tiene categorías para importar")
+      return
+    }
+
+    // Mostrar spinner de carga
+    this.isLoading = true
+
+    // Contador para categorías importadas
+    let importedCount = 0
+    const totalCategories = sourceProject.categories.length
+
+    // Procesar cada categoría secuencialmente
+    const processCategories = (index: number) => {
+      if (index >= sourceProject.categories.length) {
+        // Todas las categorías han sido procesadas
+        this.snackBarService.sendSuccess(
+          `Se importaron ${importedCount} de ${totalCategories} categorías correctamente`,
+        )
+        this.loadCategories() // Recargar las categorías
+        this.isLoading = false
+        return
+      }
+
+      const category = sourceProject.categories[index]
+
+      // Crear un nuevo objeto de categoría para importar
+      const newCategory: CategoryDTOPost = {
+        name: category.name,
+        color: category.color,
+        projectId: this.projectId,
+      }
+
+      // Crear la categoría
+      this.categoryService.createCategory(newCategory).subscribe({
+        next: () => {
+          importedCount++
+          // Procesar la siguiente categoría
+          processCategories(index + 1)
+        },
+        error: (error) => {
+          console.warn(`Error al importar categoría ${category.name}:`, error)
+          // Continuar con la siguiente categoría incluso si hay error
+          processCategories(index + 1)
+        },
+      })
+    }
+
+    // Iniciar el proceso con la primera categoría
+    processCategories(0)
   }
 }
