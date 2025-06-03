@@ -275,6 +275,7 @@ export class ProjectHomeComponent implements OnInit {
   ngOnInit(): void {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
     this.loadProjectData()
+    this.clearFilters()
   }
 
   loadProjectData(): void {
