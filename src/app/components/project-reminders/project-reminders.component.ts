@@ -280,12 +280,6 @@ export class ProjectRemindersComponent implements OnInit {
     this.filteredReminders = [...this.reminders].sort((a, b) => {
       if (criteria === "date") {
         return new Date(a.reminderDate).getTime() - new Date(b.reminderDate).getTime()
-      } else if (criteria === "priority") {
-        const priorityOrder = { low: 1, medium: 2, high: 3 }
-        return (
-          priorityOrder[b.priority as keyof typeof priorityOrder] -
-          priorityOrder[a.priority as keyof typeof priorityOrder]
-        )
       }
       return 0
     })

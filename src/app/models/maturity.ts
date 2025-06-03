@@ -3,6 +3,7 @@ export interface Maturity {
   quantity: number
   endDate: Date
   state: MaturityState
+  createdDate: any
 }
 
 export interface MaturityDTOPost {

@@ -22,6 +22,13 @@ import type { Investment } from "../../models/investment"
 import type { Maturity } from "../../models/maturity"
 import type { Transaction } from "../../models/transaction"
 import { finalize } from "rxjs/operators"
+import { MatFormField, MatLabel } from "@angular/material/form-field"
+import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from "@angular/material/datepicker"
+import { MatOption } from "@angular/material/core"
+import { MatSelect } from "@angular/material/select"
+import { FormsModule } from "@angular/forms"
+import { MatInput } from "@angular/material/input"
+import { MatChipSet, MatChip } from "@angular/material/chips"
 
 interface CategorySummary {
   id: number
@@ -67,12 +74,6 @@ interface MaturityDisplay {
   state: "PENDING" | "COMPLETED" | "OVERDUE"
 }
 
-interface MonthlyData {
-  month: string
-  income: number
-  expenses: number
-}
-
 @Component({
   selector: "app-project-home",
   standalone: true,
@@ -91,6 +92,14 @@ interface MonthlyData {
     MatSnackBarModule,
     BaseChartDirective,
     ProjectSidebarComponent,
+    MatFormField,
+    MatOption,
+    MatSelect,
+    FormsModule,
+    MatLabel,
+    MatInput,
+    MatChipSet,
+    MatChip,
   ],
 })
 export class ProjectHomeComponent implements OnInit {
@@ -98,6 +107,14 @@ export class ProjectHomeComponent implements OnInit {
   project: Project | null = null
   projectId = 0
   isLoading = false
+
+  // Original unfiltered data
+  private originalProject: Project | null = null
+  private originalTransactions: Transaction[] = []
+  private originalGoals: Goal[] = []
+  private originalInvestments: Investment[] = []
+  private originalMaturities: Maturity[] = []
+  private originalReminders: any[] = []
 
   // Financial summary
   totalBalance = 0
@@ -111,6 +128,7 @@ export class ProjectHomeComponent implements OnInit {
 
   // Categories
   categories: CategorySummary[] = []
+  incomeCategories: CategorySummary[] = []
 
   // Goals
   goals: GoalDisplay[] = []
@@ -124,10 +142,13 @@ export class ProjectHomeComponent implements OnInit {
   // Maturities
   upcomingMaturities: MaturityDisplay[] = []
 
-  // Monthly data for charts
-  monthlyData: MonthlyData[] = []
+  // Filter properties
+  dateFrom: string = ''
+  dateTo: string = ''
+  selectedCategory: Category | null = null
+  categoriesAvailable: Category[] = []
 
-  // Income and Expense Pie Chart
+  // Charts configuration
   public incomeExpensePieChartOptions: ChartConfiguration["options"] = {
     responsive: true,
     plugins: {
@@ -139,7 +160,6 @@ export class ProjectHomeComponent implements OnInit {
           label: (context: TooltipItem<"pie">) => {
             const label = context.label || ""
             const value = context.raw as number
-            // Calcular el total de forma segura
             const dataArray = context.dataset.data || []
             let total = 0
             for (let i = 0; i < dataArray.length; i++) {
@@ -157,29 +177,12 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   public incomeExpensePieChartType: ChartType = "pie"
-
   public incomeExpensePieChartData: ChartData<"pie"> = {
     labels: ["Ingresos", "Gastos"],
     datasets: [
       {
         data: [0, 0],
         backgroundColor: ["#4caf50", "#f44336"],
-      },
-    ],
-  }
-
-  public pieChartOptions: ChartConfiguration["options"] = {
-    responsive: true,
-  }
-
-  public pieChartType: ChartType = "pie"
-
-  public pieChartData: ChartData<"pie"> = {
-    labels: ["Alimentos", "Transporte", "Vivienda", "Salud"],
-    datasets: [
-      {
-        data: [50, 30, 15, 5],
-        backgroundColor: ["#ff0000", "#ff9900", "#33cc33", "#3399ff"],
       },
     ],
   }
@@ -195,7 +198,6 @@ export class ProjectHomeComponent implements OnInit {
           label: (context: TooltipItem<"pie">) => {
             const label = context.label || ""
             const value = context.raw as number
-            // Calcular el total de forma segura
             const dataArray = context.dataset.data || []
             let total = 0
             for (let i = 0; i < dataArray.length; i++) {
@@ -213,7 +215,6 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   public expensePieChartType: ChartType = "pie"
-
   public expensePieChartData: ChartData<"pie"> = {
     labels: [],
     datasets: [
@@ -235,7 +236,6 @@ export class ProjectHomeComponent implements OnInit {
           label: (context: TooltipItem<"pie">) => {
             const label = context.label || ""
             const value = context.raw as number
-            // Calcular el total de forma segura
             const dataArray = context.dataset.data || []
             let total = 0
             for (let i = 0; i < dataArray.length; i++) {
@@ -253,7 +253,6 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   public incomePieChartType: ChartType = "pie"
-
   public incomePieChartData: ChartData<"pie"> = {
     labels: [],
     datasets: [
@@ -263,9 +262,6 @@ export class ProjectHomeComponent implements OnInit {
       },
     ],
   }
-
-  // Add a new property for income categories
-  incomeCategories: CategorySummary[] = []
 
   private route = inject(ActivatedRoute)
   private projectService = inject(ProjectService)
@@ -297,37 +293,29 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   processProjectData(project: Project): void {
-    // Process categories and transactions
-    this.processCategories(project.categories || [])
+    // Store original data
+    this.originalProject = project
+    this.categoriesAvailable = project.categories || []
 
-    // Process goals
-    this.processGoals(project.goals || [])
+    // Extract and store original transactions
+    this.extractOriginalTransactions(project.categories || [])
 
-    // Process investments
-    this.processInvestments(project.investments || [])
+    // Store original data for other entities
+    this.originalGoals = project.goals || []
+    this.originalInvestments = project.investments || []
+    this.originalMaturities = project.maturities || []
+    this.originalReminders = project.reminders || []
 
-    // Process maturities
-    this.processMaturities(project.maturities || [])
-
-    // Calculate financial summary
-    this.calculateFinancialSummary()
-
-    // Update charts
-    this.updateCharts()
+    // Apply filters and update data (initially no filters)
+    this.applyFiltersAndUpdateData()
   }
 
-  // Update the processCategories method to also process income categories
-  processCategories(categories: Category[]): void {
-    // Extract transactions from categories
-    const allTransactions: Transaction[] = []
-    let totalExpenses = 0
-    let totalIncome = 0
-    const incomeByCategory: Map<string, number> = new Map()
-
+  private extractOriginalTransactions(categories: Category[]): void {
+    this.originalTransactions = []
     categories.forEach((category: Category) => {
       if (category.transactions && category.transactions.length > 0) {
         category.transactions.forEach((transaction) => {
-          allTransactions.push({
+          this.originalTransactions.push({
             ...transaction,
             category: {
               id: category.id,
@@ -335,124 +323,229 @@ export class ProjectHomeComponent implements OnInit {
               color: category.color,
             },
           } as Transaction)
-
-          // Sum up expenses (negative quantities)
-          if (transaction.quantity < 0) {
-            totalExpenses += Math.abs(transaction.quantity)
-          }
-          // Sum up income (positive quantities)
-          else if (transaction.quantity > 0) {
-            totalIncome += transaction.quantity
-
-            // Track income by category
-            const currentAmount = incomeByCategory.get(category.name) || 0
-            incomeByCategory.set(category.name, currentAmount + transaction.quantity)
-          }
         })
       }
     })
+  }
 
-    // Sort transactions by date (most recent first)
-    allTransactions.sort((a, b) => {
-      const dateA = new Date(a.createdDate || 0).getTime()
-      const dateB = new Date(b.createdDate || 0).getTime()
+  applyFilter(): void {
+    this.applyFiltersAndUpdateData()
+  }
+
+  private applyFiltersAndUpdateData(): void {
+    // Filter transactions
+    const filteredTransactions = this.filterTransactionsByDateAndCategory()
+
+    // Filter other entities by date only
+    const filteredGoals = this.filterEntitiesByDate(this.originalGoals)
+    const filteredInvestments = this.filterEntitiesByDate(this.originalInvestments)
+    const filteredMaturities = this.filterEntitiesByDate(this.originalMaturities)
+    const filteredReminders = this.filterEntitiesByDate(this.originalReminders)
+
+    // Update component data with filtered results
+    this.updateComponentDataWithFiltered(
+      filteredTransactions,
+      filteredGoals,
+      filteredInvestments,
+      filteredMaturities,
+      filteredReminders
+    )
+
+    // Recalculate summaries and update charts
+    this.calculateFinancialSummaryFromFiltered(filteredTransactions)
+    this.updateChartsFromFiltered()
+  }
+
+  private filterTransactionsByDateAndCategory(): Transaction[] {
+    return this.originalTransactions.filter(transaction => {
+      // Date filter
+      if (!this.passesDateFilter(transaction.createdDate)) {
+        return false
+      }
+
+      // Category filter
+      if (this.selectedCategory && transaction.category.id !== this.selectedCategory.id) {
+        return false
+      }
+
+      return true
+    })
+  }
+
+  private filterEntitiesByDate(entities: any[]): any[] {
+    return entities.filter(entity => this.passesDateFilter(entity.createdDate))
+  }
+
+  private passesDateFilter(createdDate: any): boolean {
+    if (!createdDate) return true
+
+    const entityDate = this.parseCreatedDate(createdDate)
+
+    // Check date from filter
+    if (this.dateFrom) {
+      const fromDate = new Date(this.dateFrom)
+      fromDate.setHours(0, 0, 0, 0)
+      if (entityDate < fromDate) {
+        return false
+      }
+    }
+
+    // Check date to filter
+    if (this.dateTo) {
+      const toDate = new Date(this.dateTo)
+      toDate.setHours(23, 59, 59, 999)
+      if (entityDate > toDate) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  private parseCreatedDate(createdDate: any): Date {
+    if (typeof createdDate === 'string') {
+      // Handle string format: "2025-05-27 00:20:09"
+      return new Date(createdDate)
+    } else if (Array.isArray(createdDate)) {
+      // Handle array format: [2025,5,27,0,20,9,235391000]
+      return new Date(createdDate[0], createdDate[1] - 1, createdDate[2],
+        createdDate[3] || 0, createdDate[4] || 0, createdDate[5] || 0)
+    }
+    return new Date()
+  }
+
+  private updateComponentDataWithFiltered(
+    transactions: Transaction[],
+    goals: Goal[],
+    investments: Investment[],
+    maturities: Maturity[],
+    reminders: any[]
+  ): void {
+    // Update recent transactions (last 5)
+    const sortedTransactions = transactions.sort((a, b) => {
+      const dateA = this.parseCreatedDate(a.createdDate).getTime()
+      const dateB = this.parseCreatedDate(b.createdDate).getTime()
       return dateB - dateA
     })
 
-    // Take the 5 most recent transactions
-    this.recentTransactions = allTransactions.slice(0, 5).map((t: Transaction) => ({
+    this.recentTransactions = sortedTransactions.slice(0, 5).map((t: Transaction) => ({
       id: t.id,
-      date: new Date(t.createdDate || new Date()),
+      date: this.parseCreatedDate(t.createdDate),
       description: `Transaction #${t.id}`,
       amount: t.quantity,
       category: t.category.name,
       categoryColor: t.category.color,
     }))
 
-    // Calculate category summaries for expenses
-    if (totalExpenses > 0) {
-      this.categories = categories
-        .map((category) => {
-          const categoryExpenses = this.calculateCategoryExpenses(category)
-          const percentage = totalExpenses > 0 ? (categoryExpenses / totalExpenses) * 100 : 0
+    // Process goals
+    this.processGoals(goals)
 
-          return {
-            id: category.id,
-            name: category.name,
-            color: category.color,
-            amount: categoryExpenses,
-            percentage: Math.round(percentage),
-          }
-        })
-        .filter((c) => c.amount > 0)
-    } else {
-      // If no expenses, create empty category summaries
-      this.categories = categories.map((category) => ({
-        id: category.id,
-        name: category.name,
-        color: category.color,
-        amount: 0,
-        percentage: 0,
-      }))
-    }
+    // Process investments
+    this.processInvestments(investments)
 
-    // Calculate category summaries for income
-    if (totalIncome > 0) {
-      this.incomeCategories = categories
-        .map((category) => {
-          const categoryIncome = incomeByCategory.get(category.name) || 0
-          const percentage = totalIncome > 0 ? (categoryIncome / totalIncome) * 100 : 0
-
-          return {
-            id: category.id,
-            name: category.name,
-            color: category.color,
-            amount: categoryIncome,
-            percentage: Math.round(percentage),
-          }
-        })
-        .filter((c) => c.amount > 0)
-    } else {
-      // If no income, create empty category summaries
-      this.incomeCategories = []
-    }
-
-    // Update total income and expenses
-    this.totalIncome = totalIncome
-    this.totalExpenses = totalExpenses
+    // Process maturities
+    this.processMaturities(maturities)
   }
 
-  // Helper method to safely calculate category expenses
-  calculateCategoryExpenses(category: Category): number {
-    if (!category.transactions || category.transactions.length === 0) {
-      return 0
-    }
+  private calculateFinancialSummaryFromFiltered(transactions: Transaction[]): void {
+    // Reset totals
+    this.totalIncome = 0
+    this.totalExpenses = 0
 
-    let total = 0
-    for (const transaction of category.transactions) {
-      if (transaction.quantity < 0) {
-        total += Math.abs(transaction.quantity)
+    // Calculate from filtered transactions
+    transactions.forEach(transaction => {
+      if (transaction.quantity > 0) {
+        this.totalIncome += transaction.quantity
+      } else {
+        this.totalExpenses += Math.abs(transaction.quantity)
       }
-    }
-    return total
+    })
+
+    // Calculate total balance and savings rate
+    this.totalBalance = this.totalIncome - this.totalExpenses
+    this.savingsRate = this.totalIncome > 0 ?
+      Math.round(((this.totalIncome - this.totalExpenses) / this.totalIncome) * 100) : 0
+
+    // Update categories with filtered data
+    this.updateCategoriesFromFiltered(transactions)
+  }
+
+  private updateCategoriesFromFiltered(transactions: Transaction[]): void {
+    // Calculate expenses by category
+    const expensesByCategory = new Map<number, number>()
+    const incomeByCategory = new Map<number, number>()
+
+    transactions.forEach(transaction => {
+      const categoryId = transaction.category.id
+
+      if (transaction.quantity < 0) {
+        const current = expensesByCategory.get(categoryId) || 0
+        expensesByCategory.set(categoryId, current + Math.abs(transaction.quantity))
+      } else {
+        const current = incomeByCategory.get(categoryId) || 0
+        incomeByCategory.set(categoryId, current + transaction.quantity)
+      }
+    })
+
+    // Update expense categories
+    this.categories = this.categoriesAvailable
+      .map(category => {
+        const amount = expensesByCategory.get(category.id) || 0
+        const percentage = this.totalExpenses > 0 ? (amount / this.totalExpenses) * 100 : 0
+
+        return {
+          id: category.id,
+          name: category.name,
+          color: category.color,
+          amount: amount,
+          percentage: Math.round(percentage),
+        }
+      })
+      .filter(c => c.amount > 0)
+
+    // Update income categories
+    this.incomeCategories = this.categoriesAvailable
+      .map(category => {
+        const amount = incomeByCategory.get(category.id) || 0
+        const percentage = this.totalIncome > 0 ? (amount / this.totalIncome) * 100 : 0
+
+        return {
+          id: category.id,
+          name: category.name,
+          color: category.color,
+          amount: amount,
+          percentage: Math.round(percentage),
+        }
+      })
+      .filter(c => c.amount > 0)
+  }
+
+  private updateChartsFromFiltered(): void {
+    this.updateExpensePieChart()
+    this.updateIncomePieChart()
+  }
+
+  clearFilters(): void {
+    this.dateFrom = ''
+    this.dateTo = ''
+    this.selectedCategory = null
+    this.applyFiltersAndUpdateData()
   }
 
   processGoals(goals: Goal[]): void {
     this.goals = goals.map((goal) => {
       return {
         id: goal.id,
-        objective: goal.objective,
-        endDate: new Date(goal.endDate),
-        targetAmount: goal.quantity,
+        objective: goal.objective || `Goal #${goal.id}`,
+        endDate: this.parseCreatedDate(goal.endDate || goal.createdDate),
+        targetAmount: goal.quantity || 0,
       }
     })
   }
 
   processInvestments(investments: Investment[]): void {
-    // For simplicity, we'll use mock data for some investment details
-    // In a real app, you would get this data from the API
     this.investments = investments.map((investment) => {
-      // Mock price and change data
+      // Mock price and change data since API doesn't provide real-time data
       const price = 100 + Math.random() * 200
       const change = Math.random() * 10 - 5
       const changePercentage = (change / price) * 100
@@ -460,9 +553,9 @@ export class ProjectHomeComponent implements OnInit {
 
       return {
         id: investment.id,
-        tickerSymbol: investment.tickerSymbol,
-        name: investment.tickerSymbol + " Inc.", // Mock company name
-        quantity: investment.quantity,
+        tickerSymbol: investment.tickerSymbol || `INV${investment.id}`,
+        name: (investment.tickerSymbol || `Investment ${investment.id}`) + " Inc.",
+        quantity: investment.quantity || 0,
         price: price,
         value: value,
         change: change,
@@ -474,7 +567,6 @@ export class ProjectHomeComponent implements OnInit {
     this.investmentTotal = this.investments.reduce((sum, inv) => sum + inv.value, 0)
     this.investmentChange = this.investments.reduce((sum, inv) => sum + inv.change * inv.quantity, 0)
 
-    // Avoid division by zero
     if (this.investmentTotal - this.investmentChange !== 0) {
       this.investmentChangePercentage = (this.investmentChange / (this.investmentTotal - this.investmentChange)) * 100
     } else {
@@ -484,7 +576,7 @@ export class ProjectHomeComponent implements OnInit {
 
   processMaturities(maturities: Maturity[]): void {
     this.upcomingMaturities = maturities.map((maturity) => {
-      const endDate = new Date(maturity.endDate)
+      const endDate = this.parseCreatedDate(maturity.endDate || maturity.createdDate)
       const daysLeft = this.getDaysLeft(endDate)
 
       // Determine state based on date and maturity state
@@ -499,30 +591,13 @@ export class ProjectHomeComponent implements OnInit {
 
       return {
         id: maturity.id,
-        description: `Maturity #${maturity.id}`, // Mock description
-        amount: maturity.quantity,
+        description: `Maturity #${maturity.id}`,
+        amount: maturity.quantity || 0,
         endDate: endDate,
         daysLeft: Math.max(0, daysLeft),
         state: state,
       }
     })
-  }
-
-  calculateFinancialSummary(): void {
-    // Calculate total balance
-    this.totalBalance = this.totalIncome - this.totalExpenses
-
-    // Calculate savings rate
-    this.savingsRate =
-      this.totalIncome > 0 ? Math.round(((this.totalIncome - this.totalExpenses) / this.totalIncome) * 100) : 0
-  }
-
-  updateCharts(): void {
-    // Actualizar gráfico de distribución de gastos
-    this.updateExpensePieChart()
-
-    // Actualizar gráfico de distribución de ingresos
-    this.updateIncomePieChart()
   }
 
   updateExpensePieChart(): void {
@@ -537,7 +612,6 @@ export class ProjectHomeComponent implements OnInit {
         ],
       }
     } else {
-      // Si no hay categorías, mostrar un gráfico vacío
       this.expensePieChartData = {
         labels: ["No hay datos"],
         datasets: [
@@ -562,7 +636,6 @@ export class ProjectHomeComponent implements OnInit {
         ],
       }
     } else {
-      // Si no hay categorías de ingresos, mostrar un gráfico vacío
       this.incomePieChartData = {
         labels: ["No hay datos"],
         datasets: [
@@ -586,9 +659,7 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   formatDate(date: Date | string | any[]): string {
-    // Handle array format from API
     if (Array.isArray(date)) {
-      // Format: [year, month, day]
       return new Intl.DateTimeFormat("es-ES").format(new Date(date[0], date[1] - 1, date[2]))
     }
     return new Intl.DateTimeFormat("es-ES").format(new Date(date))

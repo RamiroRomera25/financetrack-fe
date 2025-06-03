@@ -8,6 +8,7 @@ import {provideClientHydration} from "@angular/platform-browser";
 import {provideAnimations} from "@angular/platform-browser/animations";
 import {provideCharts, withDefaultRegisterables} from "ng2-charts";
 import {authInterceptor} from "../guards/auth.interceptor";
+import {provideNativeDateAdapter} from "@angular/material/core";
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }),
@@ -16,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimations(),
     provideClientHydration(),
-    provideCharts(withDefaultRegisterables())
+    provideCharts(withDefaultRegisterables()),
+    provideNativeDateAdapter()
   ]
 };
