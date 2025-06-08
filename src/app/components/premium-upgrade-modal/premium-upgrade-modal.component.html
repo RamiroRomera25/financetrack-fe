@@ -1,0 +1,51 @@
+<div class="premium-modal">
+  <div class="modal-header">
+    <h2 mat-dialog-title>{{ data.title || 'Actualizar a Premium' }}</h2>
+    <button mat-icon-button mat-dialog-close class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="modal-content">
+    <div class="feature-restriction" *ngIf="data.feature">
+      <mat-icon class="warning-icon">lock</mat-icon>
+      <p>La función <strong>"{{ data.feature }}"</strong> está disponible solo para usuarios Premium.</p>
+    </div>
+
+    <div class="benefits-section">
+      <h3>🚀 Beneficios Premium</h3>
+      <ul class="benefits-list">
+        <li *ngFor="let benefit of getBenefits()">
+          <mat-icon class="check-icon">check_circle</mat-icon>
+          <span>{{ benefit }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="pricing-section">
+      <div class="price-card">
+        <div class="price">
+          <span class="amount">10.000</span>
+          <span class="currency">ARS</span>
+        </div>
+        <p class="price-description">Acceso completo a todas las funciones premium</p>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="modal-actions">
+    <button mat-button mat-dialog-close class="cancel-button">
+      Tal vez después
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      class="upgrade-button"
+      [disabled]="isLoading"
+      (click)="upgradeToPremium()">
+      <mat-icon *ngIf="!isLoading">workspace_premium</mat-icon>
+      <mat-icon *ngIf="isLoading" class="loading-icon">hourglass_empty</mat-icon>
+      {{ isLoading ? 'Procesando...' : 'Actualizar a Premium' }}
+    </button>
+  </mat-dialog-actions>
+</div>

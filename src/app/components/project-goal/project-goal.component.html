@@ -104,24 +104,24 @@
           </div>
 
           <!-- Search and filter controls -->
-          <div class="search-container">
+          <div class="search-filter-container">
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>Buscar meta</mat-label>
               <input matInput (keyup)="applyFilter($event)" placeholder="Buscar por objetivo...">
               <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
-          </div>
 
-          <div class="filter-actions">
-            <button mat-button [matMenuTriggerFor]="sortMenu">
-              <mat-icon>sort</mat-icon> Ordenar
+            <button mat-icon-button [matMenuTriggerFor]="sortMenu" class="sort-button" matTooltip="Ordenar">
+              <mat-icon>sort</mat-icon>
             </button>
             <mat-menu #sortMenu="matMenu">
               <button mat-menu-item (click)="sortGoals('endDate')">
-                <mat-icon>event</mat-icon> Por fecha límite
+                <mat-icon>event</mat-icon>
+                <span>Ordenar por fecha límite</span>
               </button>
               <button mat-menu-item (click)="sortGoals('quantity')">
-                <mat-icon>attach_money</mat-icon> Por cantidad
+                <mat-icon>attach_money</mat-icon>
+                <span>Ordenar por cantidad</span>
               </button>
             </mat-menu>
           </div>

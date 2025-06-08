@@ -5,6 +5,7 @@ export interface Transaction {
   category: Category
   quantity: number
   createdDate: Date
+  isActive: boolean;
 }
 
 export interface TransactionDTOPost {

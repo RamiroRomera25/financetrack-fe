@@ -22,13 +22,13 @@ import type { Investment } from "../../models/investment"
 import type { Maturity } from "../../models/maturity"
 import type { Transaction } from "../../models/transaction"
 import { finalize } from "rxjs/operators"
-import { MatFormField, MatLabel } from "@angular/material/form-field"
-import { MatDatepicker, MatDatepickerInput, MatDatepickerToggle } from "@angular/material/datepicker"
+import {MatError, MatFormField, MatLabel, MatPrefix, MatSuffix} from "@angular/material/form-field"
 import { MatOption } from "@angular/material/core"
 import { MatSelect } from "@angular/material/select"
-import { FormsModule } from "@angular/forms"
+import {FormsModule, ReactiveFormsModule} from "@angular/forms"
 import { MatInput } from "@angular/material/input"
 import { MatChipSet, MatChip } from "@angular/material/chips"
+import { MatDatepickerModule } from "@angular/material/datepicker"
 
 interface CategorySummary {
   id: number
@@ -100,6 +100,11 @@ interface MaturityDisplay {
     MatInput,
     MatChipSet,
     MatChip,
+    MatDatepickerModule,
+    MatError,
+    MatPrefix,
+    MatSuffix,
+    ReactiveFormsModule,
   ],
 })
 export class ProjectHomeComponent implements OnInit {
@@ -143,8 +148,8 @@ export class ProjectHomeComponent implements OnInit {
   upcomingMaturities: MaturityDisplay[] = []
 
   // Filter properties
-  dateFrom: string = ''
-  dateTo: string = ''
+  dateFrom: Date | null = null
+  dateTo: Date | null = null
   selectedCategory: Category | null = null
   categoriesAvailable: Category[] = []
 
@@ -270,6 +275,7 @@ export class ProjectHomeComponent implements OnInit {
   ngOnInit(): void {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
     this.loadProjectData()
+    this.clearFilters()
   }
 
   loadProjectData(): void {
@@ -314,7 +320,10 @@ export class ProjectHomeComponent implements OnInit {
     this.originalTransactions = []
     categories.forEach((category: Category) => {
       if (category.transactions && category.transactions.length > 0) {
-        category.transactions.forEach((transaction) => {
+        category.transactions.forEach((transaction: Transaction) => {
+          if (!transaction.isActive) {
+            return
+          }
           this.originalTransactions.push({
             ...transaction,
             category: {
@@ -348,7 +357,7 @@ export class ProjectHomeComponent implements OnInit {
       filteredGoals,
       filteredInvestments,
       filteredMaturities,
-      filteredReminders
+      filteredReminders,
     )
 
     // Recalculate summaries and update charts
@@ -357,7 +366,7 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   private filterTransactionsByDateAndCategory(): Transaction[] {
-    return this.originalTransactions.filter(transaction => {
+    return this.originalTransactions.filter((transaction) => {
       // Date filter
       if (!this.passesDateFilter(transaction.createdDate)) {
         return false
@@ -368,12 +377,16 @@ export class ProjectHomeComponent implements OnInit {
         return false
       }
 
+      if (!transaction.isActive) {
+        return false
+      }
+
       return true
     })
   }
 
   private filterEntitiesByDate(entities: any[]): any[] {
-    return entities.filter(entity => this.passesDateFilter(entity.createdDate))
+    return entities.filter((entity) => this.passesDateFilter(entity.createdDate) && entity.isActive)
   }
 
   private passesDateFilter(createdDate: any): boolean {
@@ -403,13 +416,19 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   private parseCreatedDate(createdDate: any): Date {
-    if (typeof createdDate === 'string') {
+    if (typeof createdDate === "string") {
       // Handle string format: "2025-05-27 00:20:09"
       return new Date(createdDate)
     } else if (Array.isArray(createdDate)) {
       // Handle array format: [2025,5,27,0,20,9,235391000]
-      return new Date(createdDate[0], createdDate[1] - 1, createdDate[2],
-        createdDate[3] || 0, createdDate[4] || 0, createdDate[5] || 0)
+      return new Date(
+        createdDate[0],
+        createdDate[1] - 1,
+        createdDate[2],
+        createdDate[3] || 0,
+        createdDate[4] || 0,
+        createdDate[5] || 0,
+      )
     }
     return new Date()
   }
@@ -419,7 +438,7 @@ export class ProjectHomeComponent implements OnInit {
     goals: Goal[],
     investments: Investment[],
     maturities: Maturity[],
-    reminders: any[]
+    reminders: any[],
   ): void {
     // Update recent transactions (last 5)
     const sortedTransactions = transactions.sort((a, b) => {
@@ -431,7 +450,7 @@ export class ProjectHomeComponent implements OnInit {
     this.recentTransactions = sortedTransactions.slice(0, 5).map((t: Transaction) => ({
       id: t.id,
       date: this.parseCreatedDate(t.createdDate),
-      description: `Transaction #${t.id}`,
+      description: `Transaccion #${t.id}`,
       amount: t.quantity,
       category: t.category.name,
       categoryColor: t.category.color,
@@ -453,7 +472,7 @@ export class ProjectHomeComponent implements OnInit {
     this.totalExpenses = 0
 
     // Calculate from filtered transactions
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       if (transaction.quantity > 0) {
         this.totalIncome += transaction.quantity
       } else {
@@ -463,8 +482,8 @@ export class ProjectHomeComponent implements OnInit {
 
     // Calculate total balance and savings rate
     this.totalBalance = this.totalIncome - this.totalExpenses
-    this.savingsRate = this.totalIncome > 0 ?
-      Math.round(((this.totalIncome - this.totalExpenses) / this.totalIncome) * 100) : 0
+    this.savingsRate =
+      this.totalIncome > 0 ? Math.round(((this.totalIncome - this.totalExpenses) / this.totalIncome) * 100) : 0
 
     // Update categories with filtered data
     this.updateCategoriesFromFiltered(transactions)
@@ -475,7 +494,7 @@ export class ProjectHomeComponent implements OnInit {
     const expensesByCategory = new Map<number, number>()
     const incomeByCategory = new Map<number, number>()
 
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       const categoryId = transaction.category.id
 
       if (transaction.quantity < 0) {
@@ -489,7 +508,7 @@ export class ProjectHomeComponent implements OnInit {
 
     // Update expense categories
     this.categories = this.categoriesAvailable
-      .map(category => {
+      .map((category) => {
         const amount = expensesByCategory.get(category.id) || 0
         const percentage = this.totalExpenses > 0 ? (amount / this.totalExpenses) * 100 : 0
 
@@ -501,11 +520,11 @@ export class ProjectHomeComponent implements OnInit {
           percentage: Math.round(percentage),
         }
       })
-      .filter(c => c.amount > 0)
+      .filter((c) => c.amount > 0)
 
     // Update income categories
     this.incomeCategories = this.categoriesAvailable
-      .map(category => {
+      .map((category) => {
         const amount = incomeByCategory.get(category.id) || 0
         const percentage = this.totalIncome > 0 ? (amount / this.totalIncome) * 100 : 0
 
@@ -517,7 +536,7 @@ export class ProjectHomeComponent implements OnInit {
           percentage: Math.round(percentage),
         }
       })
-      .filter(c => c.amount > 0)
+      .filter((c) => c.amount > 0)
   }
 
   private updateChartsFromFiltered(): void {
@@ -526,8 +545,8 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.dateFrom = ''
-    this.dateTo = ''
+    this.dateFrom = null
+    this.dateTo = null
     this.selectedCategory = null
     this.applyFiltersAndUpdateData()
   }
@@ -591,7 +610,7 @@ export class ProjectHomeComponent implements OnInit {
 
       return {
         id: maturity.id,
-        description: `Maturity #${maturity.id}`,
+        description: `Vencimiento #${maturity.id}`,
         amount: maturity.quantity || 0,
         endDate: endDate,
         daysLeft: Math.max(0, daysLeft),

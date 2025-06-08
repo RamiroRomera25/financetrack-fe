@@ -99,10 +99,10 @@ export class ProjectInvestmentComponent implements OnInit {
     this.totalPortfolioValue = this.investments.reduce((total, investment) => total + investment.value, 0)
 
     // Calcular el cambio porcentual ponderado
-    const totalInvestment = this.totalPortfolioValue - this.investments.reduce((total, inv) => total + inv.change, 0)
-    const totalChange = this.investments.reduce((total, inv) => total + inv.change, 0)
+    const totalInvestment = this.totalPortfolioValue - this.investments.reduce((total, inv) => total + inv.changePercentage, 0)
+    const totalChange = this.investments.reduce((total, inv) => total + inv.changePercentage, 0)
 
-    this.totalChangePercentage = totalInvestment > 0 ? (totalChange / totalInvestment) * 100 : 0
+    this.totalChangePercentage = totalInvestment > 0 ? (totalChange / this.investments.length) : 0
   }
 
   onSubmit(): void {

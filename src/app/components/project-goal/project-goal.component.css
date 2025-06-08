@@ -141,19 +141,26 @@
 }
 
 /* Search and Filter */
-.search-container {
+.search-filter-container {
+  display: flex;
+  align-items: center;
   margin-bottom: 16px;
+  gap: 8px;
 }
 
 .search-field {
-  width: 100%;
+  flex: 1;
+  margin-bottom: 0;
 }
 
-.filter-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 16px;
+.sort-button {
+  color: #718096;
+  margin-top: -16px; /* Ajuste para alinear con el campo de búsqueda */
+}
+
+.sort-button:hover {
+  color: #2d3748;
+  background-color: rgba(45, 55, 72, 0.1);
 }
 
 /* Summary Cards */
@@ -359,7 +366,13 @@
 }
 
 @media (max-width: 576px) {
-  .filter-actions {
-    width: 100%;
+  .search-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sort-button {
+    align-self: flex-end;
+    margin-top: 0;
   }
 }

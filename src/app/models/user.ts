@@ -12,6 +12,7 @@ export interface UserDTO {
     email: string;
     password: string;
     isActive: boolean;
+    premium: boolean;
 }
 
 export interface LoginRequest {

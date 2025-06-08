@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>Importar Categorías</h2>
+<mat-dialog-content>
+  <p>Selecciona un proyecto del cual importar categorías:</p>
+
+  <div *ngIf="data.projects.length === 0" class="empty-state">
+    <mat-icon>info</mat-icon>
+    <p>No hay otros proyectos disponibles</p>
+  </div>
+
+  <mat-radio-group [(ngModel)]="selectedProject" class="project-list">
+    <div *ngFor="let project of data.projects" class="project-item">
+      <mat-radio-button [value]="project" class="project-radio">
+        <div class="project-info">
+          <div class="project-name">{{ project.name }}</div>
+          <div class="project-categories">{{ getCategoryCount(project) }} categorías disponibles</div>
+        </div>
+      </mat-radio-button>
+      <mat-divider></mat-divider>
+    </div>
+  </mat-radio-group>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button color="primary" [disabled]="!selectedProject" (click)="onConfirm()">
+    Importar Categorías
+  </button>
+</mat-dialog-actions>
