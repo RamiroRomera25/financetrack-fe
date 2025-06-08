@@ -15,6 +15,7 @@ import { ProjectService } from "../../services/project.service"
 import { SnackBarService } from "../../services/snack-bar.service"
 import { ModalService } from "../../services/modal.service"
 import { finalize } from "rxjs/operators"
+import {PremiumGuardService} from "../../services/premium-guard.service";
 
 @Component({
   selector: "app-project-dashboard",
@@ -47,6 +48,7 @@ export class ProjectDashboardComponent {
   private snackBarService = inject(SnackBarService)
   private modalService = inject(ModalService)
   private dialog = inject(MatDialog)
+  private premiumGuardService = inject(PremiumGuardService)
 
   projects: Project[] = []
   currentIndex = 0
@@ -123,8 +125,33 @@ export class ProjectDashboardComponent {
       this.router.navigate([`/project/home/${this.currentProject.id}`])
     }, 800)
   }
+  /*
+  onAddTransaction() {
+  this.premiumGuard.checkUsageLimit('transacciones', this.currentTransactions, 50)
+    .subscribe(canAdd => {
+      if (canAdd) {
+        this.addTransaction();
+      }
+    });
+}
+   */
 
   addNewProject(): void {
+    if (this.projects.length >= 3) {
+      this.premiumGuardService.checkUsageLimit('proyectos ilimitados', this.projects.length, 3).subscribe({
+        next: (premiumAccess) => {
+          if (premiumAccess) {
+            this.executeAddNewProject();
+          }
+          return;
+        }
+      })
+    } else {
+      this.executeAddNewProject();
+    }
+  }
+
+  executeAddNewProject() {
     const dialogRef = this.dialog.open(ProjectFormModalComponent, {
       width: "400px",
       panelClass: "custom-dialog-container",

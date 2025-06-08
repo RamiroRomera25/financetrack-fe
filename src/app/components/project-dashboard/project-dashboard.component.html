@@ -28,21 +28,27 @@
           </mat-card-content>
 
           <mat-card-actions align="end">
-            <button mat-button class="edit-button" (click)="editProject()" [disabled]="isDeleting || isNavigating">
+            <button mat-button class="action-button edit-button" (click)="editProject()" [disabled]="isDeleting || isNavigating">
               <p><mat-icon>edit</mat-icon> Editar</p>
             </button>
-            <button mat-button class="stats-button" (click)="goToProjectHome()" [disabled]="isDeleting || isNavigating">
+
+            <button mat-button class="action-button stats-button" (click)="goToProjectHome()" [disabled]="isDeleting || isNavigating">
               @if (isNavigating && loadingProjectId === currentProject.id) {
-                <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                <div class="button-spinner-container">
+                  <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                </div>
               } @else {
                 <p><mat-icon>bar_chart</mat-icon> Administrar</p>
               }
             </button>
-            <button mat-button class="delete-button" (click)="deleteProject()" [disabled]="isDeleting || isNavigating">
+
+            <button mat-button class="action-button delete-button" (click)="deleteProject()" [disabled]="isDeleting || isNavigating">
               @if (isDeleting && loadingProjectId === currentProject.id) {
-                <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                <div class="button-spinner-container">
+                  <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                </div>
               } @else {
-                <p><mat-icon>delete</mat-icon>Eliminar</p>
+                <p><mat-icon>delete</mat-icon> Eliminar</p>
               }
             </button>
           </mat-card-actions>

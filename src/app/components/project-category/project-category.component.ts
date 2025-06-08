@@ -22,6 +22,7 @@ import { finalize } from "rxjs/operators"
 import { ProjectService } from "../../services/project.service"
 import { MatDialog } from "@angular/material/dialog"
 import { ImportCategoriesModalComponent } from "./import-categories-modal/import-categories-modal.component"
+import {PremiumGuardService} from "../../services/premium-guard.service";
 
 @Component({
   selector: "app-project-category",
@@ -65,6 +66,7 @@ export class ProjectCategoryComponent implements OnInit {
   private modalService = inject(ModalService)
   private snackBarService = inject(SnackBarService)
   private dialog = inject(MatDialog)
+  private premiumGuardService = inject(PremiumGuardService)
 
   // Predefined colors for the color picker
   predefinedColors = [
@@ -132,34 +134,50 @@ export class ProjectCategoryComponent implements OnInit {
         return
       }
 
-      const newCategory: CategoryDTOPost = {
-        name: this.categoryForm.value.name,
-        color: this.categoryForm.value.color,
-        projectId: this.projectId,
-      }
-
-      this.categoryService
-        .createCategory(newCategory)
-        .pipe(
-          finalize(() => {
-            this.isSubmitting = false
-          }),
-        )
-        .subscribe({
-          next: (categorySaved) => {
-            categorySaved.transactionCount = 0
-            this.categories.unshift(categorySaved)
-            this.categoryForm.setValue({
-              name: "",
-              color: "#009688",
-            })
-            this.snackBarService.sendSuccess("Categoría creada correctamente")
-          },
-          error: (error) => {
-            this.snackBarService.sendError("Error al crear la categoría")
-          },
+      if (this.categories.length >= 10) {
+        this.premiumGuardService.checkUsageLimit('categorías ilimitadas', this.categories.length, 10).subscribe({
+          next: (premiumAccess) => {
+            this.isSubmitting = false;
+            if (premiumAccess) {
+              this.executeAddNewCategory();
+            }
+            return;
+          }
         })
+      } else {
+        this.executeAddNewCategory();
+      }
     }
+  }
+
+  executeAddNewCategory() {
+    const newCategory: CategoryDTOPost = {
+      name: this.categoryForm.value.name,
+      color: this.categoryForm.value.color,
+      projectId: this.projectId,
+    }
+
+    this.categoryService
+      .createCategory(newCategory)
+      .pipe(
+        finalize(() => {
+          this.isSubmitting = false
+        }),
+      )
+      .subscribe({
+        next: (categorySaved) => {
+          categorySaved.transactionCount = 0
+          this.categories.unshift(categorySaved)
+          this.categoryForm.setValue({
+            name: "",
+            color: "#009688",
+          })
+          this.snackBarService.sendSuccess("Categoría creada correctamente")
+        },
+        error: (error) => {
+          this.snackBarService.sendError("Error al crear la categoría")
+        },
+      })
   }
 
   cancel() {
@@ -252,6 +270,17 @@ export class ProjectCategoryComponent implements OnInit {
   }
 
   importCategories() {
+    this.premiumGuardService.checkUsageLimit('importar categorías', 1, 0).subscribe({
+      next: (premiumAccess) => {
+        if (premiumAccess) {
+          this.executeImport();
+        }
+        return;
+      }
+    })
+  }
+
+  executeImport() {
     this.projectService.getUserProjects().subscribe({
       next: (projects) => {
         // Filtramos para excluir el proyecto actual

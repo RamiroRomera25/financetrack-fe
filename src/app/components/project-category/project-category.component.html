@@ -4,53 +4,6 @@
   <p class="section-subtitle">Gestiona las categorías para clasificar tus transacciones</p>
 
   <div class="categories-layout">
-    <!-- Categories List Section -->
-    <mat-card class="categories-list-card">
-      <mat-card-header>
-        <mat-card-title>Lista de Categorías</mat-card-title>
-        <span class="category-count">{{ categories.length }} categorías</span>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="search-container">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>Buscar categoría</mat-label>
-            <input matInput placeholder="Nombre de la categoría" [(ngModel)]="searchTerm">
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
-        </div>
-
-        <!-- Loading spinner for initial data loading -->
-        <div *ngIf="isLoading" class="spinner-container">
-          <mat-spinner diameter="40"></mat-spinner>
-        </div>
-
-        <div class="categories-list" *ngIf="!isLoading">
-          <div class="category-item" *ngFor="let category of filterCategories()">
-            <div class="category-color" [style.background-color]="category.color"></div>
-            <div class="category-details">
-              <div class="category-name">{{ category.name }}</div>
-              <div class="category-transactions">{{ category.transactionCount }} transacciones</div>
-            </div>
-            <div class="category-actions">
-              <button mat-icon-button color="primary" (click)="editCategory(category)" matTooltip="Editar categoría">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button color="warn" (click)="deleteCategory(category.id)" matTooltip="Eliminar categoría"
-                      [disabled]="isDeleting && deletingCategoryId === category.id">
-                <mat-icon *ngIf="!(isDeleting && deletingCategoryId === category.id)">delete</mat-icon>
-                <mat-spinner diameter="20" *ngIf="isDeleting && deletingCategoryId === category.id"></mat-spinner>
-              </button>
-            </div>
-          </div>
-
-          <div *ngIf="filterCategories().length === 0 && !isLoading" class="empty-state">
-            <mat-icon>category</mat-icon>
-            <p>No hay categorías disponibles</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
 
     <!-- Category Form Section -->
     <mat-card class="category-form-card">
@@ -105,6 +58,54 @@
             </button>
           </div>
         </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Categories List Section -->
+    <mat-card class="categories-list-card">
+      <mat-card-header>
+        <mat-card-title>Lista de Categorías</mat-card-title>
+        <span class="category-count">{{ categories.length }} categorías</span>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="search-container">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Buscar categoría</mat-label>
+            <input matInput placeholder="Nombre de la categoría" [(ngModel)]="searchTerm">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Loading spinner for initial data loading -->
+        <div *ngIf="isLoading" class="spinner-container">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+
+        <div class="categories-list" *ngIf="!isLoading">
+          <div class="category-item" *ngFor="let category of filterCategories()">
+            <div class="category-color" [style.background-color]="category.color"></div>
+            <div class="category-details">
+              <div class="category-name">{{ category.name }}</div>
+              <div class="category-transactions">{{ category.transactionCount }} transacciones</div>
+            </div>
+            <div class="category-actions">
+              <button mat-icon-button color="primary" (click)="editCategory(category)" matTooltip="Editar categoría">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteCategory(category.id)" matTooltip="Eliminar categoría"
+                      [disabled]="isDeleting && deletingCategoryId === category.id">
+                <mat-icon *ngIf="!(isDeleting && deletingCategoryId === category.id)">delete</mat-icon>
+                <mat-spinner diameter="20" *ngIf="isDeleting && deletingCategoryId === category.id"></mat-spinner>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="filterCategories().length === 0 && !isLoading" class="empty-state">
+            <mat-icon>category</mat-icon>
+            <p>No hay categorías disponibles</p>
+          </div>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>

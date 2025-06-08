@@ -54,7 +54,7 @@
           }
 
           <div class="form-actions">
-            <button mat-button (click)="cancelEdit()" [disabled]="isSubmitting">Cancelar</button>
+            <button type="button" mat-button (click)="cancelEdit()" [disabled]="isSubmitting">Cancelar</button>
             <button mat-raised-button color="primary" type="submit" [disabled]="maturityForm.invalid || isSubmitting" class="submit-button">
               <span *ngIf="!isSubmitting">{{editMode ? 'Actualizar Vencimiento' : 'Añadir Vencimiento'}}</span>
               <mat-spinner *ngIf="isSubmitting" diameter="24" class="button-spinner"></mat-spinner>

@@ -377,12 +377,16 @@ export class ProjectHomeComponent implements OnInit {
         return false
       }
 
+      if (!transaction.isActive) {
+        return false
+      }
+
       return true
     })
   }
 
   private filterEntitiesByDate(entities: any[]): any[] {
-    return entities.filter((entity) => this.passesDateFilter(entity.createdDate))
+    return entities.filter((entity) => this.passesDateFilter(entity.createdDate) && entity.isActive)
   }
 
   private passesDateFilter(createdDate: any): boolean {
@@ -606,7 +610,7 @@ export class ProjectHomeComponent implements OnInit {
 
       return {
         id: maturity.id,
-        description: `Maturity #${maturity.id}`,
+        description: `Vencimiento #${maturity.id}`,
         amount: maturity.quantity || 0,
         endDate: endDate,
         daysLeft: Math.max(0, daysLeft),

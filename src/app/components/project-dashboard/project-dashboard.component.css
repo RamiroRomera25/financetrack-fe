@@ -242,13 +242,32 @@ mat-card-actions {
   gap: 8px;
 }
 
-/* Botones personalizados */
-.edit-button {
-  color: #1453b0 !important;
+/* Botones personalizados - CORREGIDOS */
+.action-button {
   border-radius: 20px !important;
   padding: 0 15px !important;
   transition: all 0.2s ease !important;
   border: 1px solid transparent !important;
+  height: 36px !important; /* Altura fija para todos los botones */
+  min-width: 90px !important; /* Ancho mínimo para todos los botones */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.action-button p {
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+.action-button mat-icon {
+  margin-right: 4px !important;
+}
+
+.edit-button {
+  color: #1453b0 !important;
 }
 
 .edit-button:hover:not([disabled]) {
@@ -263,11 +282,6 @@ mat-card-actions {
 
 .stats-button {
   color: #0a7c43 !important;
-  border-radius: 20px !important;
-  padding: 0 15px !important;
-  transition: all 0.2s ease !important;
-  border: 1px solid transparent !important;
-  position: relative;
 }
 
 .stats-button:hover:not([disabled]) {
@@ -282,11 +296,6 @@ mat-card-actions {
 
 .delete-button {
   color: #f56565 !important;
-  border-radius: 20px !important;
-  padding: 0 15px !important;
-  transition: all 0.2s ease !important;
-  border: 1px solid transparent !important;
-  position: relative;
 }
 
 .delete-button:hover:not([disabled]) {
@@ -297,6 +306,19 @@ mat-card-actions {
 .delete-button[disabled] {
   color: rgba(245, 101, 101, 0.5) !important;
   border: 1px solid transparent !important;
+}
+
+/* Contenedor para el spinner para mantener el tamaño consistente */
+.button-spinner-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 24px !important;
+  width: 100% !important;
+}
+
+.button-spinner {
+  margin: 0 !important;
 }
 
 /* Loading container */
@@ -314,11 +336,6 @@ mat-card-actions {
   color: #4a5568;
   font-size: 1.1rem;
   font-weight: 500;
-}
-
-/* Button spinner */
-.button-spinner {
-  margin: 0 auto;
 }
 
 /* Responsive design */
@@ -341,6 +358,11 @@ mat-card-actions {
   .nav-button {
     transform: scale(0.8);
   }
+
+  .action-button {
+    min-width: 80px !important;
+    padding: 0 10px !important;
+  }
 }
 
 @media (max-width: 400px) {
@@ -351,6 +373,16 @@ mat-card-actions {
 
   .project-visual {
     height: 140px;
+  }
+
+  mat-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-button {
+    width: 100% !important;
+    margin-bottom: 8px !important;
   }
 }
 

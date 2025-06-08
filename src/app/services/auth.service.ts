@@ -14,6 +14,10 @@ export class AuthService {
     host: string = `${enviroment.auth}`
     isLogged: boolean = false;
 
+    getCurrentUser() {
+      return this.http.get<UserDTO>(`${enviroment.users}/current`)
+    }
+
     register(post: UserDTOPost): Observable<UserDTO> {
         return this.http.post<UserDTO>(
             `${this.host}/register`,
