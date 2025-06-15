@@ -130,30 +130,83 @@
     <mat-card class="transactions-list-card">
       <mat-card-header>
         <mat-card-title>Historial de Transacciones</mat-card-title>
-        <div class="filter-actions">
-          <button mat-button color="primary" (click)="clearFilters()" *ngIf="filterType !== 'all' || filterCategory !== null">
-            <mat-icon>filter_alt_off</mat-icon> Limpiar filtros
-          </button>
-        </div>
       </mat-card-header>
 
       <mat-card-content>
         <!-- Filter Options -->
         <div class="filter-options">
-          <div class="filter-group">
-            <label class="filter-label">Categoría:</label>
-            <mat-form-field appearance="outline" class="category-filter">
-              <mat-label>Filtrar por categoría</mat-label>
-              <mat-select [(ngModel)]="filterCategory">
-                <mat-option [value]="null">Todas</mat-option>
-                <mat-option *ngFor="let category of categories" [value]="category.id">
-                  <div class="category-option">
-                    <div class="category-color" [style.background-color]="category.color"></div>
-                    <span>{{ category.name }}</span>
-                  </div>
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+          <div class="filter-header">
+            <h3 class="filter-title">Filtros de búsqueda</h3>
+            <button
+              mat-button
+              class="clear-filters-btn"
+              (click)="clearFilters()"
+              *ngIf="filterType !== 'all' || filterCategory !== null || filterDateFrom || filterDateTo || filterAmountFrom !== null || filterAmountTo !== null">
+              <mat-icon>filter_alt_off</mat-icon> Limpiar filtros
+            </button>
+          </div>
+
+          <div class="filters-grid">
+            <!-- Categoría - Fila completa -->
+            <div class="filter-group full-width">
+              <label class="filter-label">Categoría</label>
+              <mat-form-field appearance="outline">
+                <mat-label>Seleccionar categoría</mat-label>
+                <mat-select [(ngModel)]="filterCategory">
+                  <mat-option [value]="null">Todas las categorías</mat-option>
+                  <mat-option *ngFor="let category of categories" [value]="category.id">
+                    <div class="category-option">
+                      <div class="category-color" [style.background-color]="category.color"></div>
+                      <span>{{ category.name }}</span>
+                    </div>
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <!-- Fechas - Desde y Hasta en la misma línea -->
+            <div class="filter-group-row">
+              <div class="filter-group half-width">
+                <label class="filter-label">Fecha desde</label>
+                <mat-form-field appearance="outline">
+                  <mat-label>Fecha inicial</mat-label>
+                  <input matInput [matDatepicker]="dateFromPicker" [(ngModel)]="filterDateFromDate" [max]="maxDateObj">
+                  <mat-datepicker-toggle matIconSuffix [for]="dateFromPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #dateFromPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+
+              <div class="filter-group half-width">
+                <label class="filter-label">Fecha hasta</label>
+                <mat-form-field appearance="outline">
+                  <mat-label>Fecha final</mat-label>
+                  <input matInput [matDatepicker]="dateToPicker" [(ngModel)]="filterDateToDate" [max]="maxDateObj" [min]="filterDateFromDate">
+                  <mat-datepicker-toggle matIconSuffix [for]="dateToPicker"></mat-datepicker-toggle>
+                  <mat-datepicker #dateToPicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Importes - Desde y Hasta en la misma línea -->
+            <div class="filter-group-row">
+              <div class="filter-group half-width">
+                <label class="filter-label">Importe mínimo</label>
+                <mat-form-field appearance="outline">
+                  <mat-label>Cantidad mínima</mat-label>
+                  <input matInput type="number" [(ngModel)]="filterAmountFrom" placeholder="0.00" min="0">
+                  <span matTextPrefix>$&nbsp;</span>
+                </mat-form-field>
+              </div>
+
+              <div class="filter-group half-width">
+                <label class="filter-label">Importe máximo</label>
+                <mat-form-field appearance="outline">
+                  <mat-label>Cantidad máxima</mat-label>
+                  <input matInput type="number" [(ngModel)]="filterAmountTo" placeholder="0.00" [min]="filterAmountFrom || 0">
+                  <span matTextPrefix>$&nbsp;</span>
+                </mat-form-field>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -164,12 +217,6 @@
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef>Fecha</th>
               <td mat-cell *matCellDef="let transaction">{{ formatDate(transaction.createdDate) }}</td>
-            </ng-container>
-
-            <!-- Description Column -->
-            <ng-container matColumnDef="description">
-              <th mat-header-cell *matHeaderCellDef>Descripción</th>
-              <td mat-cell *matCellDef="let transaction">{{ transaction.description }}</td>
             </ng-container>
 
             <!-- Category Column -->

@@ -7,17 +7,19 @@
 
   <div class="project-carousel" *ngIf="!isLoadingProjects">
     @if (projects.length > 0) {
-      <!-- Botón de navegación izquierdo -->
-      <button mat-fab class="nav-button prev-button" (click)="previousProject()" [disabled]="isDeleting || isNavigating">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
+      @if (currentIndex != 0) {
+        <!-- Botón de navegación izquierdo -->
+        <button mat-fab class="nav-button prev-button" (click)="previousProject()"
+                [disabled]="isDeleting || isNavigating">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+      }
 
       <!-- Tarjeta del proyecto actual -->
       <div class="project-card-container" @cardAnimation>
         <mat-card class="project-card">
           <mat-card-header>
             <mat-card-title>{{ currentProject.name }}</mat-card-title>
-            <mat-card-subtitle>Proyecto #{{ currentProject.id }}</mat-card-subtitle>
           </mat-card-header>
 
           <mat-card-content class="project-content">
@@ -55,10 +57,12 @@
         </mat-card>
       </div>
 
-      <!-- Botón de navegación derecho -->
-      <button mat-fab class="nav-button next-button" (click)="nextProject()" [disabled]="isDeleting || isNavigating">
-        <mat-icon>chevron_right</mat-icon>
-      </button>
+      @if (currentIndex != projects.length - 1) {
+        <!-- Botón de navegación derecho -->
+        <button mat-fab class="nav-button next-button" (click)="nextProject()" [disabled]="isDeleting || isNavigating">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      }
     } @else {
       <!-- Empty state message -->
       <div class="empty-state-container" @cardAnimation>

@@ -7,7 +7,7 @@
 
   <!-- Navegación central -->
   <div class="nav-links">
-<!--    La clase active le proporciona el focus verde -->
+    <!--    La clase active le proporciona el focus verde -->
     <a class="nav-item" [ngClass]="{'active': isActive('/')}" (click)="goToHome()">
       <mat-icon>home</mat-icon>
       <span>Principal</span>
@@ -20,17 +20,25 @@
 
   <!-- Acciones a la derecha -->
   <div class="actions">
-      @if (authService.logged) {
-        <button mat-raised-button color="accent" class="login-btn" (click)="logout()">
+    <!-- Botón de información de la pantalla actual -->
+    <button
+      mat-icon-button
+      class="info-btn"
+      (click)="openRouteInfo()">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+
+    @if (authService.logged) {
+      <button mat-raised-button color="accent" class="login-btn" (click)="logout()">
         <mat-icon>logout</mat-icon>
         <span>Cerrar Sesión</span>
-        </button>
-      } @else {
-        <button mat-raised-button color="accent" class="login-btn" (click)="goToLogin()">
-          <mat-icon>login</mat-icon>
+      </button>
+    } @else {
+      <button mat-raised-button color="accent" class="login-btn" (click)="goToLogin()">
+        <mat-icon>login</mat-icon>
         <span>Iniciar Sesión</span>
-        </button>
-      }
+      </button>
+    }
   </div>
 </mat-toolbar>
 

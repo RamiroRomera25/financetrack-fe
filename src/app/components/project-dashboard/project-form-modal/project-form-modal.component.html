@@ -15,6 +15,9 @@
         @if (projectForm.get('name')?.hasError('required') && projectForm.get('name')?.touched) {
           <mat-error>El nombre del proyecto es obligatorio</mat-error>
         }
+        @else if (projectForm.get('name')?.hasError('projectNameExists') && projectForm.get('name')?.touched) {
+          <mat-error>El nombre del proyecto ya existe</mat-error>
+        }
       </mat-form-field>
 
       <div class="form-actions">

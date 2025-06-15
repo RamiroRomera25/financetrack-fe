@@ -30,14 +30,25 @@ export interface ConfirmationDialogData {
       </div>
 
       <div class="dialog-actions">
-        <button mat-button class="cancel-button" (click)="onCancel()">
-          {{data.cancelText || 'Cancelar'}}
-        </button>
-        <button mat-raised-button
-                [ngClass]="'confirm-button-' + data.type"
-                (click)="onConfirm()">
-          {{data.confirmText || 'Confirmar'}}
-        </button>
+        @if (data.type !== 'error') {
+            <button mat-button class="cancel-button" (click)="onCancel()">
+              {{data.cancelText || 'Cancelar'}}
+            </button>
+            <button mat-raised-button
+                    [ngClass]="'confirm-button-' + data.type"
+                    (click)="onConfirm()">
+              {{data.confirmText || 'Confirmar'}}
+            </button>
+        } @else {
+          <button mat-raised-button
+                  [ngClass]="'confirm-button-' + data.type"
+                  (click)="onConfirm()">
+            {{data.confirmText || 'Confirmar'}}
+          </button>
+          <button mat-button class="cancel-button" (click)="onCancel()">
+            {{data.cancelText || 'Cancelar'}}
+          </button>
+        }
       </div>
     </div>
   `,

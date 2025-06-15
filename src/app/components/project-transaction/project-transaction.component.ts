@@ -17,7 +17,7 @@ import { MatRadioModule } from "@angular/material/radio"
 import { MatTooltipModule } from "@angular/material/tooltip"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import { MatSnackBarModule } from "@angular/material/snack-bar"
-import { FormBuilder, type FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms"
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms"
 import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 import { ActivatedRoute } from "@angular/router"
 import { TransactionService } from "../../services/transaction.service"
@@ -61,7 +61,7 @@ export class ProjectTransactionComponent implements OnInit {
   transactionForm: FormGroup
   transactions: Transaction[] = []
   categories: Category[] = []
-  displayedColumns: string[] = ["date", "description", "category", "quantity", "actions"]
+  displayedColumns: string[] = ["date", "category", "quantity", "actions"]
   projectId = 0
   typeTransaction = false
 
@@ -78,6 +78,14 @@ export class ProjectTransactionComponent implements OnInit {
   // Filter options
   filterType: "all" | "income" | "expense" = "all"
   filterCategory: number | null = null
+  filterDateFrom = ""
+  filterDateTo = ""
+  filterDateFromDate: Date | null = null
+  filterDateToDate: Date | null = null
+  filterAmountFrom: number | null = null
+  filterAmountTo: number | null = null
+  maxDate: string = new Date().toISOString().split("T")[0]
+  maxDateObj: Date = new Date()
 
   private route = inject(ActivatedRoute)
   private transactionService = inject(TransactionService)
@@ -88,7 +96,7 @@ export class ProjectTransactionComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     this.transactionForm = this.fb.group({
       quantity: [null, [Validators.required, Validators.min(1)]],
-      categoryId: [null, Validators.required],
+      categoryId: [null, Validators.required]
     })
   }
 
@@ -158,11 +166,9 @@ export class ProjectTransactionComponent implements OnInit {
           .subscribe({
             next: (updatedTransaction) => {
               const index = this.transactions.findIndex((t) => t.id === this.currentTransactionId)
-              if (index !== -1) {
-                this.transactions[index] = updatedTransaction
-              }
               this.snackBarService.sendSuccess("Transacción actualizada correctamente")
               this.resetForm()
+              this.loadTransactions()
             },
             error: (error) => {
               this.snackBarService.sendError("Error al actualizar la transacción")
@@ -191,6 +197,7 @@ export class ProjectTransactionComponent implements OnInit {
             },
             error: (error) => {
               this.snackBarService.sendError("Error al crear la transacción")
+              this.resetForm()
             },
           })
       }
@@ -200,11 +207,12 @@ export class ProjectTransactionComponent implements OnInit {
   resetForm(): void {
     this.transactionForm.reset({
       quantity: null,
-      categoryId: null,
+      categoryId: null
     })
     this.editMode = false
     this.currentTransactionId = null
     this.typeTransaction = false
+    this.markFormGroupUntouched(this.transactionForm)
   }
 
   deleteTransaction(id: number): void {
@@ -254,9 +262,40 @@ export class ProjectTransactionComponent implements OnInit {
   }
 
   getFilteredTransactions(): Transaction[] {
+    this.transactions.sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime());
     return this.transactions.filter((transaction) => {
       // Filter by category
       if (this.filterCategory !== null && transaction.category.id !== this.filterCategory) {
+        return false
+      }
+
+      // Filter by date range using Date objects
+      if (this.filterDateFromDate) {
+        const transactionDate = new Date(transaction.createdDate)
+        transactionDate.setHours(0, 0, 0, 0)
+        const filterDate = new Date(this.filterDateFromDate)
+        filterDate.setHours(0, 0, 0, 0)
+        if (transactionDate < filterDate) {
+          return false
+        }
+      }
+
+      if (this.filterDateToDate) {
+        const transactionDate = new Date(transaction.createdDate)
+        transactionDate.setHours(23, 59, 59, 999)
+        const filterDate = new Date(this.filterDateToDate)
+        filterDate.setHours(23, 59, 59, 999)
+        if (transactionDate > filterDate) {
+          return false
+        }
+      }
+
+      // Filter by amount range
+      if (this.filterAmountFrom !== null && Math.abs(transaction.quantity) < this.filterAmountFrom) {
+        return false
+      }
+
+      if (this.filterAmountTo !== null && Math.abs(transaction.quantity) > this.filterAmountTo) {
         return false
       }
 
@@ -267,12 +306,28 @@ export class ProjectTransactionComponent implements OnInit {
   clearFilters(): void {
     this.filterType = "all"
     this.filterCategory = null
+    this.filterDateFrom = ""
+    this.filterDateTo = ""
+    this.filterDateFromDate = null
+    this.filterDateToDate = null
+    this.filterAmountFrom = null
+    this.filterAmountTo = null
   }
 
   getTotalBalance(): number {
     return this.transactions.reduce((total, transaction) => {
       return total + transaction.quantity
     }, 0)
+  }
+
+  markFormGroupUntouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach((control) => {
+      control.markAsUntouched()
+
+      if ((control as any).controls) {
+        this.markFormGroupUntouched(control as FormGroup)
+      }
+    })
   }
 
   getTotalIncome(): number {

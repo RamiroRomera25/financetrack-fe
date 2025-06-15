@@ -42,7 +42,7 @@ export class RegisterComponent {
     firstName: new FormControl("", [Validators.required]),
     lastName: new FormControl("", [Validators.required]),
     email: new FormControl("", [Validators.required, Validators.email], [uniqueEmailValidator(this.authService)]),
-    password: new FormControl("", [Validators.required]),
+    password: new FormControl("", [Validators.required, Validators.minLength(8)]),
     confirmPassword: new FormControl("", [Validators.required, passwordConfirmValidator]),
     termsAccepted: new FormControl("", [Validators.required]),
   })

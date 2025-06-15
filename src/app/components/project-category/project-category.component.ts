@@ -187,6 +187,19 @@ export class ProjectCategoryComponent implements OnInit {
       name: "",
       color: "#4CAF50",
     })
+    this.markFormGroupUntouched(this.categoryForm)
+  }
+
+  markFormGroupUntouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach((control) => {
+      control.markAsUntouched()
+
+      if ((control as any).controls) {
+        this.markFormGroupUntouched(control as FormGroup)
+      }
+
+      control.setErrors(null)
+    })
   }
 
   editCategory(category: Category): void {
@@ -227,7 +240,7 @@ export class ProjectCategoryComponent implements OnInit {
 
   deleteCategory(categoryId: number): void {
     this.currentCategoryId = categoryId
-    this.modalService.confirmDelete("categoria").subscribe((confirmed) => {
+    this.modalService.confirmDelete("categoría").subscribe((confirmed) => {
       if (confirmed) {
         this.performDelete()
       } else {

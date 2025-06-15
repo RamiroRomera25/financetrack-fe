@@ -68,6 +68,10 @@
           <mat-error>
             La contraseña es obligatoria
           </mat-error>
+        } @else if (registerForm.get('password')?.hasError('minLength') && registerForm.get('password')?.touched) {
+          <mat-error>
+            La contraseña debe tener al menos 8 caracteres
+          </mat-error>
         }
       </mat-form-field>
 

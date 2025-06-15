@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core"
+import {Component, inject, Inject} from "@angular/core"
 import { CommonModule } from "@angular/common"
 import { FormBuilder, type FormGroup, ReactiveFormsModule, Validators } from "@angular/forms"
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog"
@@ -8,6 +8,8 @@ import { MatFormFieldModule } from "@angular/material/form-field"
 import { MatInputModule } from "@angular/material/input"
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner"
 import type { Project } from "../../../models/project"
+import {uniqueProjectName} from "../../../validators/async/unique-project-name.validator";
+import {ProjectService} from "../../../services/project.service";
 
 @Component({
   selector: "app-project-form-modal",
@@ -37,7 +39,7 @@ export class ProjectFormModalComponent {
     this.isEditMode = !!data?.project;
 
     this.projectForm = this.fb.group({
-      name: [data?.project?.name || "", Validators.required],
+      name: [data?.project?.name || "", Validators.required, uniqueProjectName(inject(ProjectService))],
     });
 
     if (this.isEditMode && data.project) {

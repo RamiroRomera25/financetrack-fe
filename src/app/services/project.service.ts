@@ -1,6 +1,6 @@
 // project.service.ts
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Project} from "../models/project";
 import {enviroment} from "../.env/enviroment";
@@ -31,5 +31,10 @@ export class ProjectService {
 
   deleteProject(id: number): Observable<void> {
     return this.http.delete<void>(`${this.host}/${id}`);
+  }
+
+  exists(projectName: string) {
+    let params = new HttpParams().set("projectName", projectName)
+    return this.http.get<boolean>(`${this.host}`, {params})
   }
 }

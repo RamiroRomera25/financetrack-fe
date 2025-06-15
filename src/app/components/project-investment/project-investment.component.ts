@@ -165,6 +165,7 @@ export class ProjectInvestmentComponent implements OnInit {
   editInvestment(investment: Investment): void {
     this.editMode = true
     this.currentInvestmentId = investment.id
+    this.investmentForm.controls["tickerSymbol"].disable();
     this.investmentForm.setValue({
       tickerSymbol: investment.tickerSymbol,
       quantity: investment.quantity,
@@ -209,12 +210,26 @@ export class ProjectInvestmentComponent implements OnInit {
   }
 
   resetForm(): void {
+    this.investmentForm.controls["tickerSymbol"].enable();
+    this.markFormGroupUntouched(this.investmentForm)
     this.investmentForm.reset({
       tickerSymbol: "",
       quantity: 0,
     })
     this.editMode = false
     this.currentInvestmentId = null
+  }
+
+  markFormGroupUntouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach((control) => {
+      control.markAsUntouched()
+
+      if ((control as any).controls) {
+        this.markFormGroupUntouched(control as FormGroup)
+      }
+
+      control.setErrors(null)
+    })
   }
 
   applyFilter(event: Event): void {
