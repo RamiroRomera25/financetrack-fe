@@ -65,7 +65,7 @@ import { MatChipsModule } from "@angular/material/chips"
   styles: [
     `
     .route-info-modal {
-      max-width: 500px;
+      max-width: 550px;
       width: 100%;
     }
 
@@ -116,7 +116,7 @@ import { MatChipsModule } from "@angular/material/chips"
 
     .modal-content {
       padding: 24px;
-      max-height: 400px;
+      max-height: 490px;
       overflow-y: auto;
     }
 

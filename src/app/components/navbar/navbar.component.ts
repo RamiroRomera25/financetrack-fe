@@ -83,18 +83,17 @@ export class NavbarComponent {
         "Usa colores que te ayuden a identificar rápidamente",
       ],
     },
-    "/project-goals": {
+    "/project/goal": {
       title: "Metas Financieras",
       description: "Define y sigue el progreso de tus objetivos económicos",
       features: [
         "Establecer metas de ahorro",
         "Seguimiento de progreso",
-        "Alertas de cumplimiento",
         "Análisis de viabilidad",
       ],
       tips: ["Establece metas realistas y alcanzables", "Revisa tu progreso regularmente"],
     },
-    "/project-investments": {
+    "/project/investment": {
       title: "Portafolio de Inversiones",
       description: "Gestiona y monitorea tus inversiones",
       features: [
@@ -105,18 +104,15 @@ export class NavbarComponent {
       ],
       tips: ["Diversifica tus inversiones", "Mantén un registro detallado de cada inversión"],
     },
-    "/project-maturity": {
-      title: "Análisis de Madurez",
-      description: "Evalúa el progreso y madurez de tu proyecto financiero",
+    "/project/maturity": {
+      title: "Gestión de Vencimientos",
+      description: "Evalúa el progreso y vencimientos de tu proyecto financiero",
       features: [
-        "Métricas de madurez financiera",
-        "Análisis de tendencias",
-        "Recomendaciones de mejora",
-        "Comparativas temporales",
+        "Métricas de vencimientos financiera",
       ],
-      tips: ["Usa este análisis para tomar decisiones informadas", "Revisa la madurez de tu proyecto mensualmente"],
+      tips: ["Usa este análisis para tomar decisiones informadas", "Revisa el vencimiento de tu proyecto mensualmente"],
     },
-    "/project-reminders": {
+    "/project/reminder": {
       title: "Recordatorios Financieros",
       description: "Configura alertas para no olvidar tus compromisos financieros",
       features: [
