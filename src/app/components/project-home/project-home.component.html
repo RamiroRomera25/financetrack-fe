@@ -22,7 +22,7 @@
         <div class="filter-row">
           <mat-form-field appearance="outline">
             <mat-label>Fecha desde</mat-label>
-            <input matInput [matDatepicker]="reminderDatePicker" [(ngModel)]="dateFrom" (dateChange)="applyFilter()">
+            <input matInput [max]="maxDate" [matDatepicker]="reminderDatePicker" [(ngModel)]="dateFrom" (dateChange)="applyFilter()">
             <mat-datepicker-toggle matIconSuffix [for]="reminderDatePicker"></mat-datepicker-toggle>
             <mat-datepicker #reminderDatePicker></mat-datepicker>
             <mat-icon matPrefix>event</mat-icon>
@@ -30,7 +30,7 @@
 
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Fecha Hasta</mat-label>
-            <input matInput [matDatepicker]="toDatePicker" [(ngModel)]="dateTo" (dateChange)="applyFilter()">
+            <input matInput [max]="maxDate" [matDatepicker]="toDatePicker" [(ngModel)]="dateTo" (dateChange)="applyFilter()">
             <mat-datepicker-toggle matIconSuffix [for]="toDatePicker"></mat-datepicker-toggle>
             <mat-datepicker #toDatePicker></mat-datepicker>
             <mat-icon matPrefix>event</mat-icon>

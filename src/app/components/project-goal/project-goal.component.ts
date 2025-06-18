@@ -70,12 +70,13 @@ export class ProjectGoalComponent implements OnInit {
   constructor(private fb: FormBuilder) {
     this.goalForm = this.fb.group({
       objective: ["", Validators.required],
-      quantity: [1000, [Validators.required, Validators.min(1)]],
-      endDate: [new Date(new Date().setMonth(new Date().getMonth() + 6)), Validators.required],
+      quantity: [null, [Validators.required, Validators.min(1)]],
+      endDate: [null, Validators.required],
       notes: [""],
     })
   }
 
+  maxDate: Date = new Date()
   ngOnInit(): void {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
     this.loadGoals()
@@ -92,11 +93,8 @@ export class ProjectGoalComponent implements OnInit {
       )
       .subscribe({
         next: (data) => {
-          // Add progress calculation since it might not be in the API response
-          this.goals = data.map((goal) => ({
-            ...goal,
-            // progress: goal.quantity > 0 ? Math.min(Math.round((goal.currentAmount / goal.quantity) * 100), 100) : 0,
-          }))
+
+          this.goals = data.filter(d => this.getTimeRemainingIcon(d.endDate) != "error");
           this.filteredGoals = [...this.goals]
           this.calculateSummary()
         },
@@ -150,13 +148,6 @@ export class ProjectGoalComponent implements OnInit {
             next: (updatedGoal) => {
               const index = this.goals.findIndex((goal) => goal.id === this.currentGoalId)
               if (index !== -1) {
-                // TODO: Pushear Value form
-                // this.goals[index] = {
-                //   ...updatedGoal,
-                //   progress: progress,
-                //   notes: formValue.notes,
-                //   currentAmount: formValue.currentAmount,
-                // }
                 this.snackBarService.sendSuccess("Meta actualizada correctamente")
               }
               this.loadGoals() // Reload goals to ensure data consistency
@@ -247,8 +238,8 @@ export class ProjectGoalComponent implements OnInit {
   resetForm(): void {
     this.goalForm.reset({
       objective: "",
-      quantity: 1000,
-      endDate: new Date(new Date().setMonth(new Date().getMonth() + 6)),
+      quantity: null,
+      endDate: null ,
       currentAmount: 0,
       notes: "",
     })
@@ -263,8 +254,10 @@ export class ProjectGoalComponent implements OnInit {
 
   sortGoals(criteria: string): void {
     this.filteredGoals = [...this.goals].sort((a, b) => {
-      if (criteria === "endDate") {
+      if (criteria === "endDate-asc") {
         return new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
+      } else if (criteria === "endDate-desc") {
+        return new Date(b.endDate).getTime() - new Date(a.endDate).getTime()
       } else if (criteria === "quantity") {
         return b.quantity - a.quantity
       }

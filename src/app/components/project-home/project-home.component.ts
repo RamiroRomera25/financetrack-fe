@@ -150,6 +150,7 @@ export class ProjectHomeComponent implements OnInit {
   // Filter properties
   dateFrom: Date | null = null
   dateTo: Date | null = null
+  maxDate: Date = new Date();
   selectedCategory: Category | null = null
   categoriesAvailable: Category[] = []
 
@@ -276,6 +277,9 @@ export class ProjectHomeComponent implements OnInit {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
     this.loadProjectData()
     this.clearFilters()
+    const today = new Date();
+    this.dateFrom = new Date(today.getFullYear(), today.getMonth(), 1);
+    this.dateTo = today;
   }
 
   loadProjectData(): void {
@@ -314,6 +318,7 @@ export class ProjectHomeComponent implements OnInit {
 
     // Apply filters and update data (initially no filters)
     this.applyFiltersAndUpdateData()
+
   }
 
   private extractOriginalTransactions(categories: Category[]): void {
@@ -363,6 +368,12 @@ export class ProjectHomeComponent implements OnInit {
     // Recalculate summaries and update charts
     this.calculateFinancialSummaryFromFiltered(filteredTransactions)
     this.updateChartsFromFiltered()
+
+    this.categories.sort((a, b) => {
+      const mountA = a.amount
+      const mountB = b.amount
+      return mountB - mountA
+    })
   }
 
   private filterTransactionsByDateAndCategory(): Transaction[] {
@@ -545,8 +556,8 @@ export class ProjectHomeComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.dateFrom = null
-    this.dateTo = null
+    this.dateFrom = null;
+    this.dateTo = null;
     this.selectedCategory = null
     this.applyFiltersAndUpdateData()
   }

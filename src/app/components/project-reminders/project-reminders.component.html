@@ -29,7 +29,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Fecha del recordatorio</mat-label>
-            <input matInput [matDatepicker]="reminderDatePicker" formControlName="reminderDate" required [disabled]="isSubmitting">
+            <input matInput [min]="minDate" [matDatepicker]="reminderDatePicker" formControlName="reminderDate" required [disabled]="isSubmitting">
             <mat-datepicker-toggle matIconSuffix [for]="reminderDatePicker" [disabled]="isSubmitting"></mat-datepicker-toggle>
             <mat-datepicker #reminderDatePicker></mat-datepicker>
             <mat-icon matPrefix>event</mat-icon>
@@ -93,13 +93,13 @@
               <mat-icon>sort</mat-icon>
             </button>
             <mat-menu #sortMenu="matMenu">
-              <button mat-menu-item (click)="sortReminders('date')">
+              <button mat-menu-item (click)="sortReminders('date-asc')">
                 <mat-icon>event</mat-icon>
-                <span>Ordenar por fecha</span>
+                <span>Ordenar por fecha ascendente</span>
               </button>
-              <button mat-menu-item (click)="sortReminders('priority')">
-                <mat-icon>priority_high</mat-icon>
-                <span>Ordenar por prioridad</span>
+              <button mat-menu-item (click)="sortReminders('date-desc')">
+                <mat-icon>event</mat-icon>
+                <span>Ordenar por fecha descente</span>
               </button>
             </mat-menu>
           </div>

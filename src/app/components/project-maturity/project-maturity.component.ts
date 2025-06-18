@@ -100,6 +100,8 @@ export class ProjectMaturityComponent implements OnInit {
         next: (data) => {
           this.maturityItems = data
           this.filteredMaturityItems = [...this.maturityItems]
+          this.sortMaturityItems("endDate")
+          this.filterByState("ON_WAIT")
           this.calculateSummary()
         },
         error: (error) => {
@@ -191,7 +193,7 @@ export class ProjectMaturityComponent implements OnInit {
       state: item.state,
     })
   }
-
+  maxDate: Date = new Date();
   deleteMaturity(id: number): void {
     this.modalService.confirmDelete("vencimiento").subscribe((confirmed) => {
       if (confirmed) {
@@ -243,6 +245,7 @@ export class ProjectMaturityComponent implements OnInit {
   applyFilter(event: Event): void {
     this.searchTerm = (event.target as HTMLInputElement).value.toLowerCase()
     this.filteredMaturityItems = this.maturityItems.filter((item) => item.id.toString().includes(this.searchTerm))
+    this.filteredMaturityItems.sort((a, b) => a.endDate.getTime() - b.endDate.getTime() )
   }
 
   filterByState(state: string): void {
@@ -255,14 +258,11 @@ export class ProjectMaturityComponent implements OnInit {
 
   sortMaturityItems(criteria: string): void {
     this.filteredMaturityItems = [...this.maturityItems].sort((a, b) => {
-      if (criteria === "endDate") {
-        return new Date(a.endDate).getTime() - new Date(b.endDate).getTime()
-      } else if (criteria === "quantity") {
+      if (criteria === "quantity") {
         return b.quantity - a.quantity
-      } else if (criteria === "state") {
-        return a.state.localeCompare(b.state)
+      } else {
+        return new Date(b.endDate).getTime() - new Date(a.endDate).getTime()
       }
-      return 0
     })
   }
 

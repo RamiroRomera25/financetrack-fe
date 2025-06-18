@@ -104,6 +104,9 @@ export class ProjectTransactionComponent implements OnInit {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
     this.loadCategories()
     this.loadTransactions()
+    const today = new Date();
+    this.filterDateFromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+    this.filterDateToDate = today;
   }
 
   loadCategories(): void {

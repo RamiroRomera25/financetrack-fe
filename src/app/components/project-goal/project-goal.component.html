@@ -35,7 +35,7 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Fecha límite</mat-label>
-            <input matInput [matDatepicker]="endDatePicker" formControlName="endDate" required [disabled]="isSubmitting">
+            <input matInput [min]="maxDate" [matDatepicker]="endDatePicker" formControlName="endDate" required [disabled]="isSubmitting">
             <mat-datepicker-toggle matIconSuffix [for]="endDatePicker" [disabled]="isSubmitting"></mat-datepicker-toggle>
             <mat-datepicker #endDatePicker></mat-datepicker>
             <mat-icon matPrefix>event</mat-icon>
@@ -115,9 +115,13 @@
               <mat-icon>sort</mat-icon>
             </button>
             <mat-menu #sortMenu="matMenu">
-              <button mat-menu-item (click)="sortGoals('endDate')">
+              <button mat-menu-item (click)="sortGoals('endDate-asc')">
                 <mat-icon>event</mat-icon>
-                <span>Ordenar por fecha límite</span>
+                <span>Ordenar por fecha límite ascendente</span>
+              </button>
+              <button mat-menu-item (click)="sortGoals('endDate-desc')">
+                <mat-icon>event</mat-icon>
+                <span>Ordenar por fecha límite descendente</span>
               </button>
               <button mat-menu-item (click)="sortGoals('quantity')">
                 <mat-icon>attach_money</mat-icon>
@@ -151,7 +155,7 @@
                 <div class="goal-details">
                   <div class="detail-item">
                     <span class="detail-label">Objetivo</span>
-                    <span class="detail-value">${{goal.quantity | number:'1.0-0'}}</span>
+                    <span class="detail-value">{{goal.quantity | number:'1.0-0'}} ARS</span>
                   </div>
                   <div class="detail-item">
                     <span class="detail-label">Fecha Límite</span>

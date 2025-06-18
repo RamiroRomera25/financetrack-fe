@@ -96,6 +96,7 @@ export class ProjectRemindersComponent implements OnInit {
         next: (data) => {
           this.reminders = data
           this.filteredReminders = [...this.reminders]
+          this.filterReminders("upcoming")
           this.calculateSummary()
         },
         error: (error) => {
@@ -274,12 +275,17 @@ export class ProjectRemindersComponent implements OnInit {
         return reminderDate < today
       })
     }
+    this.sortReminders(this.dateCriteria);
   }
-
+  minDate: Date = new Date()
+  dateCriteria: string = "date-asc"
   sortReminders(criteria: string): void {
-    this.filteredReminders = [...this.reminders].sort((a, b) => {
-      if (criteria === "date") {
+    this.dateCriteria = criteria
+    this.filteredReminders.sort((a, b) => {
+      if (criteria === "date-asc") {
         return new Date(a.reminderDate).getTime() - new Date(b.reminderDate).getTime()
+      } else if (criteria === "date-desc") {
+        return new Date(b.reminderDate).getTime() - new Date(a.reminderDate).getTime()
       }
       return 0
     })
