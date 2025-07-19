@@ -11,9 +11,9 @@
         <mat-card-title>{{ editForm ? 'Editar Categoría' : 'Nueva Categoría' }}</mat-card-title>
       </mat-card-header>
 
-      <mat-card-content>
+      <mat-card-content data-intro="category-form">
         <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="category-form">
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" data-intro="category-name">
             <mat-label>Nombre de la categoría</mat-label>
             <input matInput formControlName="name" placeholder="Ej: Alimentación">
             <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
@@ -24,7 +24,7 @@
             </mat-error>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
+          <mat-form-field appearance="outline" data-intro="category-color">
             <mat-label>Color</mat-label>
             <mat-select formControlName="color">
               <mat-select-trigger>
@@ -46,7 +46,7 @@
           </div>
 
           <div class="form-actions">
-            <button mat-button (click)="importCategories()">Importar Categorias</button>
+            <button mat-button (click)="importCategories()" data-intro="category-import">Importar Categorias</button>
             <button mat-button (click)="cancel()" [disabled]="isSubmitting">Cancelar</button>
             <button
               mat-raised-button
@@ -62,14 +62,14 @@
     </mat-card>
 
     <!-- Categories List Section -->
-    <mat-card class="categories-list-card">
+    <mat-card class="categories-list-card" data-intro="category-list">
       <mat-card-header>
         <mat-card-title>Lista de Categorías</mat-card-title>
         <span class="category-count">{{ categories.length }} categorías</span>
       </mat-card-header>
 
       <mat-card-content>
-        <div class="search-container">
+        <div class="search-container" data-intro="category-search">
           <mat-form-field appearance="outline" class="search-field">
             <mat-label>Buscar categoría</mat-label>
             <input matInput placeholder="Nombre de la categoría" [(ngModel)]="searchTerm">

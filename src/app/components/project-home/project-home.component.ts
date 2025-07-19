@@ -29,6 +29,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms"
 import { MatInput } from "@angular/material/input"
 import { MatChipSet, MatChip } from "@angular/material/chips"
 import { MatDatepickerModule } from "@angular/material/datepicker"
+import {TutorialService} from "../../services/tutorial.service";
 
 interface CategorySummary {
   id: number
@@ -272,14 +273,21 @@ export class ProjectHomeComponent implements OnInit {
   private route = inject(ActivatedRoute)
   private projectService = inject(ProjectService)
   private snackBarService = inject(SnackBarService)
+  private tutorialService = inject(TutorialService)
 
   ngOnInit(): void {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
     this.loadProjectData()
     this.clearFilters()
     const today = new Date();
-    this.dateFrom = new Date(today.getFullYear(), today.getMonth(), 1);
+    this.dateFrom = new Date(today.getFullYear(), 2, 1);
     this.dateTo = today;
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.tutorialService.startHomeTutorial();
+    }, 1000)
   }
 
   loadProjectData(): void {

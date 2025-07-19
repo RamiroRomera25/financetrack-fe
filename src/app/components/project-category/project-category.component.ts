@@ -23,6 +23,7 @@ import { ProjectService } from "../../services/project.service"
 import { MatDialog } from "@angular/material/dialog"
 import { ImportCategoriesModalComponent } from "./import-categories-modal/import-categories-modal.component"
 import {PremiumGuardService} from "../../services/premium-guard.service";
+import {TutorialService} from "../../services/tutorial.service";
 
 @Component({
   selector: "app-project-category",
@@ -94,6 +95,7 @@ export class ProjectCategoryComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private activatedRoute: ActivatedRoute,
+    private tutorialService: TutorialService
   ) {
     this.categoryForm = this.fb.group({
       name: ["", [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -104,6 +106,10 @@ export class ProjectCategoryComponent implements OnInit {
   ngOnInit(): void {
     this.projectId = Number(this.activatedRoute.snapshot.paramMap.get("p"))
     this.loadCategories()
+  }
+
+  ngAfterViewInit() {
+    this.tutorialService.startTutorial("category")
   }
 
   loadCategories(): void {

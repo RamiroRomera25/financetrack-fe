@@ -17,6 +17,7 @@ import { ModalService } from "../../services/modal.service"
 import type { Investment, InvestmentDTOPost, InvestmentDTOPut } from "../../models/investment"
 import { ProjectSidebarComponent } from "../project-sidebar/project-sidebar.component"
 import { finalize } from "rxjs/operators"
+import {TutorialService} from "../../services/tutorial.service";
 
 @Component({
   selector: "app-investments",
@@ -60,6 +61,7 @@ export class ProjectInvestmentComponent implements OnInit {
   private snackBarService = inject(SnackBarService)
   private modalService = inject(ModalService)
   private route = inject(ActivatedRoute)
+  private tutorialService = inject(TutorialService)
 
   constructor(private fb: FormBuilder) {
     this.investmentForm = this.fb.group({
@@ -71,6 +73,10 @@ export class ProjectInvestmentComponent implements OnInit {
   ngOnInit(): void {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
     this.loadInvestments()
+  }
+
+  ngAfterViewInit() {
+    this.tutorialService.startTutorial("investment")
   }
 
   loadInvestments(): void {

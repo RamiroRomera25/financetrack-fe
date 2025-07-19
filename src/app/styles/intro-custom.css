@@ -1,0 +1,267 @@
+/* Estilos personalizados para Intro.js */
+
+/* Contenedor principal del tooltip */
+.introjs-tooltip {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  color: white !important;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif !important;
+  max-width: 400px !important;
+  min-width: 320px !important;
+  padding: 0 !important;
+  position: relative !important;
+}
+
+/* Flecha del tooltip */
+.introjs-arrow {
+  border: none !important;
+}
+
+.introjs-arrow.top {
+  border-bottom-color: #667eea !important;
+}
+
+.introjs-arrow.bottom {
+  border-top-color: #667eea !important;
+}
+
+.introjs-arrow.left {
+  border-right-color: #667eea !important;
+}
+
+.introjs-arrow.right {
+  border-left-color: #667eea !important;
+}
+
+/* Header del tooltip */
+.introjs-tooltip-header {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 16px 16px 0 0 !important;
+  padding: 20px 24px 16px !important;
+  position: relative !important;
+}
+
+.introjs-tooltip-title {
+  color: white !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+/* Contenido del tooltip */
+.introjs-tooltiptext {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  padding: 20px 24px !important;
+  text-align: center !important;
+}
+
+/* Contenedor de botones */
+.introjs-tooltipbuttons {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 0 0 16px 16px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 16px 20px !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+/* Botones */
+.introjs-button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  padding: 8px 16px !important;
+  transition: all 0.3s ease !important;
+  flex: 0 0 auto !important;
+  min-width: 80px !important;
+  max-width: 120px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Botón saltar - más pequeño */
+.introjs-skipbutton {
+  background: rgba(161, 0, 0, 0.4) !important;
+  border: 5px solid rgba(161, 0, 0, 0.4) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 18px !important;
+  padding: 0 6px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  border-radius: 16px !important;
+  margin: 5px;
+  transition: 0.5s;
+}
+
+.introjs-skipbutton:hover {
+  background: rgba(161, 0, 0, 0.8) !important;
+  border: 5px solid rgba(161, 0, 0, 0.8) !important;
+  transition: 0.5s;
+}
+
+/* Botón siguiente (principal) */
+.introjs-nextbutton {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #667eea !important;
+  min-width: 90px !important;
+  max-width: 160px !important;
+}
+
+.introjs-nextbutton:hover {
+  background: white !important;
+  color: #5a67d8 !important;
+}
+
+/* Botón anterior */
+.introjs-prevbutton {
+  min-width: 80px !important;
+  max-width: 100px !important;
+  box-shadow: none !important;
+}
+
+/* Indicador de progreso */
+.introjs-progress {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 10px !important;
+  height: 6px !important;
+  margin: 16px 24px 0 !important;
+  overflow: hidden !important;
+}
+
+.introjs-progressbar {
+  background: linear-gradient(135deg, #0a7c43, #1453b0) !important;
+  border-radius: 10px !important;
+  height: 100% !important;
+  transition: width 0.3s ease !important;
+}
+
+/* Bullets de progreso */
+.introjs-bullets {
+  margin: 16px 0 0 !important;
+  text-align: center !important;
+}
+
+.introjs-bullets ul {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.introjs-bullets ul li {
+  display: inline-block !important;
+  margin: 0 4px !important;
+}
+
+.introjs-bullets ul li a {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 50% !important;
+  display: block !important;
+  height: 8px !important;
+  transition: all 0.3s ease !important;
+  width: 8px !important;
+}
+
+.introjs-bullets ul li a.active {
+  background: white !important;
+  transform: scale(1.2) !important;
+}
+
+/* Overlay */
+.introjs-overlay {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+/* Elemento resaltado */
+.introjs-helperLayer {
+  border-radius: 8px !important;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.3), 0 0 0 9999px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Animaciones */
+@keyframes introjs-fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.introjs-tooltip {
+  animation: introjs-fadeIn 0.3s ease-out !important;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .introjs-tooltip {
+    max-width: 90vw !important;
+    min-width: 280px !important;
+  }
+
+  .introjs-tooltip-title {
+    font-size: 18px !important;
+  }
+
+  .introjs-tooltiptext {
+    font-size: 14px !important;
+    padding: 16px 20px !important;
+  }
+
+  .introjs-tooltipbuttons {
+    padding: 12px 16px !important;
+    gap: 6px !important;
+  }
+
+  .introjs-button {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+    min-width: 70px !important;
+    max-width: 90px !important;
+  }
+
+  .introjs-skipbutton {
+    font-size: 11px !important;
+    padding: 5px 10px !important;
+    min-width: 50px !important;
+    max-width: 70px !important;
+  }
+
+  .introjs-nextbutton {
+    min-width: 80px !important;
+    max-width: 90px !important;
+  }
+}
+
+/* Tema oscuro alternativo */
+.introjs-tooltip.dark-theme {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+}
+
+.introjs-tooltip.dark-theme .introjs-nextbutton {
+  background: #4299e1 !important;
+  color: white !important;
+}
+
+.introjs-tooltip.dark-theme .introjs-nextbutton:hover {
+  background: #3182ce !important;
+}

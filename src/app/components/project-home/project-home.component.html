@@ -10,11 +10,11 @@
   </div>
 
   <!-- Content Container (hidden while loading) -->
-  <div *ngIf="!isLoading">
+  <div *ngIf="!isLoading" >
 
     <!-- Filtros -->
     <!-- Sección de Filtros -->
-    <mat-card class="filter-card mb-4">
+    <mat-card class="filter-card mb-4" data-intro="home-filters" >
       <mat-card-header>
         <mat-card-title>Filtros</mat-card-title>
       </mat-card-header>
@@ -71,7 +71,7 @@
     </mat-card>
 
     <!-- Financial Overview Cards -->
-    <div class="cards-grid">
+    <div class="cards-grid" data-intro="home-summary-cards">
       <mat-card class="overview-card">
         <div class="card-content">
           <div class="card-info">
@@ -122,7 +122,7 @@
     </div>
 
     <!-- Charts Section -->
-    <div class="charts-section">
+    <div class="charts-section" data-intro="home-charts">
       <h2 class="section-subtitle">Visualización de Datos Financieros</h2>
 
       <div class="charts-grid">
@@ -162,7 +162,7 @@
 
     <!-- Transactions and Categories -->
     <div class="two-column-grid">
-      <mat-card class="data-card">
+      <mat-card class="data-card" data-intro="home-recent-transactions">
         <mat-card-header>
           <mat-card-title>Transacciones Recientes</mat-card-title>
         </mat-card-header>
@@ -235,7 +235,7 @@
 
     <!-- Goals and Investments -->
     <div class="two-column-grid">
-      <mat-card class="data-card">
+      <mat-card class="data-card" data-intro="home-goals">
         <mat-card-header>
           <mat-card-title>Metas Financieras</mat-card-title>
         </mat-card-header>
@@ -258,7 +258,7 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="data-card">
+      <mat-card class="data-card" data-intro="home-investments">
         <mat-card-header>
           <mat-card-title>Inversiones</mat-card-title>
           <div class="investment-summary">
@@ -295,7 +295,7 @@
     </div>
 
     <!-- Upcoming Maturities -->
-    <mat-card class="data-card full-width">
+    <mat-card class="data-card full-width" data-intro="home-maturities">
       <mat-card-header>
         <mat-card-title>Próximos Vencimientos</mat-card-title>
       </mat-card-header>

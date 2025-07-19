@@ -13,6 +13,7 @@ export interface UserDTO {
     password: string;
     isActive: boolean;
     premium: boolean;
+    firstLogin: boolean;
 }
 
 export interface LoginRequest {

@@ -64,7 +64,7 @@
           <p class="loading-text">Cargando categorías...</p>
         </div>
 
-        <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form" *ngIf="!isLoadingCategories">
+        <form data-intro="transaction-form" [formGroup]="transactionForm" (ngSubmit)="onSubmit()" class="transaction-form" *ngIf="!isLoadingCategories">
           <!-- Transaction Type -->
           <div class="transaction-type-selector">
             <mat-radio-group aria-label="Tipo de transacción" [value]="typeTransaction">

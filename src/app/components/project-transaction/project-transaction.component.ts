@@ -27,6 +27,7 @@ import { ModalService } from "../../services/modal.service"
 import type { Transaction, TransactionDTOPost, TransactionDTOPut } from "../../models/transaction"
 import type { Category } from "../../models/category"
 import { finalize } from "rxjs/operators"
+import {TutorialService} from "../../services/tutorial.service";
 
 @Component({
   selector: "app-project-transaction",
@@ -92,6 +93,7 @@ export class ProjectTransactionComponent implements OnInit {
   private categoryService = inject(CategoryService)
   private snackBarService = inject(SnackBarService)
   private modalService = inject(ModalService)
+  private tutorialService = inject(TutorialService)
 
   constructor(private fb: FormBuilder) {
     this.transactionForm = this.fb.group({
@@ -108,6 +110,10 @@ export class ProjectTransactionComponent implements OnInit {
     this.filterDateFromDate = new Date(today.getFullYear(), today.getMonth(), 1);
     this.filterDateToDate = today;
   }
+
+  // ngAfterViewInit() {
+  //   this.tutorialService.startTransactionTutorial();
+  // }
 
   loadCategories(): void {
     this.isLoadingCategories = true

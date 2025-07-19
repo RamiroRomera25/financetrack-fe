@@ -1,9 +1,9 @@
-<div class="sidebar-overlay"
+<div class="sidebar-overlay" data-intro="sidebar"
      [class.active]="sidebarService.expanded && sidebarService.mobile"
      (click)="toggleSidebar()">
 </div>
 
-<div class="sidebar-container" [class.sidebar-expanded]="sidebarService.isExpanded">
+<div class="sidebar-container" [class.sidebar-expanded]="sidebarService.isExpanded" data-intro="sidebar">
   <div class="sidebar-header">
     <div class="logo-container">
       <h2 *ngIf="sidebarService.expanded">FinanceTrack</h2>

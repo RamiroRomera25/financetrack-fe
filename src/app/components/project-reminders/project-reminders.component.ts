@@ -20,6 +20,7 @@ import { SnackBarService } from "../../services/snack-bar.service"
 import { ModalService } from "../../services/modal.service"
 import type { Reminder, ReminderDTOPost, ReminderDTOPut } from "../../models/reminder"
 import { finalize } from "rxjs/operators"
+import {TutorialService} from "../../services/tutorial.service";
 
 @Component({
   selector: "app-project-reminders",

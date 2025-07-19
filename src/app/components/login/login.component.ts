@@ -60,11 +60,10 @@ export class LoginComponent {
         .subscribe({
           next: (data: any) => {
             this.authService.setToken(data.accessToken)
-            this.router.navigate(["/"])
+            this.router.navigate(["/projects"])
           },
           error: (error: any) => {
-            console.error("Error: " + error)
-            if (error.status === 401) {
+            if (error.error.message.includes("Bad credentials")) {
               this.snackBarService.sendError("Credenciales incorrectas. Por favor, verifique su email y contraseña.")
             } else {
               this.snackBarService.sendError("Error al iniciar sesión. Por favor, inténtelo de nuevo más tarde.")

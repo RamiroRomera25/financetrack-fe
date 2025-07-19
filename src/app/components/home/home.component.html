@@ -1,10 +1,10 @@
 <!-- Hero Section -->
-<section class="hero-section">
+<section class="hero-section" data-intro="hero-section">
   <div class="container">
     <div class="hero-content">
       <h1>Bienvenido a FinanceTrack</h1>
       <p>Tu solución completa para la gestión financiera personal</p>
-      <div class="hero-cta">
+      <div class="hero-cta" data-intro="cta-buttons">
         <a routerLink="/register" mat-raised-button class="cta-button primary-button">
           <mat-icon>person_add</mat-icon>
           Crear Cuenta
@@ -24,13 +24,14 @@
 </section>
 
 <!-- Features Section -->
-<section class="features-section">
+<section class="features-section" data-intro="features-section">
   <div class="container">
     <h2 class="section-title">¿Por qué elegir FinanceTrack?</h2>
     <p class="section-subtitle">Descubre cómo podemos ayudarte a gestionar tus finanzas de manera eficiente</p>
 
     <div class="features-grid">
-      <div class="feature-card" *ngFor="let feature of features">
+      <div class="feature-card" *ngFor="let feature of features; let i = index"
+           [attr.data-intro]="getFeatureDataIntro(i)">
         <div class="feature-icon-container" [ngClass]="feature.iconClass">
           <mat-icon class="feature-icon">{{feature.icon}}</mat-icon>
         </div>
@@ -43,7 +44,7 @@
 </section>
 
 <!-- How It Works Section -->
-<section class="how-it-works-section">
+<section class="how-it-works-section" data-intro="how-it-works">
   <div class="container">
     <h2 class="section-title">Cómo Funciona</h2>
     <p class="section-subtitle">Comienza a gestionar tus finanzas en simples pasos</p>
@@ -61,7 +62,7 @@
 </section>
 
 <!-- Plans Section -->
-<section class="plans-section">
+<section class="plans-section" data-intro="plans-section">
   <div class="container">
     <h2 class="section-title">Nuestros Planes</h2>
     <p class="section-subtitle">Elige el plan que mejor se adapte a tus necesidades</p>
@@ -80,11 +81,11 @@
             </li>
           </ul>
         </mat-card-content>
-<!--        <mat-card-actions>-->
-<!--          <button mat-raised-button [ngClass]="plan.highlighted ? 'primary-plan-button' : 'secondary-plan-button'" class="plan-button">-->
-<!--            {{plan.cta}}-->
-<!--          </button>-->
-<!--        </mat-card-actions>-->
+        <!--        <mat-card-actions>-->
+        <!--          <button mat-raised-button [ngClass]="plan.highlighted ? 'primary-plan-button' : 'secondary-plan-button'" class="plan-button">-->
+        <!--            {{plan.cta}}-->
+        <!--          </button>-->
+        <!--        </mat-card-actions>-->
       </mat-card>
     </div>
   </div>
@@ -107,7 +108,7 @@
 </section>
 
 <!-- Footer Section -->
-<footer class="footer-section">
+<footer class="footer-section" data-intro="footer-section">
   <div class="container">
     <div class="footer-content">
       <div class="footer-column">

@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core"
+import { Component, inject, type AfterViewInit } from "@angular/core"
 import { animate, style, transition, trigger } from "@angular/animations"
 import { CommonModule } from "@angular/common"
 import { MatCardModule } from "@angular/material/card"
@@ -14,8 +14,10 @@ import { ProjectFormModalComponent } from "./project-form-modal/project-form-mod
 import { ProjectService } from "../../services/project.service"
 import { SnackBarService } from "../../services/snack-bar.service"
 import { ModalService } from "../../services/modal.service"
+import { TutorialService } from "../../services/tutorial.service"
+import { AuthService } from "../../services/auth.service"
 import { finalize } from "rxjs/operators"
-import {PremiumGuardService} from "../../services/premium-guard.service";
+import { PremiumGuardService } from "../../services/premium-guard.service"
 
 @Component({
   selector: "app-project-dashboard",
@@ -42,13 +44,15 @@ import {PremiumGuardService} from "../../services/premium-guard.service";
     ]),
   ],
 })
-export class ProjectDashboardComponent {
+export class ProjectDashboardComponent implements AfterViewInit {
   private router = inject(Router)
   private projectService = inject(ProjectService)
   private snackBarService = inject(SnackBarService)
   private modalService = inject(ModalService)
   private dialog = inject(MatDialog)
   private premiumGuardService = inject(PremiumGuardService)
+  private tutorialService = inject(TutorialService)
+  private authService = inject(AuthService)
 
   projects: Project[] = []
   currentIndex = 0
@@ -67,6 +71,23 @@ export class ProjectDashboardComponent {
 
   ngOnInit() {
     this.loadProjects()
+  }
+
+  ngAfterViewInit() {
+    // Verificar si debe mostrar el tutorial después de que la vista se haya inicializado
+    setTimeout(() => {
+      this.checkAndStartTutorial()
+    }, 1000) // Esperar un poco para que todo se cargue
+  }
+
+  private checkAndStartTutorial() {
+    // Obtener información del usuario desde el servicio de auth
+    const user = this.authService.getCurrentUser().subscribe((user) => {
+      // Solo mostrar tutorial si NO es el primer login y no se ha completado antes
+      // if (user && !user.firstLogin && this.tutorialService.shouldShowDashboardTutorial()) {
+        this.tutorialService.startDashboardTutorial()
+      // }
+    })
   }
 
   loadProjects() {
@@ -125,29 +146,19 @@ export class ProjectDashboardComponent {
       this.router.navigate([`/project/home/${this.currentProject.id}`])
     }, 800)
   }
-  /*
-  onAddTransaction() {
-  this.premiumGuard.checkUsageLimit('transacciones', this.currentTransactions, 50)
-    .subscribe(canAdd => {
-      if (canAdd) {
-        this.addTransaction();
-      }
-    });
-}
-   */
 
   addNewProject(): void {
     if (this.projects.length >= 3) {
-      this.premiumGuardService.checkUsageLimit('proyectos ilimitados', this.projects.length, 3).subscribe({
+      this.premiumGuardService.checkUsageLimit("proyectos ilimitados", this.projects.length, 3).subscribe({
         next: (premiumAccess) => {
           if (premiumAccess) {
-            this.executeAddNewProject();
+            this.executeAddNewProject()
           }
-          return;
-        }
+          return
+        },
       })
     } else {
-      this.executeAddNewProject();
+      this.executeAddNewProject()
     }
   }
 

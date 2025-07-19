@@ -1,4 +1,4 @@
-<div class="project-dashboard-container">
+<div class="project-dashboard-container" data-intro="dashboard-main">
   <!-- Loading spinner for initial data loading -->
   <div class="loading-container" *ngIf="isLoadingProjects">
     <mat-spinner diameter="50"></mat-spinner>
@@ -10,13 +10,13 @@
       @if (currentIndex != 0) {
         <!-- Botón de navegación izquierdo -->
         <button mat-fab class="nav-button prev-button" (click)="previousProject()"
-                [disabled]="isDeleting || isNavigating">
+                [disabled]="isDeleting || isNavigating" data-intro="nav-previous">
           <mat-icon>chevron_left</mat-icon>
         </button>
       }
 
       <!-- Tarjeta del proyecto actual -->
-      <div class="project-card-container" @cardAnimation>
+      <div class="project-card-container" @cardAnimation data-intro="project-card">
         <mat-card class="project-card">
           <mat-card-header>
             <mat-card-title>{{ currentProject.name }}</mat-card-title>
@@ -30,11 +30,13 @@
           </mat-card-content>
 
           <mat-card-actions align="end">
-            <button mat-button class="action-button edit-button" (click)="editProject()" [disabled]="isDeleting || isNavigating">
+            <button mat-button class="action-button edit-button" (click)="editProject()"
+                    [disabled]="isDeleting || isNavigating" data-intro="edit-project">
               <p><mat-icon>edit</mat-icon> Editar</p>
             </button>
 
-            <button mat-button class="action-button stats-button" (click)="goToProjectHome()" [disabled]="isDeleting || isNavigating">
+            <button mat-button class="action-button stats-button" (click)="goToProjectHome()"
+                    [disabled]="isDeleting || isNavigating" data-intro="manage-project">
               @if (isNavigating && loadingProjectId === currentProject.id) {
                 <div class="button-spinner-container">
                   <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
@@ -44,7 +46,8 @@
               }
             </button>
 
-            <button mat-button class="action-button delete-button" (click)="deleteProject()" [disabled]="isDeleting || isNavigating">
+            <button mat-button class="action-button delete-button" (click)="deleteProject()"
+                    [disabled]="isDeleting || isNavigating" data-intro="delete-project">
               @if (isDeleting && loadingProjectId === currentProject.id) {
                 <div class="button-spinner-container">
                   <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
@@ -59,13 +62,14 @@
 
       @if (currentIndex != projects.length - 1) {
         <!-- Botón de navegación derecho -->
-        <button mat-fab class="nav-button next-button" (click)="nextProject()" [disabled]="isDeleting || isNavigating">
+        <button mat-fab class="nav-button next-button" (click)="nextProject()"
+                [disabled]="isDeleting || isNavigating" data-intro="nav-next">
           <mat-icon>chevron_right</mat-icon>
         </button>
       }
     } @else {
       <!-- Empty state message -->
-      <div class="empty-state-container" @cardAnimation>
+      <div class="empty-state-container" @cardAnimation data-intro="empty-state">
         <mat-card class="empty-state-card">
           <mat-icon class="empty-state-icon">folder_open</mat-icon>
           <h2 class="empty-state-title">No hay proyectos disponibles</h2>
@@ -76,7 +80,7 @@
   </div>
 
   <!-- Indicadores de proyecto (modificados para ser más elegantes) -->
-  <div class="project-indicators" *ngIf="!isLoadingProjects && projects.length > 0">
+  <div class="project-indicators" *ngIf="!isLoadingProjects && projects.length > 0" data-intro="project-indicators">
     @for (project of projects; track project.id; let i = $index) {
       <div
         class="indicator"
@@ -87,7 +91,8 @@
   </div>
 
   <!-- Botón para agregar nuevo proyecto -->
-  <button mat-fab class="add-project-button" (click)="addNewProject()" [disabled]="isLoadingProjects || isDeleting || isNavigating">
+  <button mat-fab class="add-project-button" (click)="addNewProject()"
+          [disabled]="isLoadingProjects || isDeleting || isNavigating" data-intro="add-project">
     <mat-icon>add</mat-icon>
   </button>
 </div>
