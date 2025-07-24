@@ -20,9 +20,9 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     // Iniciar tutorial después de que la vista se haya cargado
     setTimeout(() => {
-      // if (this.tutorialService.shouldShowTutorial("landing")) {
+      if (this.tutorialService.shouldShowTutorial("landing")) {
         this.tutorialService.startLandingTutorial()
-      // }
+      }
     }, 1000)
   }
 

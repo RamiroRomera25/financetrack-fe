@@ -76,7 +76,9 @@ export class ProjectInvestmentComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.tutorialService.startTutorial("investment")
+    if (this.tutorialService.shouldShowTutorial("investment")) {
+      this.tutorialService.startTutorial("investment")
+    }
   }
 
   loadInvestments(): void {

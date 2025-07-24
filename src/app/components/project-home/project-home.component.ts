@@ -280,13 +280,15 @@ export class ProjectHomeComponent implements OnInit {
     this.loadProjectData()
     this.clearFilters()
     const today = new Date();
-    this.dateFrom = new Date(today.getFullYear(), 2, 1);
+    this.dateFrom = new Date(today.getFullYear(), today.getMonth(), 1);
     this.dateTo = today;
   }
 
   ngAfterViewInit() {
     setTimeout(() => {
-      this.tutorialService.startHomeTutorial();
+      if (this.tutorialService.shouldShowTutorial("home")) {
+        this.tutorialService.startTutorial("home");
+      }
     }, 1000)
   }
 

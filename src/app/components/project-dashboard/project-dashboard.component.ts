@@ -84,9 +84,9 @@ export class ProjectDashboardComponent implements AfterViewInit {
     // Obtener información del usuario desde el servicio de auth
     const user = this.authService.getCurrentUser().subscribe((user) => {
       // Solo mostrar tutorial si NO es el primer login y no se ha completado antes
-      // if (user && !user.firstLogin && this.tutorialService.shouldShowDashboardTutorial()) {
+      if (user && !user.firstLogin && this.tutorialService.shouldShowDashboardTutorial()) {
         this.tutorialService.startDashboardTutorial()
-      // }
+      }
     })
   }
 

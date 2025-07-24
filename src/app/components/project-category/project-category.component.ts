@@ -109,7 +109,9 @@ export class ProjectCategoryComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.tutorialService.startTutorial("category")
+    if (this.tutorialService.shouldShowTutorial("category")) {
+      this.tutorialService.startTutorial("category")
+    }
   }
 
   loadCategories(): void {
