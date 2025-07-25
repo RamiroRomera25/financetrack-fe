@@ -73,6 +73,13 @@ export class ProjectInvestmentComponent implements OnInit {
   ngOnInit(): void {
     this.projectId = Number(this.route.snapshot.paramMap.get("p"))
     this.loadInvestments()
+
+    this.investmentForm.get('tickerSymbol')?.valueChanges.subscribe(value => {
+      const upper = value?.toUpperCase() ?? '';
+      if (value !== upper) {
+        this.investmentForm.get('tickerSymbol')?.setValue(upper, { emitEvent: false });
+      }
+    });
   }
 
   ngAfterViewInit() {
@@ -163,7 +170,12 @@ export class ProjectInvestmentComponent implements OnInit {
               this.resetForm()
             },
             error: (error) => {
-              this.snackBarService.sendError("Error al añadir la inversión")
+              if (error.error.message.includes('The ticker symbol sended do not exist')) {
+                this.snackBarService.sendError("El ticket de la inversión ingresada no existe")
+              }
+              else {
+                this.snackBarService.sendError("Error al añadir la inversión")
+              }
             },
           })
       }

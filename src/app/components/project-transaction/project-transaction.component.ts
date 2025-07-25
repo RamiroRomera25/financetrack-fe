@@ -61,6 +61,7 @@ import {TutorialService} from "../../services/tutorial.service";
 export class ProjectTransactionComponent implements OnInit {
   transactionForm: FormGroup
   transactions: Transaction[] = []
+  transactionFilter: Transaction[] = []
   categories: Category[] = []
   displayedColumns: string[] = ["date", "category", "quantity", "actions"]
   projectId = 0
@@ -146,6 +147,7 @@ export class ProjectTransactionComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.transactions = data
+          this.transactionFilter = data
         },
         error: (error) => {
           this.snackBarService.sendError("Error al cargar las transacciones")
@@ -272,7 +274,7 @@ export class ProjectTransactionComponent implements OnInit {
 
   getFilteredTransactions(): Transaction[] {
     this.transactions.sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime());
-    return this.transactions.filter((transaction) => {
+    let filtered = this.transactions.filter((transaction) => {
       // Filter by category
       if (this.filterCategory !== null && transaction.category.id !== this.filterCategory) {
         return false
@@ -310,6 +312,11 @@ export class ProjectTransactionComponent implements OnInit {
 
       return true
     })
+    this.transactionFilter = filtered;
+    this.getTotalIncome();
+    this.getTotalExpenses();
+    this.getTotalBalance();
+    return filtered;
   }
 
   clearFilters(): void {
@@ -324,7 +331,7 @@ export class ProjectTransactionComponent implements OnInit {
   }
 
   getTotalBalance(): number {
-    return this.transactions.reduce((total, transaction) => {
+    return this.transactionFilter.reduce((total, transaction) => {
       return total + transaction.quantity
     }, 0)
   }
@@ -340,13 +347,13 @@ export class ProjectTransactionComponent implements OnInit {
   }
 
   getTotalIncome(): number {
-    return this.transactions
+    return this.transactionFilter
       .filter((t) => t.quantity >= 0)
       .reduce((total, transaction) => total + transaction.quantity, 0)
   }
 
   getTotalExpenses(): number {
-    return this.transactions
+    return this.transactionFilter
       .filter((t) => t.quantity < 0)
       .reduce((total, transaction) => total + transaction.quantity, 0)
   }

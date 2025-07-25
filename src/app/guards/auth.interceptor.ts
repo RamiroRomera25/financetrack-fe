@@ -1,6 +1,7 @@
 import {HttpInterceptorFn} from '@angular/common/http';
 import {inject} from '@angular/core';
 import {AuthService} from "../services/auth.service";
+import {retry, timer} from "rxjs";
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -17,5 +18,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
-  return next(req);
+  return next(req).pipe(
+    retry({
+      count: 5,
+      delay: (_error, retryCount) => timer(1000)
+    })
+  );
 };
